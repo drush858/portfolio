@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="footer"
+     class="flex justify-between text-sm text-slate-600 pt-6 border-t">
+
+    <form th:action="@{/accounts}" method="get">
+        <button class="text-slate-400 hover:underline">
+            ← Back to Accounts
+        </button>
+    </form>
+
+    <form th:action="@{/logout}" method="post">
+        <button class="text-slate-400 hover:underline">
+            Logout
+        </button>
+    </form>
+
+</div>
+
+</body>
+</html>

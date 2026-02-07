@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="tradeLots" 
+     class="overflow-hidden rounded-2xl shadow border border-gray-200">
+<table class="min-w-full text-sm border border-gray-200 rounded-lg">
+     <thead class="bg-slate-400">
+         <tr>
+             <th class="px-3 py-2 text-left">Type</th>
+             <th class="px-3 py-2 text-right">Quantity</th>
+             <th class="px-3 py-2 text-right">Price</th>
+             <th class="px-3 py-2 text-left">Date</th>
+         </tr>
+	</thead>
+    <tbody class="divide-y">
+
+        <tr th:each="trade : ${trades}"
+            class="hover:bg-slate-300">
+
+            <td class="px-4 py-2 text-left quantity font-mono"
+                th:text="${trade.tradeType}"
+                th:classappend="${trade.tradeType.name() == 'BUY'} 
+					? 'text-green-800 font-semibold' 
+					: 'text-red-800 font-semibold'">
+                BUY
+            </td>
+
+            <td class="px-4 py-2 text-right quantity font-mono"
+                th:text="${trade.quantity}">10</td>
+
+            <td class="px-4 py-2 text-right quantity font-mono"
+                th:text="${#numbers.formatDecimal(trade.price, 1, 2)}">
+                150.00
+            </td>
+
+            <td class="px-4 py-2 text-left quantity font-mono"
+                th:text="${#temporals.format(trade.tradeDate, 'MM-dd-yyyy')}">
+                01-01-2025
+            </td>
+        </tr>
+
+        <!-- Empty state -->
+        <tr th:if="${#lists.isEmpty(trades)}">
+            <td colspan="5"
+                class="px-4 py-6 text-center text-gray-500 italic">
+                No trades found
+            </td>
+        </tr>
+
+    </tbody>
+</table>
+</div>
+</body>
+</html>

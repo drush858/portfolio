@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="header"
+     class="flex items-center justify-between border-b pb-4">
+
+    <h1 class="text-3xl font-bold text-gray-900">
+        Portfolio Tracker
+    </h1>
+
+    <div class="text-sm text-slate-400">
+        Logged in as
+        <span class="font-medium" sec:authentication="name"></span>
+    </div>
+	
+	<form th:action="@{/accounts}" method="get">
+	    <button class="text-slate-400 hover:underline">
+	            ← Back to Accounts
+	    </button>
+	</form>
+
+</div>
+
+</body>
+</html>

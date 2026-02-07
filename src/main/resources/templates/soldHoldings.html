@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: layout(
+          ~{::content},
+          'SoldHoldings',
+          ~{::head}
+      )}">
+
+<head>
+    <title>Sold Holdings</title>
+</head>
+
+<body>
+<div th:fragment="content" class="space-y-10">
+
+    <!-- Header -->
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">
+            Per Account / Symbol Totals
+        </h1>
+        <p class="text-gray-500 mt-1">
+            Realized gains and losses by account and symbol
+        </p>
+    </div>
+
+    <!-- Account Sections -->
+    <div th:each="account : ${accountTotals}"
+         class="space-y-4">
+
+        <!-- Account Name -->
+        <h2 class="text-xl font-semibold text-gray-800"
+            th:text="${account.accountName}">
+        </h2>
+
+        <!-- Table -->
+        <div class="overflow-hidden rounded-2xl shadow border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-400">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                            Symbol
+                        </th>
+                        <th class="px-6 py-3 text-right text-sm font-semibold text-gray-700">
+                            Proceeds
+                        </th>
+                        <th class="px-6 py-3 text-right text-sm font-semibold text-gray-700">
+                            Cost Basis
+                        </th>
+                        <th class="px-6 py-3 text-right text-sm font-semibold text-gray-700">
+                            Gain
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-100 bg-gray-300">
+                    <tr th:each="s : ${accountSymbolTotals}"
+                        th:if="${s.accountName == account.accountName}"
+                        class="hover:bg-gray-50">
+
+                        <td class="px-6 py-4 font-medium text-gray-900"
+                            th:text="${s.symbol}">
+                        </td>
+
+                        <td class="px-6 py-4 text-right text-gray-700"
+                            th:text="${#numbers.formatCurrency(s.proceeds)}">
+                        </td>
+
+                        <td class="px-6 py-4 text-right text-gray-700"
+                            th:text="${#numbers.formatCurrency(s.costBasis)}">
+                        </td>
+
+                        <td class="px-6 py-4 text-right font-medium"
+                            th:text="${#numbers.formatCurrency(s.gain)}"
+                            th:classappend="${s.gain >= 0} ? 'text-green-600' : 'text-red-600'">
+                        </td>
+                    </tr>
+                </tbody>
+
+                <!-- Totals Row -->
+                <tfoot class="bg-gray-400 font-semibold">
+                    <tr>
+                        <td class="px-6 py-4 text-gray-900">
+                            Total
+                        </td>
+                        <td class="px-6 py-4 text-right"
+                            th:text="${#numbers.formatCurrency(account.totalProceeds)}">
+                        </td>
+                        <td class="px-6 py-4 text-right"
+                            th:text="${#numbers.formatCurrency(account.totalCostBasis)}">
+                        </td>
+                        <td class="px-6 py-4 text-right"
+                            th:text="${#numbers.formatCurrency(account.totalGain)}"
+                            th:classappend="${account.totalGain >= 0} ? 'text-green-700' : 'text-red-700'">
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

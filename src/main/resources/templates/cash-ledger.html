@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: layout(
+          ~{::content},
+          'Cash-Ledger',
+          ~{::head}
+      )}">
+
+<head>
+    <title>Cash Ledger</title>
+</head>
+
+<body>
+<div th:fragment="content" class="space-y-10">
+
+	<h2 class="text-2xl font-semibold mb-4"
+	    th:text="'Cash Ledger – ' + ${account.name}">
+	</h2>
+
+	<div class="grid grid-cols-4 gap-4 mb-6 bg-gray-400 overflow-hidden rounded-2xl shadow border border-gray-200">
+	  <div class="p-4 rounded shadow">
+	    <p class="text-sm text-gray-800">Starting Balance</p>
+	    <p class="text-xl font-semibold"
+	       th:text="${summary.startingBalance}"></p>
+	  </div>
+
+	  <div class=" p-4 rounded shadow">
+	    <p class="text-sm text-gray-800">Cash In</p>
+	    <p class="text-xl text-green-700 font-semibold"
+	       th:text="${summary.totalIn}"></p>
+	  </div>
+
+	  <div class=" p-4 rounded shadow">
+	    <p class="text-sm text-gray-800">Cash Out</p>
+	    <p class="text-xl text-red-700 font-semibold"
+	       th:text="${summary.totalOut}"></p>
+	  </div>
+
+	  <div class=" p-4 rounded shadow">
+	    <p class="text-sm text-gray-800">Current Balance</p>
+	    <p class="text-xl text-blue-700 font-semibold"
+	       th:text="${summary.currentBalance}"></p>
+	  </div>
+	</div>
+
+	<button
+	    type="button"
+	    onclick="openDividendModal()"
+	    class="mb-4 inline-flex items-center rounded-lg bg-green-600 px-4 py-2
+	           text-sm font-semibold text-white hover:bg-green-700">
+	    + Add Dividend
+	</button>
+	
+	<button
+	    type="button"
+	    onclick="openCashModal()"
+	    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2
+	           text-sm font-semibold text-white hover:bg-blue-700">
+	    + Add Cash
+	</button>
+	
+	<div class="overflow-hidden rounded-2xl shadow border border-gray-200">
+	<table class="min-w-full bg-gray-400 rounded rounded-2xl shadow border border-gray-200">
+	  <thead class="bg-gray-400 text-left text-sm">
+	    <tr>
+	      <th class="px-4 py-2">Date</th>
+	      <th class="px-4 py-2">Type</th>
+	      <th class="px-4 py-2">Symbol</th>
+	      <th class="px-4 py-2">Description</th>
+	      <th class="px-4 py-2 text-right">Amount</th>
+	      <th class="px-4 py-2 text-right">Balance</th>
+	    </tr>
+	  </thead>
+
+	  <tbody>
+	    <tr th:each="row : ${transactions}"
+	        class="border-t text-sm">
+
+	      <td class="px-4 py-2"
+	          th:text="${#temporals.format(row.date, 'MM-dd-yyyy')}"></td>
+
+	      <td class="px-4 py-2 font-medium"
+	          th:text="${row.type}"></td>
+
+	      <td class="px-4 py-2"
+	          th:text="${row.symbol ?: '-'}"></td>
+
+	      <td class="px-4 py-2"
+	          th:text="${row.description}"></td>
+
+	      <td class="px-4 py-2 text-right font-mono"
+	          th:classappend="${row.amount > 0} ? 'text-green-700' : 'text-red-700'"
+	          th:text="${#numbers.formatCurrency(row.amount)}"></td>
+
+	      <td class="px-4 py-2 text-right font-mono"
+	          th:text="${#numbers.formatCurrency(row.balance)}"></td>
+	    </tr>
+	  </tbody>
+	</table>
+	</div>
+	<!-- Add Dividend Modal -->
+	<div id="dividendModal"
+	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+
+	    <div class="w-full max-w-md rounded-xl bg-gray-400 shadow-lg">
+	        <!-- Header -->
+	        <div class="flex items-center justify-between border-b px-6 py-4">
+	            <h3 class="text-lg font-semibold text-gray-800">
+	                Add Dividend
+	            </h3>
+	            <button onclick="closeDividendModal()"
+	                    class="text-gray-400 hover:text-gray-600">
+	                ✕
+	            </button>
+	        </div>
+
+	        <!-- Form -->
+	        <form th:action="@{/accounts/cash/dividend}"
+	              method="post"
+	              class="space-y-4 px-6 py-5">
+
+	            <input type="hidden" name="accountId" th:value="${account.id}" />
+
+	            <!-- Date -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700">
+	                    Date
+	                </label>
+	                <input type="date"
+	                       name="transactionDate"
+	                       th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+	                       required
+	                       class="mt-1 w-full rounded-md border-gray-300
+	                              focus:border-green-500 focus:ring-green-500" />
+	            </div>
+
+	            <!-- Symbol -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700">
+	                    Symbol (optional)
+	                </label>
+	                <select name="symbol"
+	                        class="mt-1 w-full rounded-md border-gray-300
+	                               focus:border-green-500 focus:ring-green-500">
+	                    <option value="">— Cash Dividend —</option>
+	                    <option th:each="s : ${symbols}"
+	                            th:value="${s}"
+	                            th:text="${s}">
+	                    </option>
+	                </select>
+	            </div>
+
+	            <!-- Amount -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700">
+	                    Amount
+	                </label>
+	                <input type="number"
+	                       name="amount"
+	                       step="0.01"
+	                       min="0.01"
+	                       placeholder="0.00"
+	                       required
+	                       class="mt-1 w-full rounded-md border-gray-300
+	                              focus:border-green-500 focus:ring-green-500" />
+	            </div>
+
+	            <!-- Notes -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700">
+	                    Description
+	                </label>
+	                <input type="text"
+	                       name="description"
+	                       placeholder="Quarterly dividend"
+	                       class="mt-1 w-full rounded-md border-gray-300
+	                              focus:border-green-500 focus:ring-green-500" />
+	            </div>
+
+	            <!-- Actions -->
+	            <div class="flex justify-end gap-3 border-t pt-4">
+	                <button type="button"
+	                        onclick="closeDividendModal()"
+	                        class="rounded-md border px-4 py-2 text-sm
+	                               text-gray-600 hover:bg-gray-100">
+	                    Cancel
+	                </button>
+	                <button type="submit"
+	                        class="rounded-md bg-green-600 px-4 py-2 text-sm
+	                               font-semibold text-white hover:bg-green-700">
+	                    Save Dividend
+	                </button>
+	            </div>
+	        </form>
+	    </div>
+	</div>
+	
+	<div id="cashModal"
+	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+
+	    <div class="w-full max-w-md rounded-xl bg-gray-400 shadow-lg">
+
+	        <div class="flex items-center justify-between border-b px-6 py-4">
+	            <h3 class="text-lg font-semibold text-gray-800">
+	                Add Cash
+	            </h3>
+	            <button onclick="closeCashModal()"
+	                    class="text-gray-400 hover:text-gray-600">✕</button>
+	        </div>
+
+	        <form th:action="@{/accounts/cash/add}" method="post"
+	              class="space-y-4 px-6 py-5">
+
+	            <input type="hidden" name="accountId" th:value="${account.id}" />
+
+	            <!-- Date -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700">Date</label>
+	                <input type="date" name="transactionDate" required
+	                       class="mt-1 w-full rounded-md border-gray-300
+	                              focus:border-blue-500 focus:ring-blue-500" />
+	            </div>
+
+	            <!-- Type -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700">
+	                    Type
+	                </label>
+	                <select name="type" required
+	                        class="mt-1 w-full rounded-md border-gray-300
+	                               focus:border-blue-500 focus:ring-blue-500">
+	                    <option value="OPENING_BALANCE">Opening Balance</option>
+	                    <option value="TRANSFER_IN">Deposit / Adjustment</option>
+	                </select>
+	            </div>
+
+	            <!-- Amount -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700">
+	                    Amount
+	                </label>
+	                <input type="number" name="amount" step="0.01" min="0.01"
+	                       placeholder="0.00" required
+	                       class="mt-1 w-full rounded-md border-gray-300
+	                              focus:border-blue-500 focus:ring-blue-500" />
+	            </div>
+
+	            <!-- Notes -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700">
+	                    Description
+	                </label>
+	                <input type="text" name="Description"
+	                       placeholder="Initial funding"
+	                       class="mt-1 w-full rounded-md border-gray-300
+	                              focus:border-blue-500 focus:ring-blue-500" />
+	            </div>
+
+	            <div class="flex justify-end gap-3 border-t pt-4">
+	                <button type="button" onclick="closeCashModal()"
+	                        class="rounded-md border px-4 py-2 text-sm
+	                               text-gray-600 hover:bg-gray-100">
+	                    Cancel
+	                </button>
+	                <button type="submit"
+	                        class="rounded-md bg-blue-600 px-4 py-2 text-sm
+	                               font-semibold text-white hover:bg-blue-700">
+	                    Save
+	                </button>
+	            </div>
+	        </form>
+	    </div>
+	</div>
+	
+	<script>
+	    function openDividendModal() {
+	        document.getElementById('dividendModal').classList.remove('hidden');
+	        document.getElementById('dividendModal').classList.add('flex');
+	    }
+
+	    function closeDividendModal() {
+	        const modal = document.getElementById('dividendModal');
+	        modal.classList.add('hidden');
+	        modal.classList.remove('flex');
+	    }
+		
+		function openCashModal() {
+		    const m = document.getElementById('cashModal');
+		    m.classList.remove('hidden');
+		    m.classList.add('flex');
+		}
+
+		function closeCashModal() {
+		    const m = document.getElementById('cashModal');
+		    m.classList.add('hidden');
+		    m.classList.remove('flex');
+		}
+	</script>
+	
+</div>
+</body>
+</html>

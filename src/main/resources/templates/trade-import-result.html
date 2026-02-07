@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Trade Import Results</title>
+    <style>
+        .success {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .warning {
+            color: #f57c00;
+            font-weight: bold;
+        }
+        .error {
+            color: #c62828;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Trade Import Results</h2>
+
+<p class="success"
+   th:if="${imported > 0}"
+   th:text="'Successfully imported ' + ${imported} + ' trade(s).'">
+</p>
+
+<p class="warning"
+   th:if="${imported == 0}">
+    No trades were imported.
+</p>
+
+<div th:if="${errors != null and !errors.isEmpty()}">
+    <h3>Errors</h3>
+    <p class="error">
+        Some rows could not be imported. Review the details below.
+    </p>
+
+```
+<table>
+    <thead>
+        <tr>
+            <th>Row</th>
+            <th>Error Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="err, iter : ${errors}">
+            <td th:text="${iter.index + 1}"></td>
+            <td th:text="${err}"></td>
+        </tr>
+    </tbody>
+</table>
+```
+
+</div>
+
+<hr />
+
+<div>
+    <a th:href="@{/accounts}">Back to Accounts</a> | |
+    <a th:href="@{/trades/import}">Import Another File</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: layout(
+          ~{::content},
+          'Login',
+          ~{::head}
+      )}">
+
+<head>
+    <title th:text="~{${pageTitle} ?: 'Portfolio Tracker'}">Portfolio Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body class="min-h-screen bg-gray-100 flex items-center justify-center">
+
+<div th:fragment="content" class="w-full max-w-md bg-gray-400 rounded-xl shadow-lg p-8 border border-gray-200">
+
+    <!-- Success message -->
+    <div th:if="${param.registered}"
+         class="mb-4 rounded-lg bg-green-100 text-green-800 px-4 py-2 text-sm">
+        Registration successful. Please log in.
+    </div>
+
+    <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">
+        Login
+    </h2>
+
+    <form th:action="@{/login}" method="post" class="space-y-4">
+
+        <div>
+            <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required
+                class="w-full rounded-lg border border-gray-300 px-4 py-2
+                       focus:outline-none focus:ring-2 focus:ring-blue-500
+                       focus:border-blue-500"
+            />
+        </div>
+
+        <div>
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+                class="w-full rounded-lg border border-gray-300 px-4 py-2
+                       focus:outline-none focus:ring-2 focus:ring-blue-500
+                       focus:border-blue-500"
+            />
+        </div>
+
+        <button
+            type="submit"
+            class="w-full rounded-lg bg-blue-600 text-white py-2 font-semibold
+                   hover:bg-blue-700 transition">
+            Login
+        </button>
+
+    </form>
+
+    <!-- Error messages -->
+    <div th:if="${param.error}"
+         class="mt-4 text-sm text-red-600 text-center">
+        Invalid username or password
+    </div>
+
+    <div th:if="${param.logout}"
+         class="mt-4 text-sm text-gray-600 text-center">
+        You have been logged out
+    </div>
+
+</div>
+
+</body>
+</html>

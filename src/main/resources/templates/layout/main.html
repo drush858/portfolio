@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout(content, pageTitle, headExtra)">
+
+<head>
+    
+    <title th:text="~{${pageTitle} ?: 'Portfolio Tracker'}">Portfolio Tracker</title>
+	
+	<meta charset="UTF-8">
+	
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        mono: ['ui-monospace', 'SFMono-Regular']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Page-specific head content -->
+    <th:block th:replace="${headExtra}"></th:block>
+</head>
+
+<body class="bg-slate-600 text-slate-800">
+<div class="max-w-7xl mx-auto p-6 space-y-8">
+
+    <!-- Header -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- Main Content Slot -->
+    <main>
+        <th:block th:replace="${content}"></th:block>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
+</body>
+</html>

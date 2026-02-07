@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Trades</title>
+</head>
+<body>
+
+<h2> 
+ <!-- th:text="All Trades for ${trades[0].getHolding().getStock().getSymbol()}" -->
+ All Trades</h2>
+
+<!-- CREATE FORM 
+<form th:action="@{/trades}" th:object="${tradeCreate}" method="post">
+	<input th:field="*{symbol}" placeholder="Symbol"/>
+	<input th:field="*{companyName}" placeholder="Company Name"/>
+    <input th:field="*{quantity}" placeholder="Quantity"/>
+	<input th:field="*{price}" placeholder="Price"/>
+    <button type="submit">Buy</button>
+</form> -->
+
+<hr/>
+
+<!-- TABLE -->
+<table border="1">
+    <tr>
+		<th>Symbol</th>
+        <th>Quantity</th>
+		<th>Price</th>
+		<th>Trade Date</th>
+        <!--th>Action</th-->
+    </tr>
+
+    <tr th:each="t : ${trades}">
+        <td th:text="${t.getHolding().getStock().getSymbol()}"></td>
+        <td th:text="${t.quantity}"></td>
+		<td th:text="${t.price}"></td>
+		<td th:text="${t.tradeDate}"></td>
+        <!--td>
+			<form th:action="@{/trades/buy/{id}(id=${h.id})}"
+			      method="post">
+			    <button type="submit">Buy</button>
+			</form>
+			<form th:action="@{/trades/sell/{id}(id=${h.id})}"
+                  method="post">
+                <button type="submit">Sell</button>
+            </form>
+        </td-->
+    </tr>
+</table>
+<p>
+    Logged in as <span sec:authentication="name"></span>
+</p>
+
+<form th:action="@{/logout}" method="post">
+    <button>Logout</button>
+</form>
+
+</body>
+</html>

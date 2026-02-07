@@ -1,0 +1,4 @@
+alphavantage.api.key: 333AI3JBLXCPBS6N
+alphavantage.api.url: https://www.alphavantage.co/query
+finnhub.api.key: d5o0g79r01qma2b6qv4gd5o0g79r01qma2b6qv50
+prices.refresh.delay: PT10M

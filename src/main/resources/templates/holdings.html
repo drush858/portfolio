@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Call the layout -->
+<th:block th:replace="~{layout/main :: layout(
+        ~{::content},
+        'Holdings',
+        ~{::head}
+    )}">
+
+    <!-- Page-specific HEAD -->
+    <th:block th:fragment="head">
+		
+	<title th:text="~{${pageTitle} ?: 'Portfolio Tracker'}">Portfolio Tracker</title>
+    <!-- Page-specific JS (unchanged) -->
+    <script type="text/javascript">
+        /* all your existing JS stays here */
+		function getTodayDate() {
+					
+			// Create a new Date object for the current date and time
+			const today = new Date();
+
+			// Extract year, month, and day
+			const year = today.getFullYear();
+			const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+			const day = String(today.getDate()).padStart(2, '0');
+
+			// Format as YYYY-MM-DD
+			const formattedDate = `${month}/${day}/${year}`;
+			
+			document.getElementById("dateInput").value = formattedDate;
+			date = formattedDate;
+		}
+		
+		var date;
+		// Assign function to window.onload
+		window.onload = getTodayDate;
+				
+		function showDetails(id) {
+			window.open(`/trades/lots/${id}`,"_blank","top=200,left=500,height=200,width=600");
+		}
+		
+		function select(button) {
+
+		    // 1. Get the row
+		    const row = button.closest("tr");
+
+		    // 2. Read values from columns
+		    const symbol = row.querySelector(".symbol").textContent.trim();
+			//const companyName = row.querySelector(".companyName").textContent.trim();
+		    const quantity = row.querySelector(".quantity").textContent.trim();
+
+		    // 3. Populate form fields
+		    document.getElementById("symbolInput").value = symbol;
+			//document.getElementById("companyNameInput").value = companyName;
+			document.getElementById("quantityInput").value = quantity;
+			document.getElementById("priceInput").value = 20;
+			document.getElementById("dateInput").value = date;
+		}
+		
+		function calculateGain() {
+			
+			const table = document.getElementById("holdings");
+			  
+			// Loop through each row in tbody (skip header row)
+		  	for (let i = 1; i < table.rows.length; i++) {
+		    	
+				const row = table.rows[i];
+		    
+			    // Get quantity, cost, and price from columns 2, 3, and 4
+				const quantity = parseFloat(row.cells[2].textContent);
+				const cost = parseFloat(row.cells[3].textContent);
+			    const price = parseFloat(row.cells[4].textContent, 10);
+				
+			    // Validate numeric values
+			    if (!isNaN(price) && !isNaN(cost) && !isNaN(quantity)) {
+			      const gain = (price - cost) / cost;
+			      const totalCost = quantity * cost;
+				  const marketValue = quantity * price;
+				  
+			      // % Gain
+			      row.cells[7].textContent = (gain * 100).toFixed(2) + "%";
+				  
+				  // total cost
+				  row.cells[5].textContent = totalCost.toFixed(2);
+				  
+				  // market value
+				  row.cells[6].textContent = marketValue.toFixed(2);
+				  			  			  
+			    } else {
+			      row.cells[7].textContent = "---";
+			    }
+				
+			    //console.log("calcGain Function: ", cost);
+			}
+		}
+    </script>
+	
+	<script>
+		/*
+		const socket = new SockJS('/ws');
+		const stomp = Stomp.over(socket);
+	
+		stomp.connect({}, () => {
+		    stomp.subscribe('/topic/prices', message => {
+		        const prices = JSON.parse(message.body);
+	
+		        Object.entries(prices).forEach(([symbol, price]) => {
+		            const cell = document.querySelector(
+		                `[data-symbol="${symbol}"]`
+		            );
+		            if (cell) {
+		                cell.innerText = price.toFixed(2);
+		            }
+		        });
+		    });
+		});*/
+	</script>
+	<script>
+		function toggleLots(button) {
+		    const holdingId = button.dataset.holdingId;
+		    const row = document.getElementById(`lots-${holdingId}`);
+		    const container = row.querySelector('.lots-container');
+	
+		    if (!row.classList.contains('hidden')) {
+		        row.classList.add('hidden');
+		        return;
+		    }
+	
+		    row.classList.remove('hidden');
+	
+		    if (!container.dataset.loaded) {
+		        fetch(`/trades/lots/${holdingId}`)
+		            .then(res => res.text())
+		            .then(html => {
+		                container.innerHTML = html;
+		                container.dataset.loaded = "true";
+		            });
+		    }
+		}
+	</script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</th:block>
+
+<!--th:block th:fragment="content"-->
+
+<div th:fragment="content" class="space-y-10">
+<div>	
+	<h1 class="text-3xl font-bold text-gray-900"
+	    th:text="${accountName}">
+	    Stock Holdings
+	</h1>
+<p class="text-gray-400 mt-1">Manage your account holdings</p>
+</div>
+
+<!-- Portfolio Summary -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+  <!-- Market Value -->
+  <div class="bg-gray-400 rounded-xl shadow p-4 border border-gray-200">
+    <div class="text-sm font-bold text-slate-900">Market Value</div>
+    <div class="text-2xl font-semibold text-green-700"
+         th:text="${#numbers.formatDecimal(totalMarketValue, 1, 'COMMA', 2, 'POINT')}">
+      $0.00
+    </div>
+  </div>
+
+  <!-- Cost Basis -->
+  <div class="bg-gray-400 rounded-xl shadow p-4 border border-gray-200">
+    <div class="text-sm font-bold text-slate-900">Cost Basis</div>
+    <div class="text-2xl font-semibold text-blue-600"
+         th:text="${#numbers.formatDecimal(totalCostBasis, 1, 'COMMA', 2, 'POINT')}">
+      $0.00
+    </div>
+  </div>
+
+  <!-- Gain / Loss -->
+  <div class="bg-gray-400 rounded-xl shadow p-4 border border-gray-200">
+    <div class="text-sm font-bold text-slate-900">Unrealized Gain / Loss</div>
+    <div th:classappend="${totalGain >= 0} ? 'text-green-700' : 'text-red-700'"
+         class="text-2xl font-semibold">
+      <span th:text="${#numbers.formatDecimal(totalGain, 1, 'COMMA', 2, 'POINT')}"></span>
+      <span class="text-sm ml-1 font-semibold"
+            th:text="'(' + ${#numbers.formatDecimal(totalGainPercent, 1, 'COMMA', 2, 'POINT')} + '%)'">
+      </span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Holdings table -->
+<div class="overflow-hidden rounded-2xl shadow border border-gray-200">
+	<table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-400 font-bold">
+	    <tr>
+	      <th class="px-4 py-3">Symbol</th>
+	      <th class="px-4 py-3 text-right">Quantity</th>
+	      <th class="px-4 py-3 text-right">Avg Cost</th>
+		  <th class="px-4 py-3 text-right">Market Price</th>
+	      <th class="px-4 py-3 text-right">Market Value</th>
+		  <th class="px-4 py-3 text-right">Total Cost</th>
+	      <th class="px-4 py-3 text-right">% Gain</th>
+	      <th class="px-4 py-3">Action</th>
+	    </tr>
+	  </thead>
+
+	  <tbody th:each="h : ${holdings}" class="divide-y">
+	    <tr class="hover:bg-gray-300 bg-gray-400"
+		    th:attr="data-symbol=${h.symbol}">
+	      
+			<!-- Symbol -->
+		    <td class="px-4 py-2 font-mono">
+		        <span th:if="${!h.option}" 
+				      th:text="${h.symbol}"
+					  ></span>
+
+		        <span th:if="${h.option}"
+		              class="text-indigo-700 font-semibold"
+		              th:text="${h.optionSummary}">
+		        </span>
+		    </td>
+
+			<!-- Quantity -->
+		    <td class="px-4 py-2 text-right">
+		        <span th:if="${!h.option}" th:text="${h.quantity}"></span>
+		        <span th:if="${h.option}">
+		            <span th:text="${h.quantity}"></span>
+		            <span class="text-xs text-gray-500">contracts</span>
+		        </span>
+		    </td>
+
+			<!-- Average Cost -->
+	      <td class="px-4 py-2 text-right font-mono"
+	          th:text="${#numbers.formatCurrency(h.averageCost)}">
+	      </td>
+
+		  <!-- Market Price -->
+	      <td class="px-4 py-2 text-right font-mono"
+	          th:text="${#numbers.formatCurrency(h.marketPrice)}"
+	        ---
+	      </td>
+
+		  <!-- Market Value -->
+	      <td class="px-4 py-2 text-right font-mono"
+	          th:text="${#numbers.formatCurrency(h.marketValue)}">
+	        ---
+	      </td>
+
+		  <!-- Total Cost -->
+		  <td class="px-4 py-2 text-right font-mono"
+		  	  th:text="${#numbers.formatCurrency(h.totalCost)}">
+		    </td>
+
+			<!-- Percent Gain -->
+	      <td class="px-4 py-2 text-right font-mono"
+	          th:text="${#numbers.formatPercent(h.percentGain, 0, 2)}">
+	        ---
+	      </td>
+
+	      <td class="px-4 py-2 space-x-2">
+			  <button type="button"
+			          data-action="BUY"
+			          onclick="openTradeModal(this)"
+			          class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700">
+			    Buy
+			  </button>
+
+			  <button type="button"
+			          data-action="SELL"
+			          onclick="openTradeModal(this)"
+			          class="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700">
+			    Sell
+			  </button>
+
+			  <!-- Lots only for stocks -->
+			  <button th:if="${!h.option}"
+			          type="button"
+			          class="text-blue-800 hover:underline text-sm"
+			          th:attr="data-holding-id=${h.holdingId}"
+			          th:onclick="toggleLots(this)">
+			    View lots
+			  </button>
+			
+	      </td>
+	    </tr>
+		<!-- EXPANDABLE LOTS ROW -->
+       <tr th:id="'lots-' + ${h.holdingId}" class="hidden bg-slate-400">
+           <td colspan="6" class="px-6 py-4">
+
+               <!-- reuse your fragment -->
+			   <div
+	               th:attr="data-holding-id=${h.holdingId}"
+	               class="lots-container text-sm text-gray-700">
+	               Loading…
+			   </div>
+           </td>
+       </tr>
+	  </tbody>
+	</table>
+</div>
+
+<button
+    type="button"
+    onclick="openOptionTradeModal()"
+    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2
+           text-sm font-semibold text-white hover:bg-blue-700 border border-gray-200">
+    Buy Option
+</button>
+	
+<!-- Single Buy / Sell card -->
+<div class="bg-gray-400 rounded-xl shadow p-6 space-y-4 border border-gray-200">
+    <!-- (buy/sell form) -->
+	<h3 class="text-lg font-semibold">Add Stock Trade</h3>
+
+	<form th:object="${tradeCreate}" method="post">
+	 <!-- <div class="grid grid-cols-1 md:grid-cols-5 gap-4"> -->
+
+		<div class="overflow-hidden rounded-2xl shadow border border-gray-200">
+	        <table class="min-w-full divide-y divide-gray-200">
+	            <thead class="bg-gray-400">
+	                <tr>
+	                    <th class="px-6 py-3 text-left text-sm font-bold text-gray-800">
+	                        Symbol
+	                    </th>
+	                    <th class="px-6 py-3 text-left text-sm font-bold text-gray-800">
+	                        Quantity
+	                    </th>
+	                    <th class="px-6 py-3 text-left text-sm font-bold text-gray-800">
+	                        Price
+	                    </th>
+						<th class="px-6 py-3 text-left text-sm font-bold text-gray-800">
+	                        Date
+	                    </th>
+						<th class="px-6 py-3 text-right text-sm font-bold text-gray-800">
+	                        Action
+	                    </th>
+	                </tr>
+	            </thead>
+
+	            <tbody class="divide-y divide-gray-100">
+	                <tr class="bg-gray-400">
+	                    <td class="px-6 py-4 font-medium text-gray-900">
+							<input id="symbolInput"
+						           th:field="*{symbol}"
+						           placeholder="Symbol"
+						           class="border rounded px-3 py-2"/>
+	                    </td>
+
+	                    <td class="px-6 py-4 text-gray-900">
+							<input id="quantityInput"
+						           th:field="*{quantity}"
+						           placeholder="Quantity"
+						           class="border rounded px-3 py-2"/>
+	                    </td>
+						<td class="px-6 py-4 text-gray-900">
+							<input id="priceInput"
+						           th:field="*{price}"
+						           placeholder="Price"
+						           class="border rounded px-3 py-2"/>
+						</td>
+						<td class="px-6 py-4 text-gray-900">
+							<input id="dateInput"
+						           th:field="*{date}"
+								   type="date"
+								   th:value="${#temporals.format(#temporals.createNow(), 'MM-dd-yyyy')}"
+						           placeholder="MM/DD/YYYY"
+						           class="border rounded px-3 py-2"/>
+						</td>
+						<td class="px-6 py-4 text-gray-900">
+							<div class="flex gap-2">
+							      <button type="submit"
+							              th:formaction="@{/trades/buy/{id}(id=${accountId})}"
+							              class="flex-1 bg-green-600 text-white rounded px-3 py-2 hover:bg-green-700">
+							        Buy
+							      </button>
+
+							      <button type="submit"
+							              th:formaction="@{/trades/sell/{id}(id=${accountId})}"
+							              class="flex-1 bg-red-600 text-white rounded px-3 py-2 hover:bg-red-700">
+							        Sell
+							      </button>
+							</div>
+						</td>
+	                </tr>
+	            </tbody>
+	        </table>
+		</div>	
+		
+<!--		
+	    <input id="symbolInput"
+	           th:field="*{symbol}"
+	           placeholder="Symbol"
+	           class="border rounded px-3 py-2"/>
+
+	    <input id="quantityInput"
+	           th:field="*{quantity}"
+	           placeholder="Quantity"
+	           class="border rounded px-3 py-2"/>
+
+	    <input id="priceInput"
+	           th:field="*{price}"
+	           placeholder="Price"
+	           class="border rounded px-3 py-2"/>
+
+	    <input id="dateInput"
+	           th:field="*{date}"
+			   type="date"
+			   th:value="${#temporals.format(#temporals.createNow(), 'MM-dd-yyyy')}"
+	           placeholder="MM/DD/YYYY"
+	           class="border rounded px-3 py-2"/>
+
+	    <div class="flex gap-2">
+	      <button type="submit"
+	              th:formaction="@{/trades/buy/{id}(id=${accountId})}"
+	              class="flex-1 bg-green-600 text-white rounded px-3 py-2 hover:bg-green-700">
+	        Buy
+	      </button>
+
+	      <button type="submit"
+	              th:formaction="@{/trades/sell/{id}(id=${accountId})}"
+	              class="flex-1 bg-red-600 text-white rounded px-3 py-2 hover:bg-red-700">
+	        Sell
+	      </button>
+	    </div>
+
+	  </div>-->
+	</form>
+</div>
+
+<!-- Stock Dialog Buy/Sell Modal -->
+<div id="tradeModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+  <div class="w-full max-w-lg rounded-xl bg-gray-400 shadow-lg">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b px-6 py-4">
+      <h3 id="tradeModalTitle" class="text-lg font-semibold text-gray-800">
+        Trade
+      </h3>
+      <button type="button"
+              onclick="closeTradeModal()"
+              class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+
+    <!-- Form -->
+    <form id="tradeForm" method="post" class="space-y-4 px-6 py-5">
+
+      <input type="hidden" id="accountIdInput" name="accountId" th:value="${accountId}" />
+
+      <!-- Symbol -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Symbol</label>
+        <input id="symbolInputModal" name="symbol" readonly
+               class="mt-1 w-full rounded-md border-gray-300 bg-gray-100
+                      font-mono text-gray-800" />
+      </div>
+
+      <!-- Quantity -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Quantity</label>
+        <input id="quantityInputModal" type="number" name="quantity" min="1" step="1" required
+               class="mt-1 w-full rounded-md border-gray-300
+                      focus:border-blue-500 focus:ring-blue-500" />
+      </div>
+
+      <!-- Price -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Price</label>
+        <input id="priceInputModal" type="number" name="price" min="0" step="0.01" required
+               class="mt-1 w-full rounded-md border-gray-300
+                      focus:border-blue-500 focus:ring-blue-500" />
+      </div>
+
+      <!-- Date -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Trade Date</label>
+        <!-- NOTE: your controller currently expects LocalDateTime.
+             We'll post "YYYY-MM-DDTHH:mm" so it binds cleanly. -->
+        <input id="tradeDateInputModal" type="date" name="tradeDate" required
+		       th:value="${#temporals.format(#temporals.createNow(), 'MM-dd-yyyy')}"
+               class="mt-1 w-full rounded-md border-gray-300
+                      focus:border-blue-500 focus:ring-blue-500" />
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 border-t pt-4">
+        <button type="button" onclick="closeTradeModal()"
+                class="rounded-md border px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
+          Cancel
+        </button>
+        <button type="submit"
+                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+          Submit
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!--   Option Dialog -->
+<div id="optionTradeModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+
+  <div class="w-full max-w-lg rounded-xl bg-gray-400 shadow-lg">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b px-6 py-4">
+      <h3 class="text-lg font-semibold text-gray-800">
+        Add Option Trade
+      </h3>
+      <button onclick="closeOptionTradeModal()"
+              class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+
+    <!-- Form -->
+    <form th:action="@{/trades/option/add}" method="post"
+          class="space-y-4 px-6 py-5">
+
+      <input type="hidden" name="accountId" th:value="${accountId}" />
+      <!--input type="hidden" name="instrumentType" value="OPTION" /-->
+
+      <!-- Underlying Symbol -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">
+          Underlying Symbol
+        </label>
+        <input type="text" name="underlyingSymbol" required
+               placeholder="AAPL"
+               class="mt-1 w-full rounded-md border-gray-300
+                      focus:border-blue-500 focus:ring-blue-500" />
+      </div>
+
+      <!-- Option Type -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">
+          Option Type
+        </label>
+        <select name="optionType" required
+                class="mt-1 w-full rounded-md border-gray-300
+                       focus:border-blue-500 focus:ring-blue-500">
+          <option value="CALL">Call</option>
+          <option value="PUT">Put</option>
+        </select>
+      </div>
+
+      <!-- Expiration -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">
+          Expiration Date
+        </label>
+        <input type="date" name="expiration" required
+               class="mt-1 w-full rounded-md border-gray-300
+                      focus:border-blue-500 focus:ring-blue-500" />
+      </div>
+
+      <!-- Strike -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">
+          Strike Price
+        </label>
+        <input type="number" name="strikePrice" step="0.01" required
+               placeholder="150.00"
+               class="mt-1 w-full rounded-md border-gray-300
+                      focus:border-blue-500 focus:ring-blue-500" />
+      </div>
+
+      <!-- Trade Details -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            Contracts
+          </label>
+          <input type="number" name="quantity" step="1" min="1" required
+                 placeholder="1" value="1"
+                 class="mt-1 w-full rounded-md border-gray-300
+                        focus:border-blue-500 focus:ring-blue-500" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            Price (per contract)
+          </label>
+          <input type="number" name="price" step="0.01" required
+                 placeholder="2.35"
+                 class="mt-1 w-full rounded-md border-gray-300
+                        focus:border-blue-500 focus:ring-blue-500" />
+        </div>
+      </div>
+
+      <!-- Buy / Sell -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">
+          Action
+        </label>
+        <select name="tradeType" required
+                class="mt-1 w-full rounded-md border-gray-300
+                       focus:border-blue-500 focus:ring-blue-500">
+          <option value="BUY">Buy to Open</option>
+          <option value="SELL">Sell to Close</option>
+        </select>
+      </div>
+
+      <!-- Trade Date -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">
+          Trade Date
+        </label>
+        <input type="date" name="tradeDate" required
+			   th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+               class="mt-1 w-full rounded-md border-gray-300
+                      focus:border-blue-500 focus:ring-blue-500" />
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 border-t pt-4">
+        <button type="button"
+                onclick="closeOptionTradeModal()"
+                class="rounded-md border px-4 py-2 text-sm
+                       text-gray-600 hover:bg-gray-100">
+          Cancel
+        </button>
+        <button type="submit"
+                class="rounded-md bg-blue-600 px-4 py-2 text-sm
+                       font-semibold text-white hover:bg-blue-700">
+          Save Trade
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+	
+	function openOptionTradeModal() {
+		document.getElementById('optionTradeModal').classList.remove('hidden');
+	    document.getElementById('optionTradeModal').classList.add('flex');
+	}
+
+    function closeOptionTradeModal() {
+        const modal = document.getElementById('optionTradeModal');
+	    modal.classList.add('hidden');
+	    modal.classList.remove('flex');
+	}
+	
+	function openTradeModal(button) {
+	    const row = button.closest("tr");
+	    if (!row) return;
+
+	    const symbol = row.getAttribute("data-symbol");
+	    const action = button.getAttribute("data-action"); // BUY or SELL
+
+	    // Today at 09:30 local (or use now). Use datetime-local format: YYYY-MM-DDTHH:mm
+	    const now = new Date();
+	    //const pad = (n) => String(n).padStart(2, "0");
+	    //const dt =
+	    //  now.getFullYear() + "-" +
+	    //  pad(now.getMonth() + 1) + "-" +
+	    //  pad(now.getDate()) + "T" +
+	    //  pad(now.getHours()) + ":" +
+	    //  pad(now.getMinutes());
+
+ 	    const year = now.getFullYear();
+		const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+		const day = String(now.getDate()).padStart(2, '0');
+
+		// Format as MM-DD-YYYY
+		const formattedDate = `${month}/${day}/${year}`;
+		  
+	    // Fill modal fields
+	    document.getElementById("symbolInputModal").value = symbol || "";
+	    document.getElementById("tradeDateInputModal").value = formattedDate;
+	    document.getElementById("quantityInputModal").value = "";
+	    document.getElementById("priceInputModal").value = "";
+
+	    // Title + formaction
+	    const title = (action === "SELL") ? "Sell" : "Buy";
+	    document.getElementById("tradeModalTitle").innerText = title + " " + (symbol || "");
+
+	    // Set the form action to your existing endpoints
+	    // Your existing endpoints were:
+	    //  - /trades/buy/{id}
+	    //  - /trades/sell/{id}
+	    const accountId = document.getElementById("accountIdInput")?.value;
+	    const form = document.getElementById("tradeForm");
+
+	    if (accountId) {
+	      form.action = (action === "SELL")
+	        ? `/trades/stock/sell`
+	        : `/trades/stock/add`;
+	    }
+
+	    // Open modal
+	    const modal = document.getElementById("tradeModal");
+	    modal.classList.remove("hidden");
+	    modal.classList.add("flex");
+	  }
+
+	  function closeTradeModal() {
+	    const modal = document.getElementById("tradeModal");
+	    modal.classList.add("hidden");
+	    modal.classList.remove("flex");
+	  }
+	  
+</script>
+</th:block>
+
+</html>
