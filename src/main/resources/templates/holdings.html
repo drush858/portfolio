@@ -264,21 +264,21 @@
 			  <button type="button"
 			          data-action="BUY"
 			          onclick="openTradeModal(this)"
-			          class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700">
+			          class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 border border-gray-200">
 			    Buy
 			  </button>
 
 			  <button type="button"
 			          data-action="SELL"
 			          onclick="openTradeModal(this)"
-			          class="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700">
+			          class="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 border border-gray-200">
 			    Sell
 			  </button>
 
 			  <!-- Lots only for stocks -->
 			  <button th:if="${!h.option}"
 			          type="button"
-			          class="text-blue-800 hover:underline text-sm"
+			          class="text-blue-800 hover:underline text-sm border border-gray-200"
 			          th:attr="data-holding-id=${h.holdingId}"
 			          th:onclick="toggleLots(this)">
 			    View lots
@@ -373,13 +373,13 @@
 							<div class="flex gap-2">
 							      <button type="submit"
 							              th:formaction="@{/trades/buy/{id}(id=${accountId})}"
-							              class="flex-1 bg-green-600 text-white rounded px-3 py-2 hover:bg-green-700">
+							              class="flex-1 bg-green-600 text-white rounded px-3 py-2 hover:bg-green-700 border border-gray-200">
 							        Buy
 							      </button>
 
 							      <button type="submit"
 							              th:formaction="@{/trades/sell/{id}(id=${accountId})}"
-							              class="flex-1 bg-red-600 text-white rounded px-3 py-2 hover:bg-red-700">
+							              class="flex-1 bg-red-600 text-white rounded px-3 py-2 hover:bg-red-700 border border-gray-200">
 							        Sell
 							      </button>
 							</div>

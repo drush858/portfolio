@@ -53,7 +53,7 @@
                             <form th:action="@{/holdings/view/{id}(id=${a.id})}"
                                   method="get">
                                 <button
-                                    class="px-3 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                                    class="px-3 py-1.5 text-sm rounded-lg bg-blue-600 border border-gray-200 text-white hover:bg-blue-700">
                                     Holdings
                                 </button>
                             </form>
@@ -61,7 +61,7 @@
 							<form th:action="@{/accounts/cash/{id}(id=${a.id})}"
                                   method="get">
                                 <button
-                                    class="px-3 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                                    class="px-3 py-1.5 text-sm rounded-lg bg-blue-600 border border-gray-200 text-white hover:bg-blue-700">
                                     Cash
                                 </button>
                             </form>
@@ -70,7 +70,7 @@
                                   th:action="@{/accounts/deactivate/{id}(id=${a.id})}"
                                   method="post">
                                 <button
-                                    class="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700">
+                                    class="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white border border-gray-200 hover:bg-red-700">
                                     Deactivate
                                 </button>
                             </form>
@@ -79,7 +79,7 @@
                                   th:action="@{/accounts/activate/{id}(id=${a.id})}"
                                   method="post">
                                 <button
-                                    class="px-3 py-1.5 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700">
+                                    class="px-3 py-1.5 text-sm rounded-lg bg-green-600 border border-gray-200 text-white hover:bg-green-700">
                                     Activate
                                 </button>
                             </form>
@@ -118,7 +118,7 @@
 
             <div class="text-right">
                 <button
-                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 border border-gray-200">
                     Add Account
                 </button>
             </div>
@@ -141,7 +141,7 @@
                    class="block w-full text-sm text-gray-600"/>
 
             <button
-                class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 border border-gray-200">
                 Import CSV
             </button>
         </form>
@@ -153,19 +153,19 @@
 
         <div class="flex flex-wrap gap-3">
             <form th:action="@{/trades/sold/2026}" method="get">
-                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-indigo-700">
+                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-indigo-700 border border-gray-200">
                     View Sold Totals
                 </button>
             </form>
 
             <form th:action="@{/trades/sold/2026/export/csv}" method="get">
-                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">
+                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 border border-gray-200">
                     Download CSV
                 </button>
             </form>
 
             <form th:action="@{/trades/sold/2026/export/excel}" method="get">
-                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800">
+                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-gray-200">
                     Download Excel
                 </button>
             </form>
