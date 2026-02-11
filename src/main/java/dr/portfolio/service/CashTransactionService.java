@@ -125,7 +125,6 @@ public class CashTransactionService {
         cashTransactionRepository.save(txn);
     }
 	
-	@Transactional
 	public void addCash(
 	        UUID accountId,
 	        LocalDateTime transactionDate,
@@ -156,5 +155,32 @@ public class CashTransactionService {
 
 	    cashTransactionRepository.save(txn);
 	}
+	
+	public void withdraw(
+            UUID accountId,
+            LocalDateTime transactionDate,
+            BigDecimal amount,
+            String description
+    ) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Withdrawal amount must be positive");
+        }
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found: " + accountId));
+
+        CashTransaction txn = new CashTransaction(
+                account,
+                CashTransactionType.TRANSFER_OUT,
+                amount.negate(),       // ✅ store as negative outflow
+                null,                  // symbol usually null for transfer
+                transactionDate,
+                (description == null || description.isBlank())
+                        ? "Withdrawal"
+                        : description.trim()
+        );
+
+        cashTransactionRepository.save(txn);
+    }
 
 }

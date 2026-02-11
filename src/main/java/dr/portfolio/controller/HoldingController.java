@@ -63,7 +63,7 @@ public class HoldingController {
 
         Account acct = accountRepository.getReferenceById(id);
 
-        model.addAttribute("pageTitle", "Holdings");
+        model.addAttribute("pageTitle", acct.getName() + " Holdings");
         model.addAttribute("holdings", holdingsResult.getHoldings());
         
         model.addAttribute("totalMarketValue", holdingsResult.getTotalMarketValue());

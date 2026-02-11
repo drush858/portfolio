@@ -4,14 +4,28 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import dr.portfolio.domain.TradeType;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class TradeCreate {
 
 	private UUID accountId;
+	
+	@NotBlank(message = "Symbol is required")
 	private String symbol;
+	
+	@Min(value = 1, message = "Quantity must be at least 1")
 	private int quantity;
+	
+	@NotNull(message = "Price is required")
+    @DecimalMin(value = "0.00", inclusive = true, message = "Price cannot be negative")
 	private double price;
+	
+	@NotNull(message = "Date is required")
 	private LocalDate date;
+	
 	private TradeType type;
 	
 	

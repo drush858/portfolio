@@ -3,14 +3,11 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layout/main :: layout(
           ~{::content},
-          'Cash-Ledger',
+          ${pageTitle},
           ~{::head}
       )}">
 
-<head>
-    <title>Cash Ledger</title>
-</head>
-
+<head></head>
 <body>
 <div th:fragment="content" class="space-y-10">
 
@@ -59,6 +56,15 @@
 	           text-sm font-semibold text-white hover:bg-blue-700">
 	    + Add Cash
 	</button>
+	
+	<button
+	    type="button"
+	    onclick="openWithdrawModal()"
+	    class="mb-4 inline-flex items-center rounded-lg bg-red-600 px-4 py-2 border border-gray-200
+	           text-sm font-semibold text-white hover:bg-red-700">
+	    − Withdraw Cash
+	</button>
+
 	
 	<div class="overflow-hidden rounded-2xl shadow border border-gray-200">
 	<table class="min-w-full bg-gray-400 rounded rounded-2xl shadow border border-gray-200">
@@ -218,6 +224,7 @@
 	            <div>
 	                <label class="block text-sm font-medium text-gray-700">Date</label>
 	                <input type="date" name="transactionDate" required
+					       th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
 	                       class="mt-1 w-full rounded-md border-gray-300
 	                              focus:border-blue-500 focus:ring-blue-500" />
 	            </div>
@@ -273,6 +280,85 @@
 	    </div>
 	</div>
 	
+	<!-- Withdraw Cash Modal -->
+	<div id="withdrawModal"
+	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+
+	  <div class="w-full max-w-md rounded-xl bg-gray-400 shadow-lg">
+
+	    <!-- Header -->
+	    <div class="flex items-center justify-between border-b px-6 py-4">
+	      <h3 class="text-lg font-semibold text-gray-800">
+	        Withdraw Cash
+	      </h3>
+	      <button onclick="closeWithdrawModal()"
+	              class="text-gray-400 hover:text-gray-600">✕</button>
+	    </div>
+
+	    <!-- Form -->
+	    <form th:action="@{/cash/withdraw}" method="post"
+	          class="space-y-4 px-6 py-5">
+
+	      <input type="hidden" name="accountId" th:value="${accountId}" />
+
+	      <!-- Date -->
+	      <div>
+	        <label class="block text-sm font-medium text-gray-700">Date</label>
+	        <input type="date"
+	               name="transactionDate"
+	               required
+				   th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+	               class="mt-1 w-full rounded-md border-gray-300
+	                      focus:border-red-500 focus:ring-red-500" />
+	      </div>
+
+	      <!-- Amount -->
+	      <div>
+	        <label class="block text-sm font-medium text-gray-700">
+	          Amount
+	        </label>
+	        <input type="number"
+	               name="amount"
+	               step="0.01"
+	               min="0.01"
+	               required
+	               placeholder="0.00"
+	               class="mt-1 w-full rounded-md border-gray-300
+	                      focus:border-red-500 focus:ring-red-500" />
+	      </div>
+
+	      <!-- Notes -->
+	      <div>
+	        <label class="block text-sm font-medium text-gray-700">
+	          Notes
+	        </label>
+	        <input type="text"
+	               name="description"
+	               placeholder="Transfer to checking"
+	               class="mt-1 w-full rounded-md border-gray-300
+	                      focus:border-red-500 focus:ring-red-500" />
+	      </div>
+
+	      <!-- Actions -->
+	      <div class="flex justify-end gap-3 border-t pt-4">
+	        <button type="button"
+	                onclick="closeWithdrawModal()"
+	                class="rounded-md border px-4 py-2 text-sm
+	                       text-gray-600 hover:bg-gray-100">
+	          Cancel
+	        </button>
+	        <button type="submit"
+	                class="rounded-md bg-red-600 px-4 py-2 text-sm
+	                       font-semibold text-white hover:bg-red-700">
+	          Withdraw
+	        </button>
+	      </div>
+	    </form>
+
+	  </div>
+	</div>
+
+	
 	<script>
 	    function openDividendModal() {
 	        document.getElementById('dividendModal').classList.remove('hidden');
@@ -296,6 +382,19 @@
 		    m.classList.add('hidden');
 		    m.classList.remove('flex');
 		}
+		
+		function openWithdrawModal() {
+		    const modal = document.getElementById('withdrawModal');
+		    modal.classList.remove('hidden');
+		    modal.classList.add('flex');
+		}
+
+		function closeWithdrawModal() {
+		    const modal = document.getElementById('withdrawModal');
+		    modal.classList.add('hidden');
+		    modal.classList.remove('flex');
+		}
+		
 	</script>
 	
 </div>

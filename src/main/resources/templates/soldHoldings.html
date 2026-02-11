@@ -3,14 +3,11 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layout/main :: layout(
           ~{::content},
-          'SoldHoldings',
+          ${pageTitle},
           ~{::head}
       )}">
 
-<head>
-    <title>Sold Holdings</title>
-</head>
-
+<head></head>
 <body>
 <div th:fragment="content" class="space-y-10">
 

@@ -4,35 +4,26 @@
 <!-- Call the layout -->
 <th:block th:replace="~{layout/main :: layout(
         ~{::content},
-        'Holdings',
+        ${pageTitle},
         ~{::head}
     )}">
 
     <!-- Page-specific HEAD -->
     <th:block th:fragment="head">
 		
-	<title th:text="~{${pageTitle} ?: 'Portfolio Tracker'}">Portfolio Tracker</title>
+	<!-- <title th:text="~{${pageTitle} ?: 'Portfolio Tracker'}">Portfolio Tracker</title> -->
     <!-- Page-specific JS (unchanged) -->
     <script type="text/javascript">
-        /* all your existing JS stays here */
+
 		function getTodayDate() {
 					
-			// Create a new Date object for the current date and time
-			const today = new Date();
-
-			// Extract year, month, and day
-			const year = today.getFullYear();
-			const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-			const day = String(today.getDate()).padStart(2, '0');
-
-			// Format as YYYY-MM-DD
-			const formattedDate = `${month}/${day}/${year}`;
-			
+			const formattedDate = new Date().toISOString().slice(0,10);  
 			document.getElementById("dateInput").value = formattedDate;
 			date = formattedDate;
 		}
 		
 		var date;
+
 		// Assign function to window.onload
 		window.onload = getTodayDate;
 				
@@ -40,6 +31,7 @@
 			window.open(`/trades/lots/${id}`,"_blank","top=200,left=500,height=200,width=600");
 		}
 		
+		/*
 		function select(button) {
 
 		    // 1. Get the row
@@ -56,8 +48,9 @@
 			document.getElementById("quantityInput").value = quantity;
 			document.getElementById("priceInput").value = 20;
 			document.getElementById("dateInput").value = date;
-		}
+		}*/
 		
+		/*
 		function calculateGain() {
 			
 			const table = document.getElementById("holdings");
@@ -93,7 +86,8 @@
 				
 			    //console.log("calcGain Function: ", cost);
 			}
-		}
+		}*/
+		
     </script>
 	
 	<script>
@@ -316,9 +310,7 @@
 	<h3 class="text-lg font-semibold">Add Stock Trade</h3>
 
 	<form th:object="${tradeCreate}" method="post">
-	 <!-- <div class="grid grid-cols-1 md:grid-cols-5 gap-4"> -->
-
-		<div class="overflow-hidden rounded-2xl shadow border border-gray-200">
+	 	<div class="overflow-hidden rounded-2xl shadow border border-gray-200">
 	        <table class="min-w-full divide-y divide-gray-200">
 	            <thead class="bg-gray-400">
 	                <tr>
@@ -365,8 +357,7 @@
 							<input id="dateInput"
 						           th:field="*{date}"
 								   type="date"
-								   th:value="${#temporals.format(#temporals.createNow(), 'MM-dd-yyyy')}"
-						           placeholder="MM/DD/YYYY"
+								   placeholder="MM/DD/YYYY"
 						           class="border rounded px-3 py-2"/>
 						</td>
 						<td class="px-6 py-4 text-gray-900">
@@ -388,45 +379,6 @@
 	            </tbody>
 	        </table>
 		</div>	
-		
-<!--		
-	    <input id="symbolInput"
-	           th:field="*{symbol}"
-	           placeholder="Symbol"
-	           class="border rounded px-3 py-2"/>
-
-	    <input id="quantityInput"
-	           th:field="*{quantity}"
-	           placeholder="Quantity"
-	           class="border rounded px-3 py-2"/>
-
-	    <input id="priceInput"
-	           th:field="*{price}"
-	           placeholder="Price"
-	           class="border rounded px-3 py-2"/>
-
-	    <input id="dateInput"
-	           th:field="*{date}"
-			   type="date"
-			   th:value="${#temporals.format(#temporals.createNow(), 'MM-dd-yyyy')}"
-	           placeholder="MM/DD/YYYY"
-	           class="border rounded px-3 py-2"/>
-
-	    <div class="flex gap-2">
-	      <button type="submit"
-	              th:formaction="@{/trades/buy/{id}(id=${accountId})}"
-	              class="flex-1 bg-green-600 text-white rounded px-3 py-2 hover:bg-green-700">
-	        Buy
-	      </button>
-
-	      <button type="submit"
-	              th:formaction="@{/trades/sell/{id}(id=${accountId})}"
-	              class="flex-1 bg-red-600 text-white rounded px-3 py-2 hover:bg-red-700">
-	        Sell
-	      </button>
-	    </div>
-
-	  </div>-->
 	</form>
 </div>
 
@@ -480,8 +432,7 @@
         <!-- NOTE: your controller currently expects LocalDateTime.
              We'll post "YYYY-MM-DDTHH:mm" so it binds cleanly. -->
         <input id="tradeDateInputModal" type="date" name="tradeDate" required
-		       th:value="${#temporals.format(#temporals.createNow(), 'MM-dd-yyyy')}"
-               class="mt-1 w-full rounded-md border-gray-300
+		       class="mt-1 w-full rounded-md border-gray-300
                       focus:border-blue-500 focus:ring-blue-500" />
       </div>
 
@@ -654,23 +605,8 @@
 	    const symbol = row.getAttribute("data-symbol");
 	    const action = button.getAttribute("data-action"); // BUY or SELL
 
-	    // Today at 09:30 local (or use now). Use datetime-local format: YYYY-MM-DDTHH:mm
-	    const now = new Date();
-	    //const pad = (n) => String(n).padStart(2, "0");
-	    //const dt =
-	    //  now.getFullYear() + "-" +
-	    //  pad(now.getMonth() + 1) + "-" +
-	    //  pad(now.getDate()) + "T" +
-	    //  pad(now.getHours()) + ":" +
-	    //  pad(now.getMinutes());
-
- 	    const year = now.getFullYear();
-		const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-		const day = String(now.getDate()).padStart(2, '0');
-
-		// Format as MM-DD-YYYY
-		const formattedDate = `${month}/${day}/${year}`;
-		  
+	    const formattedDate = new Date().toISOString().slice(0,10);  
+		
 	    // Fill modal fields
 	    document.getElementById("symbolInputModal").value = symbol || "";
 	    document.getElementById("tradeDateInputModal").value = formattedDate;

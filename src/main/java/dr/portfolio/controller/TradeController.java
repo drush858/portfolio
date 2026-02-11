@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +35,7 @@ import dr.portfolio.service.SoldHoldingsExportService;
 import dr.portfolio.service.TradeImportService;
 import dr.portfolio.service.TradeService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/trades")
@@ -163,9 +165,23 @@ public class TradeController {
     
     @PostMapping("/buy/{id}")
     public String buy(
-    		@ModelAttribute TradeCreate trade, 
     		@PathVariable UUID id,
-    		Principal principal) {
+    		@Valid @ModelAttribute("tradeCreate") TradeCreate trade, 
+    		BindingResult bindingResult,
+    		Principal principal,
+    		Model model
+    ) {
+    
+    	if (bindingResult.hasErrors()) {
+            // re-hydrate page data your holdings page needs
+            //var page = holdingsPageService.buildHoldingsPage(id, principal.getName());
+            model.addAttribute("accountId", id);
+            //model.addAttribute("accountName", page.accountName());
+            //model.addAttribute("holdings", page.holdings());
+            // keep tradeCreate (already in model) + errors
+            model.addAttribute("showTradeModal", true); // so modal opens with errors
+            return "redirect:/holdings/view/{id}";
+        }
     	
     	trade.setAccountId(id);
     	try {

@@ -75,7 +75,7 @@ public class AccountController {
     public String list(Model model, Principal principal) {
 		String username = principal.getName();
 
-		model.addAttribute("pageTitle", "Accounts");
+		model.addAttribute("pageTitle", "My Accounts");
         model.addAttribute("accounts", accountService.findByUserUsername(username));
         model.addAttribute("account", new Account());
         return "accounts";
@@ -174,5 +174,24 @@ public class AccountController {
 
 	     return "redirect:/accounts/cash/" + accountId;
 	 }
+	 
+	 @PostMapping("/cash/withdraw")
+	 public String withdrawCash(
+	         @RequestParam UUID accountId,
+	         @RequestParam LocalDate transactionDate,
+	         @RequestParam BigDecimal amount,
+	         @RequestParam(required = false) String description
+	 ) {
+	     cashTransactionService.withdraw(
+	             accountId,
+	             transactionDate.atStartOfDay(),
+	             amount,
+	             description
+	     );
+
+	     return "redirect:/accounts/cash/" + accountId;
+	 }
+
+
 
 }
