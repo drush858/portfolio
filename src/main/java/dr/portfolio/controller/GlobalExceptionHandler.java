@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     ) {
         model.addAttribute("status", 500);
         model.addAttribute("error", "Internal Server Error");
-        model.addAttribute("message", "An unexpected error occurred.");
+        model.addAttribute("message", ex.getMessage());
         return "error";
     }
 }

@@ -3,6 +3,7 @@ package dr.portfolio.controller;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import java.util.UUID;
@@ -81,117 +82,100 @@ public class AccountController {
         return "accounts";
     }
 	
-	 @PostMapping
-	 public String create(@ModelAttribute Account account, Principal principal) {
+	@PostMapping
+	public String create(@ModelAttribute Account account, Principal principal) {
 
-		 User user = userRepository.findByUsername(principal.getName());
-		 account.setUser(user);
-		 account.setActive(true);
-		 accountService.save(account);
-	     return "redirect:/accounts";
-	 }
+		User user = userRepository.findByUsername(principal.getName());
+		account.setUser(user);
+		account.setActive(true);
+		accountService.save(account);
+	    return "redirect:/accounts";
+	}
 	 
-	 @PostMapping("/deactivate/{id}")
-	 public String deactivate(@PathVariable UUID id) {
-		 
-		 Account account = accountRepository.getReferenceById(id);
-		 account.setActive(false);
-		 accountRepository.save(account);
-		 return "redirect:/accounts";
-	 }
-	 
-	 @PostMapping("/activate/{id}")
-	 public String activate(@PathVariable UUID id) {
-		 
-		 Account account = accountRepository.getReferenceById(id);
-		 account.setActive(true);
-		 accountRepository.save(account);
-		 return "redirect:/accounts";
-	 }
-	 
-	 @GetMapping("/cash/{id}")
-	 public String cashLedger(
-	         @PathVariable UUID id,
-	         Principal principal,
-	         Model model) {
+	@PostMapping("/deactivate/{id}")
+	public String deactivate(@PathVariable UUID id) {
 
-	     Account account = accountService
-	         .findByAccountIdAndUsername(id, principal.getName());
+		Account account = accountRepository.getReferenceById(id);
+		account.setActive(false);
+		accountRepository.save(account);
+		return "redirect:/accounts";
+	}
 
-	     //List<CashTransaction> transactions =
-	     //    cashTransactionService.findForAccount(id);
-	     
-	     List<CashLedgerRow> transactions = cashTransactionService.buildLedger(id);
+	@PostMapping("/activate/{id}")
+	public String activate(@PathVariable UUID id) {
 
-	     CashSummary summary =
-	         cashTransactionService.calculateSummary(id);
-	     
-	     List<String> symbols = tradeRepository.findDistinctSymbolsByAccountId(id);
-	     model.addAttribute("symbols", symbols);
+		Account account = accountRepository.getReferenceById(id);
+		account.setActive(true);
+		accountRepository.save(account);
+		return "redirect:/accounts";
+	}
 
-	     model.addAttribute("pageTitle", account.getName() + " Cash Ledger");
-	     model.addAttribute("account", account);
-	     model.addAttribute("transactions", transactions);
-	     model.addAttribute("summary", summary);
+	@GetMapping("/cash/{id}")
+	public String cashLedger(@PathVariable UUID id, Principal principal, Model model) {
 
-	     return "cash-ledger";
-	 }
-	 
-	 @PostMapping("/cash/dividend")
-	 public String addDividend(
-	         @RequestParam UUID accountId,
-	         @RequestParam LocalDate transactionDate,
-	         @RequestParam BigDecimal amount,
-	         @RequestParam(required = false) String symbol,
-	         @RequestParam(required = false) String description
-	 ) {
-	     cashTransactionService.addDividend(
-	         accountId,
-	         transactionDate.atStartOfDay(),
-	         amount,
-	         symbol,
-	         description
-	     );
+		Account account = accountService.findByAccountIdAndUsername(id, principal.getName());
 
-	     return "redirect:/accounts/cash/" + accountId;
-	 }
-	 
-	 @PostMapping("/cash/add")
-	 public String addCash(
-	         @RequestParam UUID accountId,
-	         @RequestParam LocalDate transactionDate,
-	         @RequestParam BigDecimal amount,
-	         @RequestParam CashTransactionType type,
-	         @RequestParam(required = false) String description
-	 ) {
-	     cashTransactionService.addCash(
-	         accountId,
-	         transactionDate.atStartOfDay(),
-	         amount,
-	         type,
-	         description
-	     );
+		List<CashLedgerRow> transactions = cashTransactionService.buildLedger(id);
 
-	     return "redirect:/accounts/cash/" + accountId;
-	 }
-	 
-	 @PostMapping("/cash/withdraw")
-	 public String withdrawCash(
-	         @RequestParam UUID accountId,
-	         @RequestParam LocalDate transactionDate,
-	         @RequestParam BigDecimal amount,
-	         @RequestParam(required = false) String description
-	 ) {
-	     cashTransactionService.withdraw(
-	             accountId,
-	             transactionDate.atStartOfDay(),
-	             amount,
-	             description
-	     );
+		CashSummary summary = cashTransactionService.calculateSummary(id);
 
-	     return "redirect:/accounts/cash/" + accountId;
-	 }
+		List<String> symbols = tradeRepository.findDistinctSymbolsByAccountId(id);
+		model.addAttribute("symbols", symbols);
 
+		model.addAttribute("pageTitle", account.getName() + " Cash Ledger");
+		model.addAttribute("account", account);
+		model.addAttribute("transactions", transactions);
+		model.addAttribute("summary", summary);
 
+		return "cash-ledger";
+	}
 
+	@PostMapping("/cash/dividend")
+	public String addDividend(
+			@RequestParam UUID accountId, 
+			@RequestParam LocalDate transactionDate,
+			@RequestParam BigDecimal amount, 
+			@RequestParam(required = false) String symbol,
+			@RequestParam(required = false) String description) 
+	{
+		cashTransactionService.addDividend(accountId, transactionDate.atStartOfDay(), amount, symbol, description);
+		return "redirect:/accounts/cash/" + accountId;
+	}
+
+	@PostMapping("/cash/add")
+	public String addCash(
+			@RequestParam UUID accountId, 
+			@RequestParam LocalDate transactionDate,
+			@RequestParam BigDecimal amount, 
+			@RequestParam CashTransactionType type,
+			@RequestParam(required = false) String description) 
+	{
+		cashTransactionService.addCash(accountId, transactionDate.atStartOfDay(), amount, type, description);
+		return "redirect:/accounts/cash/" + accountId;
+	}
+
+	@PostMapping("/cash/withdraw")
+	public String withdrawCash(
+			@RequestParam UUID accountId, 
+			@RequestParam LocalDate transactionDate,
+			@RequestParam BigDecimal amount, 
+			@RequestParam(required = false) String description) 
+	{
+		cashTransactionService.withdraw(accountId, transactionDate.atStartOfDay(), amount, description);
+		return "redirect:/accounts/cash/" + accountId;
+	}
+
+	@PostMapping("/cash/edit")
+    public String editSubmit(
+    		 @RequestParam UUID accountId,
+    	     @RequestParam UUID id,
+    	     @RequestParam LocalDateTime transactionDate,
+    	     @RequestParam CashTransactionType transactionType,
+    	     @RequestParam BigDecimal amount,
+    	     @RequestParam(required = false) String symbol,
+    	     @RequestParam(required = false) String description
+    ) {
+		cashTransactionService.update(id, transactionDate, transactionType, amount, symbol, description);
+    	return "redirect:/accounts/cash/" + accountId;
+    }
 }

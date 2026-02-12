@@ -49,6 +49,13 @@ public class CashTransaction {
     @Column(length = 255)
     private String description;
 
+    @Column(length = 30)
+    @Enumerated(EnumType.STRING)
+    private CashTxnSource source = CashTxnSource.MANUAL;
+
+    @Column(nullable = false)
+    private boolean editable = true;
+
     public CashTransaction() {
         // JPA
     }
@@ -111,6 +118,23 @@ public class CashTransaction {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public CashTxnSource getSource() {
+		return source;
+	}
+
+	public void setSource(CashTxnSource source) {
+		this.source = source;
+	}
+
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
+
+	public boolean isEditable() {
+		// TODO Auto-generated method stub
+		return this.editable;
 	}
     
     

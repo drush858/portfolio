@@ -76,6 +76,7 @@
 	      <th class="px-4 py-2">Description</th>
 	      <th class="px-4 py-2 text-right">Amount</th>
 	      <th class="px-4 py-2 text-right">Balance</th>
+		  <th class="px-4 py-2 text-right">Actions</th>
 	    </tr>
 	  </thead>
 
@@ -98,13 +99,46 @@
 	      <td class="px-4 py-2 text-right font-mono"
 	          th:classappend="${row.amount > 0} ? 'text-green-700' : 'text-red-700'"
 	          th:text="${#numbers.formatCurrency(row.amount)}"></td>
+			  
+		  <td class="px-4 py-2 text-right font-mono"
+		      th:text="${#numbers.formatCurrency(row.balance)}"></td>
+	  
+		  <!-- Actions -->
+	      <td class="px-4 py-2 text-right">
+	        <!-- If you have row.editable -->
+	        <button type="button"
+	                class="text-blue-800 hover:underline text-sm"
+	                th:if="${row.editable}"
+	                onclick="openCashEditModal(this)"
+	                th:attr="
+	                  data-id=${row.id},
+	                  data-date=${#temporals.format(row.date, 'yyyy-MM-dd''T''HH:mm')},
+	                  data-type=${row.type},
+	                  data-symbol=${row.symbol},
+	                  data-description=${row.description},
+	                  data-amount=${row.amount}">
+	          Edit
+	        </button>
 
-	      <td class="px-4 py-2 text-right font-mono"
-	          th:text="${#numbers.formatCurrency(row.balance)}"></td>
+	        <span th:unless="${row.editable}"
+	              class="text-xs text-gray-600">
+	          Locked
+	        </span>
+			<!-- If you DON'T have row.editable yet, use this instead:
+	        <button type="button"
+	                class="text-blue-800 hover:underline text-sm"
+	                onclick="openCashEditModal(this)"
+	                th:attr="data-id=${row.id}, ...">
+	           Edit
+	        </button>
+	        -->
+	    </td>
+			
 	    </tr>
 	  </tbody>
 	</table>
 	</div>
+	
 	<!-- Add Dividend Modal -->
 	<div id="dividendModal"
 	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
@@ -202,6 +236,7 @@
 	    </div>
 	</div>
 	
+	<!-- Add Cash Modal -->
 	<div id="cashModal"
 	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
 
@@ -296,10 +331,10 @@
 	    </div>
 
 	    <!-- Form -->
-	    <form th:action="@{/cash/withdraw}" method="post"
+	    <form th:action="@{/accounts/cash/withdraw}" method="post"
 	          class="space-y-4 px-6 py-5">
 
-	      <input type="hidden" name="accountId" th:value="${accountId}" />
+	      <input type="hidden" name="accountId" th:value="${account.id}" />
 
 	      <!-- Date -->
 	      <div>
@@ -358,6 +393,86 @@
 	  </div>
 	</div>
 
+	<!-- Edit Cash Transaction Modal -->
+	<div id="cashEditModal"
+	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+
+	  <div class="w-full max-w-lg rounded-2xl bg-white shadow-lg">
+
+	    <div class="flex items-center justify-between border-b px-6 py-4">
+	      <h3 class="text-lg font-semibold text-gray-800">Edit Cash Transaction</h3>
+	      <button type="button"
+	              onclick="closeCashEditModal()"
+	              class="text-gray-400 hover:text-gray-600">✕</button>
+	    </div>
+
+	    <form th:action="@{/accounts/cash/edit}" method="post" class="space-y-4 px-6 py-5">
+
+	      <!-- you already have accountId on the page -->
+	      <input type="hidden" name="accountId" th:value="${account.id}" />
+	      <input type="hidden" name="id"        id="editId" />
+
+	      <div>
+	        <label class="block text-sm font-medium text-gray-700">Date</label>
+			<input id="editDate" type="datetime-local" name="transactionDate" required
+			       class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2
+			              focus:border-blue-500 focus:ring-blue-500" />
+	      </div>
+
+	      <div>
+	        <label class="block text-sm font-medium text-gray-700">Type</label>
+	        <select id="editType" name="transactionType" required
+	                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2
+	                       focus:border-blue-500 focus:ring-blue-500">
+	          <option th:each="t : ${T(dr.portfolio.domain.CashTransactionType).values()}"
+	                  th:value="${t}" th:text="${t}"></option>
+	        </select>
+	      </div>
+
+	      <div>
+	        <label class="block text-sm font-medium text-gray-700">Symbol</label>
+	        <input id="editSymbol" type="text" name="symbol"
+	               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 font-mono
+	                      focus:border-blue-500 focus:ring-blue-500"
+	               placeholder="Optional" />
+	      </div>
+
+	      <div>
+	        <label class="block text-sm font-medium text-gray-700">Description</label>
+	        <input id="editDescription" type="text" name="description"
+	               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2
+	                      focus:border-blue-500 focus:ring-blue-500"
+	               placeholder="Optional" />
+	      </div>
+
+	      <div>
+	        <label class="block text-sm font-medium text-gray-700">Amount</label>
+	        <input id="editAmount" type="number" name="amount" step="0.01"
+	               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 font-mono
+	                      focus:border-blue-500 focus:ring-blue-500"
+	               placeholder="0.00" />
+	        <p class="mt-1 text-xs text-gray-600">
+	          Tip: if your service applies sign rules (BUY/FEE negative, etc.), enter a positive number.
+	        </p>
+	      </div>
+
+	      <div class="flex justify-end gap-3 border-t pt-4">
+	        <button type="button"
+	                onclick="closeCashEditModal()"
+	                class="rounded-md border px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+	          Cancel
+	        </button>
+
+	        <button type="submit"
+	                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+	          Save Changes
+	        </button>
+	      </div>
+
+	    </form>
+	  </div>
+	</div>
+
 	
 	<script>
 	    function openDividendModal() {
@@ -393,6 +508,26 @@
 		    const modal = document.getElementById('withdrawModal');
 		    modal.classList.add('hidden');
 		    modal.classList.remove('flex');
+		}
+		
+		function openCashEditModal(btn) {
+		    const m = document.getElementById('cashEditModal');
+
+		    document.getElementById('editId').value = btn.dataset.id || '';
+		    document.getElementById('editDate').value = btn.dataset.date || '';
+		    document.getElementById('editType').value = btn.dataset.type || '';
+		    document.getElementById('editSymbol').value = btn.dataset.symbol || '';
+		    document.getElementById('editDescription').value = btn.dataset.description || '';
+		    document.getElementById('editAmount').value = btn.dataset.amount || '';
+
+		    m.classList.remove('hidden');
+		    m.classList.add('flex');
+		}
+
+		function closeCashEditModal() {
+		    const m = document.getElementById('cashEditModal');
+		    m.classList.add('hidden');
+		    m.classList.remove('flex');
 		}
 		
 	</script>

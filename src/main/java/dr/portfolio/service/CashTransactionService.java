@@ -13,6 +13,7 @@ import dr.portfolio.domain.CashTransaction;
 import dr.portfolio.domain.CashTransactionType;
 import dr.portfolio.dto.CashLedgerRow;
 import dr.portfolio.dto.CashSummary;
+import dr.portfolio.dto.CashTransactionEdit;
 import dr.portfolio.repositories.AccountRepository;
 import dr.portfolio.repositories.CashTransactionRepository;
 import jakarta.transaction.Transactional;
@@ -37,6 +38,58 @@ public class CashTransactionService {
 		return cashTransactionRepository.findByAccountIdOrderByTransactionDateAsc(accountId);
 	}
 	
+	public CashTransactionEdit getEditModel(UUID txnId) {
+        CashTransaction tx = cashTransactionRepository.findById(txnId)
+            .orElseThrow(() -> new IllegalArgumentException("Cash transaction not found"));
+
+        CashTransactionEdit dto = new CashTransactionEdit();
+        dto.setId(tx.getId());
+        dto.setTransactionDate(tx.getTransactionDate());
+        dto.setTransactionType(tx.getTransactionType());
+        dto.setAmount(tx.getAmount().abs()); // if you store negatives for outflows
+        dto.setSymbol(tx.getSymbol());
+        dto.setDescription(tx.getDescription());
+        return dto;
+    }
+	
+	public void update(
+			UUID id, 
+			LocalDateTime transactionDate, 
+			CashTransactionType transactionType, 
+			BigDecimal amount, 
+			String symbol, 
+			String description)
+	{
+        CashTransaction tx = cashTransactionRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Cash transaction not found"));
+
+        if (!tx.isEditable()) {
+            throw new IllegalStateException("This transaction is generated from trades and cannot be edited.");
+        }
+
+        tx.setTransactionDate(transactionDate);
+        tx.setTransactionType(transactionType);
+        tx.setSymbol(blankToNull(symbol));
+        tx.setDescription(blankToNull(description));
+
+        // normalize sign (optional policy)
+        tx.setAmount(applySign(transactionType, amount));
+
+        cashTransactionRepository.save(tx);
+    }
+	
+	private BigDecimal applySign(CashTransactionType type, BigDecimal amount) {
+        // choose your rule. Example:
+        return switch (type) {
+            case BUY, FEE, TRANSFER_OUT -> amount.negate();
+            default -> amount; // inflows
+        };
+    }
+
+    private String blankToNull(String s) {
+        return (s == null || s.isBlank()) ? null : s.trim();
+    }
+	
 	public List<CashLedgerRow> buildLedger(UUID accountId) {
 
 	    List<CashTransaction> txs =
@@ -49,12 +102,14 @@ public class CashTransactionService {
 	        balance += tx.getAmount().doubleValue();
 
 	        rows.add(new CashLedgerRow(
+	        	tx.getId(),
 	            tx.getTransactionDate(),
 	            tx.getTransactionType(),
 	            tx.getSymbol(),
 	            tx.getDescription(),
 	            tx.getAmount(),
-	            balance
+	            balance,
+	            tx.isEditable()
 	        ));
 	    }
 
