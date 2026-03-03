@@ -63,10 +63,10 @@ public class TradeController {
         this.optionTradeService = optionTradeService;
     }
 
-    @GetMapping("/sold/{year}")
+    @GetMapping("/sold")
     public String soldHoldings(
-            @PathVariable int year,
-            Principal principal,
+            @RequestParam int year,
+    		Principal principal,
             Model model) {
 
         List<Trade> trades =

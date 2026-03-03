@@ -48,6 +48,9 @@
                         <th class="px-6 py-3 text-right text-sm font-bold">
                             Gain
                         </th>
+						<th class="px-6 py-3 text-right text-sm font-bold">
+						    % Gain
+						</th>
                     </tr>
                 </thead>
 
@@ -72,6 +75,10 @@
                             th:text="${#numbers.formatCurrency(s.gain)}"
                             th:classappend="${s.gain >= 0} ? 'text-green-600' : 'text-red-600'">
                         </td>
+						<td class="px-6 py-4 text-right font-medium"
+                            th:text="${#numbers.formatPercent(s.percentGain, 0, 2)}"
+                            th:classappend="${s.percentGain >= 0} ? 'text-green-600' : 'text-red-600'">
+                        </td>
                     </tr>
                 </tbody>
 
@@ -91,6 +98,10 @@
                             th:text="${#numbers.formatCurrency(account.totalGain)}"
                             th:classappend="${account.totalGain >= 0} ? 'text-green-700' : 'text-red-700'">
                         </td>
+						<td class="px-6 py-4 text-right"
+						    th:text="${#numbers.formatPercent(account.totalPercentGain, 0, 2)}"
+						    th:classappend="${account.totalPercentGain >= 0} ? 'text-green-700' : 'text-red-700'">
+						</td>
                     </tr>
                 </tfoot>
             </table>

@@ -8,6 +8,7 @@ public class AccountSymbolTotals {
     private double proceeds;
     private double costBasis;
     private double gain;
+    private double percentGain;
 
     public AccountSymbolTotals(String accountName, String symbol) {
         this.accountName = accountName;
@@ -18,9 +19,16 @@ public class AccountSymbolTotals {
         this.proceeds += proceeds;
         this.costBasis += costBasis;
         this.gain = this.proceeds - this.costBasis;
+        this.percentGain =
+                (this.costBasis == 0.0) ? 0.0 : (this.gain / this.costBasis);
     }
 
-    public String getAccountName() {
+    
+    public double getPercentGain() {
+		return percentGain;
+	}
+
+	public String getAccountName() {
         return accountName;
     }
 

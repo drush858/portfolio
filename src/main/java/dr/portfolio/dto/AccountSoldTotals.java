@@ -6,6 +6,7 @@ public class AccountSoldTotals {
     private double totalProceeds;
     private double totalCostBasis;
     private double totalGain;
+    private double totalPercentGain;
 
     public AccountSoldTotals(String accountName) {
         this.accountName = accountName;
@@ -15,11 +16,15 @@ public class AccountSoldTotals {
         this.totalProceeds += proceeds;
         this.totalCostBasis += costBasis;
         this.totalGain += (proceeds - costBasis);
+        this.totalPercentGain =
+        		(this.totalCostBasis == 0.0) ? 0.0 : (this.totalGain / this.totalCostBasis);
     }
 
     // getters
     public String getAccountName() { return accountName; }
-    public double getTotalProceeds() { return totalProceeds; }
+    public double getTotalPercentGain() { return totalPercentGain; }
+
+	public double getTotalProceeds() { return totalProceeds; }
     public double getTotalCostBasis() { return totalCostBasis; }
     public double getTotalGain() { return totalGain; }
 }
