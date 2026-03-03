@@ -4,7 +4,7 @@
 
 <div th:fragment="tradeLots" 
      class="overflow-hidden rounded-2xl shadow border border-slate-300">
-<table class="min-w-full text-sm border divide-slate-600 rounded-lg">
+<table class="min-w-full text-sm divide-slate-300 rounded-lg">
      <thead>
          <tr>
              <th class="px-3 py-2 text-left">Type</th>
@@ -16,7 +16,7 @@
     <tbody class="divide-y">
 
         <tr th:each="trade : ${trades}"
-            class="hover:bg-slate-600">
+            class="hover:bg-slate-500">
 
             <td class="px-4 py-2 text-left quantity font-mono"
                 th:text="${trade.tradeType}"

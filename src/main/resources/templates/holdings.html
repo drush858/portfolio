@@ -211,8 +211,8 @@
 			  <!-- Lots only for stocks -->
 			  <button th:if="${!h.option}"
 			          type="button"
-			          class="hover:underline text-sm border border-slate-300"
-			          th:attr="data-holding-id=${h.holdingId}"
+			          class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-800 border border-slate-300" 
+					  th:attr="data-holding-id=${h.holdingId}"
 			          th:onclick="toggleLots(this)">
 			    View lots
 			  </button>
@@ -252,7 +252,7 @@
 		<form th:object="${tradeCreate}" method="post">
 		 	<div class="overflow-hidden rounded-2xl shadow">
 		        <table class="min-w-full divide-y divide-slate-600">
-		            <thead>
+		            <thead class="bg-slate-800">
 		                <tr>
 		                    <th class="px-6 py-3 text-left text-sm font-bold">
 		                        Symbol
@@ -278,27 +278,27 @@
 								<input id="symbolInput"
 							           th:field="*{symbol}"
 							           placeholder="Symbol"
-							           class="border rounded px-3 py-2"/>
+							           class="border rounded px-3 py-2 bg-slate-400 text-slate-800"/>
 		                    </td>
 	
 		                    <td class="px-6 py-4">
 								<input id="quantityInput"
 							           th:field="*{quantity}"
 							           placeholder="Quantity"
-							           class="border rounded px-3 py-2"/>
+							           class="border rounded px-3 py-2 bg-slate-400 text-slate-800"/>
 		                    </td>
 							<td class="px-6 py-4">
 								<input id="priceInput"
 							           th:field="*{price}"
 							           placeholder="Price"
-							           class="border rounded px-3 py-2"/>
+							           class="border rounded px-3 py-2 bg-slate-400 text-slate-800"/>
 							</td>
 							<td class="px-6 py-4">
 								<input id="dateInput"
 							           th:field="*{date}"
 									   type="date"
 									   placeholder="MM/DD/YYYY"
-							           class="border rounded px-3 py-2"/>
+							           class="border rounded px-3 py-2 bg-slate-400 text-slate-800"/>
 							</td>
 							<td class="px-6 py-4">
 								<div class="flex gap-2">
@@ -326,16 +326,16 @@
 <!-- Stock Dialog Buy/Sell Modal -->
 <div id="tradeModal"
      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
-  <div class="w-full max-w-lg rounded-xl bg-gray-400 shadow-lg">
+  <div class="w-full max-w-lg rounded-xl bg-slate-900 text-slate-400 shadow-lg">
 
     <!-- Header -->
     <div class="flex items-center justify-between border-b px-6 py-4">
-      <h3 id="tradeModalTitle" class="text-lg font-semibold text-gray-800">
+      <h3 id="tradeModalTitle" class="text-lg font-semibold">
         Trade
       </h3>
       <button type="button"
               onclick="closeTradeModal()"
-              class="text-gray-400 hover:text-gray-600">✕</button>
+              class="text-slate-400 hover:text-slate-600">✕</button>
     </div>
 
     <!-- Form -->
@@ -345,46 +345,45 @@
 
       <!-- Symbol -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Symbol</label>
+        <label class="block text-sm font-medium">Symbol</label>
         <input id="symbolInputModal" name="symbol" readonly
-               class="mt-1 w-full rounded-md border-gray-300 bg-gray-100
-                      font-mono text-gray-800" />
+               class="mt-1 w-full rounded-md border font-mono border-slate-300 bg-slate-400 text-slate-800" />
       </div>
 
       <!-- Quantity -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Quantity</label>
+        <label class="block text-sm font-medium">Quantity</label>
         <input id="quantityInputModal" type="number" name="quantity" min="1" step="1" required
-               class="mt-1 w-full rounded-md border-gray-300
+               class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800 border
                       focus:border-blue-500 focus:ring-blue-500" />
       </div>
 
       <!-- Price -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Price</label>
+        <label class="block text-sm font-medium">Price</label>
         <input id="priceInputModal" type="number" name="price" min="0" step="0.01" required
-               class="mt-1 w-full rounded-md border-gray-300
-                      focus:border-blue-500 focus:ring-blue-500" />
+               class="mt-1 w-full rounded-md border
+                      focus:border-blue-500 focus:ring-blue-500 border-slate-300 bg-slate-400 text-slate-800" />
       </div>
 
       <!-- Date -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Trade Date</label>
+        <label class="block text-sm font-medium">Trade Date</label>
         <!-- NOTE: your controller currently expects LocalDateTime.
              We'll post "YYYY-MM-DDTHH:mm" so it binds cleanly. -->
         <input id="tradeDateInputModal" type="date" name="tradeDate" required
-		       class="mt-1 w-full rounded-md border-gray-300
-                      focus:border-blue-500 focus:ring-blue-500" />
+		       class="mt-1 w-full rounded-md border-slate-300 border
+                      focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
       </div>
 
       <!-- Footer -->
       <div class="flex justify-end gap-3 border-t pt-4">
         <button type="button" onclick="closeTradeModal()"
-                class="rounded-md border px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
+                class="rounded-md border px-4 py-2 text-sm text-slate-600 hover:bg-slate-600 hover:text-slate-900">
           Cancel
         </button>
         <button type="submit"
-                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                class="rounded-md border bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
           Submit
         </button>
       </div>
@@ -397,15 +396,15 @@
 <div id="optionTradeModal"
      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
 
-  <div class="w-full max-w-lg rounded-xl bg-gray-400 shadow-lg">
+  <div class="w-full max-w-lg rounded-xl bg-slate-900 text-slate-400 shadow-lg">
 
     <!-- Header -->
     <div class="flex items-center justify-between border-b px-6 py-4">
-      <h3 class="text-lg font-semibold text-gray-800">
+      <h3 class="text-lg font-semibold">
         Add Option Trade
       </h3>
       <button onclick="closeOptionTradeModal()"
-              class="text-gray-400 hover:text-gray-600">✕</button>
+              class="text-slate-400 hover:text-slate-600">✕</button>
     </div>
 
     <!-- Form -->
@@ -413,27 +412,26 @@
           class="space-y-4 px-6 py-5">
 
       <input type="hidden" name="accountId" th:value="${accountId}" />
-      <!--input type="hidden" name="instrumentType" value="OPTION" /-->
 
       <!-- Underlying Symbol -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium">
           Underlying Symbol
         </label>
         <input type="text" name="underlyingSymbol" required
                placeholder="AAPL"
-               class="mt-1 w-full rounded-md border-gray-300
-                      focus:border-blue-500 focus:ring-blue-500" />
+               class="mt-1 w-full rounded-md border-slate-300 border
+                      focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
       </div>
 
       <!-- Option Type -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium">
           Option Type
         </label>
         <select name="optionType" required
-                class="mt-1 w-full rounded-md border-gray-300
-                       focus:border-blue-500 focus:ring-blue-500">
+                class="mt-1 w-full rounded-md border-slate-300 border
+                       focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800">
           <option value="CALL">Call</option>
           <option value="PUT">Put</option>
         </select>
@@ -441,56 +439,56 @@
 
       <!-- Expiration -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium">
           Expiration Date
         </label>
         <input type="date" name="expiration" required
-               class="mt-1 w-full rounded-md border-gray-300
-                      focus:border-blue-500 focus:ring-blue-500" />
+               class="mt-1 w-full rounded-md border-slate-300 border
+                      focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
       </div>
 
       <!-- Strike -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium">
           Strike Price
         </label>
         <input type="number" name="strikePrice" step="0.01" required
                placeholder="150.00"
-               class="mt-1 w-full rounded-md border-gray-300
-                      focus:border-blue-500 focus:ring-blue-500" />
+               class="mt-1 w-full rounded-md border-slate-300 border
+                      focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
       </div>
 
       <!-- Trade Details -->
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700">
+          <label class="block text-sm font-medium">
             Contracts
           </label>
           <input type="number" name="quantity" step="1" min="1" required
                  placeholder="1" value="1"
-                 class="mt-1 w-full rounded-md border-gray-300
-                        focus:border-blue-500 focus:ring-blue-500" />
+                 class="mt-1 w-full rounded-md border-slate-300 border
+                        focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700">
+          <label class="block text-sm font-medium">
             Price (per contract)
           </label>
           <input type="number" name="price" step="0.01" required
                  placeholder="2.35"
-                 class="mt-1 w-full rounded-md border-gray-300
-                        focus:border-blue-500 focus:ring-blue-500" />
+                 class="mt-1 w-full rounded-md border-slate-300 border
+                        focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
         </div>
       </div>
 
       <!-- Buy / Sell -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium">
           Action
         </label>
         <select name="tradeType" required
-                class="mt-1 w-full rounded-md border-gray-300
-                       focus:border-blue-500 focus:ring-blue-500">
+                class="mt-1 w-full rounded-md border-slate-300 border
+                       focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800">
           <option value="BUY">Buy to Open</option>
           <option value="SELL">Sell to Close</option>
         </select>
@@ -498,13 +496,13 @@
 
       <!-- Trade Date -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium">
           Trade Date
         </label>
         <input type="date" name="tradeDate" required
 			   th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
-               class="mt-1 w-full rounded-md border-gray-300
-                      focus:border-blue-500 focus:ring-blue-500" />
+               class="mt-1 w-full rounded-md border-slate-300 border
+                      focus:border-blue-500 focus:ring-blue-500 bg-slate-400 bg-slate-400 text-slate-800" />
       </div>
 
       <!-- Footer -->
@@ -512,12 +510,12 @@
         <button type="button"
                 onclick="closeOptionTradeModal()"
                 class="rounded-md border px-4 py-2 text-sm
-                       text-gray-600 hover:bg-gray-100">
+                       text-slate-600 hover:bg-slate-600 hover:text-slate-900">
           Cancel
         </button>
         <button type="submit"
-                class="rounded-md bg-blue-600 px-4 py-2 text-sm
-                       font-semibold text-white hover:bg-blue-700">
+                class="rounded-md border bg-blue-600 px-4 py-2 text-sm
+                       font-semibold text-white hover:bg-blue-800">
           Save Trade
         </button>
       </div>

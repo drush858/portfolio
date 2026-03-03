@@ -15,27 +15,27 @@
 	    th:text="'Cash Ledger – ' + ${account.name}">
 	</h2>
 
-	<div class="grid grid-cols-4 gap-4 mb-6 bg-gray-400 overflow-hidden rounded-2xl shadow border border-gray-200">
+	<div class="grid grid-cols-4 gap-4 mb-6 overflow-hidden rounded-2xl shadow border border-slate-300 text-slate-400">
 	  <div class="p-4 rounded shadow">
-	    <p class="text-sm text-gray-800">Starting Balance</p>
+	    <p class="text-sm">Starting Balance</p>
 	    <p class="text-xl font-semibold"
 	       th:text="${summary.startingBalance}"></p>
 	  </div>
 
 	  <div class=" p-4 rounded shadow">
-	    <p class="text-sm text-gray-800">Cash In</p>
+	    <p class="text-sm">Cash In</p>
 	    <p class="text-xl text-green-700 font-semibold"
 	       th:text="${summary.totalIn}"></p>
 	  </div>
 
 	  <div class=" p-4 rounded shadow">
-	    <p class="text-sm text-gray-800">Cash Out</p>
+	    <p class="text-sm">Cash Out</p>
 	    <p class="text-xl text-red-700 font-semibold"
 	       th:text="${summary.totalOut}"></p>
 	  </div>
 
 	  <div class=" p-4 rounded shadow">
-	    <p class="text-sm text-gray-800">Current Balance</p>
+	    <p class="text-sm">Current Balance</p>
 	    <p class="text-xl text-blue-700 font-semibold"
 	       th:text="${summary.currentBalance}"></p>
 	  </div>
@@ -44,7 +44,7 @@
 	<button
 	    type="button"
 	    onclick="openDividendModal()"
-	    class="mb-4 inline-flex items-center rounded-lg bg-green-600 px-4 py-2 border border-gray-200
+	    class="mb-4 inline-flex items-center rounded-lg bg-green-600 px-4 py-2 border border-slate-300
 	           text-sm font-semibold text-white hover:bg-green-700">
 	    + Add Dividend
 	</button>
@@ -52,7 +52,7 @@
 	<button
 	    type="button"
 	    onclick="openCashModal()"
-	    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 border border-gray-200
+	    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 border border-slate-300
 	           text-sm font-semibold text-white hover:bg-blue-700">
 	    + Add Cash
 	</button>
@@ -60,15 +60,15 @@
 	<button
 	    type="button"
 	    onclick="openWithdrawModal()"
-	    class="mb-4 inline-flex items-center rounded-lg bg-red-600 px-4 py-2 border border-gray-200
+	    class="mb-4 inline-flex items-center rounded-lg bg-red-600 px-4 py-2 border border-slate-300
 	           text-sm font-semibold text-white hover:bg-red-700">
 	    − Withdraw Cash
 	</button>
 
 	
-	<div class="overflow-hidden rounded-2xl shadow border border-gray-200">
-	<table class="min-w-full bg-gray-400 rounded rounded-2xl shadow border border-gray-200">
-	  <thead class="bg-gray-400 text-left text-sm">
+	<div class="overflow-hidden rounded-2xl shadow border border-slate-300 text-slate-400">
+	<table class="min-w-full rounded rounded-2xl shadow">
+	  <thead class="text-left text-sm bg-slate-800">
 	    <tr>
 	      <th class="px-4 py-2">Date</th>
 	      <th class="px-4 py-2">Type</th>
@@ -143,10 +143,11 @@
 	<div id="dividendModal"
 	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
 
-	    <div class="w-full max-w-md rounded-xl bg-gray-400 shadow-lg">
+	     <div class="w-full max-w-lg rounded-xl bg-slate-900 text-slate-400 shadow-lg">
+			
 	        <!-- Header -->
 	        <div class="flex items-center justify-between border-b px-6 py-4">
-	            <h3 class="text-lg font-semibold text-gray-800">
+	            <h3 class="text-lg font-semibold">
 	                Add Dividend
 	            </h3>
 	            <button onclick="closeDividendModal()"
@@ -164,25 +165,25 @@
 
 	            <!-- Date -->
 	            <div>
-	                <label class="block text-sm font-medium text-gray-700">
+	                <label class="block text-sm font-medium">
 	                    Date
 	                </label>
 	                <input type="date"
 	                       name="transactionDate"
 	                       th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
 	                       required
-	                       class="mt-1 w-full rounded-md border-gray-300
-	                              focus:border-green-500 focus:ring-green-500" />
+	                       class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800
+	                              focus:border-blue-500 focus:ring-blue-500" />
 	            </div>
 
 	            <!-- Symbol -->
 	            <div>
-	                <label class="block text-sm font-medium text-gray-700">
+	                <label class="block text-sm font-medium">
 	                    Symbol (optional)
 	                </label>
 	                <select name="symbol"
-	                        class="mt-1 w-full rounded-md border-gray-300
-	                               focus:border-green-500 focus:ring-green-500">
+	                        class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800
+	                               focus:border-blue-500 focus:ring-blue-500">
 	                    <option value="">— Cash Dividend —</option>
 	                    <option th:each="s : ${symbols}"
 	                            th:value="${s}"
@@ -193,7 +194,7 @@
 
 	            <!-- Amount -->
 	            <div>
-	                <label class="block text-sm font-medium text-gray-700">
+	                <label class="block text-sm font-medium">
 	                    Amount
 	                </label>
 	                <input type="number"
@@ -202,20 +203,20 @@
 	                       min="0.01"
 	                       placeholder="0.00"
 	                       required
-	                       class="mt-1 w-full rounded-md border-gray-300
-	                              focus:border-green-500 focus:ring-green-500" />
+	                       class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800
+	                              focus:border-blue-500 focus:ring-blue-500" />
 	            </div>
 
 	            <!-- Notes -->
 	            <div>
-	                <label class="block text-sm font-medium text-gray-700">
+	                <label class="block text-sm font-medium">
 	                    Description
 	                </label>
 	                <input type="text"
 	                       name="description"
 	                       placeholder="Quarterly dividend"
-	                       class="mt-1 w-full rounded-md border-gray-300
-	                              focus:border-green-500 focus:ring-green-500" />
+	                       class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800
+	                              focus:border-blue-500 focus:ring-blue-500" />
 	            </div>
 
 	            <!-- Actions -->
@@ -223,12 +224,12 @@
 	                <button type="button"
 	                        onclick="closeDividendModal()"
 	                        class="rounded-md border px-4 py-2 text-sm
-	                               text-gray-600 hover:bg-gray-100">
+	                               text-slate-600 hover:bg-slate-600 hover:text-slate-900">
 	                    Cancel
 	                </button>
 	                <button type="submit"
 	                        class="rounded-md bg-green-600 px-4 py-2 text-sm
-	                               font-semibold text-white hover:bg-green-700">
+	                               font-semibold text-white hover:bg-green-800">
 	                    Save Dividend
 	                </button>
 	            </div>
@@ -240,14 +241,14 @@
 	<div id="cashModal"
 	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
 
-	    <div class="w-full max-w-md rounded-xl bg-gray-400 shadow-lg">
+	    <div class="w-full max-w-md rounded-xl bg-slate-900 text-slate-400 shadow-lg">
 
 	        <div class="flex items-center justify-between border-b px-6 py-4">
-	            <h3 class="text-lg font-semibold text-gray-800">
+	            <h3 class="text-lg font-semibold">
 	                Add Cash
 	            </h3>
 	            <button onclick="closeCashModal()"
-	                    class="text-gray-400 hover:text-gray-600">✕</button>
+	                    class="text-slate-400 hover:text-slate-600">✕</button>
 	        </div>
 
 	        <form th:action="@{/accounts/cash/add}" method="post"
@@ -257,20 +258,20 @@
 
 	            <!-- Date -->
 	            <div>
-	                <label class="block text-sm font-medium text-gray-700">Date</label>
+	                <label class="block text-sm font-medium">Date</label>
 	                <input type="date" name="transactionDate" required
 					       th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
-	                       class="mt-1 w-full rounded-md border-gray-300
+	                       class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800
 	                              focus:border-blue-500 focus:ring-blue-500" />
 	            </div>
 
 	            <!-- Type -->
 	            <div>
-	                <label class="block text-sm font-medium text-gray-700">
+	                <label class="block text-sm font-medium">
 	                    Type
 	                </label>
 	                <select name="type" required
-	                        class="mt-1 w-full rounded-md border-gray-300
+	                        class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800
 	                               focus:border-blue-500 focus:ring-blue-500">
 	                    <option value="OPENING_BALANCE">Opening Balance</option>
 	                    <option value="TRANSFER_IN">Deposit / Adjustment</option>
@@ -279,35 +280,35 @@
 
 	            <!-- Amount -->
 	            <div>
-	                <label class="block text-sm font-medium text-gray-700">
+	                <label class="block text-sm font-medium">
 	                    Amount
 	                </label>
 	                <input type="number" name="amount" step="0.01" min="0.01"
 	                       placeholder="0.00" required
-	                       class="mt-1 w-full rounded-md border-gray-300
+	                       class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800
 	                              focus:border-blue-500 focus:ring-blue-500" />
 	            </div>
 
 	            <!-- Notes -->
 	            <div>
-	                <label class="block text-sm font-medium text-gray-700">
+	                <label class="block text-sm font-medium">
 	                    Description
 	                </label>
 	                <input type="text" name="Description"
 	                       placeholder="Initial funding"
-	                       class="mt-1 w-full rounded-md border-gray-300
+	                       class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800
 	                              focus:border-blue-500 focus:ring-blue-500" />
 	            </div>
 
 	            <div class="flex justify-end gap-3 border-t pt-4">
 	                <button type="button" onclick="closeCashModal()"
 	                        class="rounded-md border px-4 py-2 text-sm
-	                               text-gray-600 hover:bg-gray-100">
+	                               text-slate-600 hover:bg-slate-600 hover:text-slate-900">
 	                    Cancel
 	                </button>
 	                <button type="submit"
 	                        class="rounded-md bg-blue-600 px-4 py-2 text-sm
-	                               font-semibold text-white hover:bg-blue-700">
+	                               font-semibold text-white hover:bg-blue-800">
 	                    Save
 	                </button>
 	            </div>
@@ -319,11 +320,11 @@
 	<div id="withdrawModal"
 	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
 
-	  <div class="w-full max-w-md rounded-xl bg-gray-400 shadow-lg">
+	  <div class="w-full max-w-md rounded-xl bg-slate-900 text-slate-400 shadow-lg">
 
 	    <!-- Header -->
 	    <div class="flex items-center justify-between border-b px-6 py-4">
-	      <h3 class="text-lg font-semibold text-gray-800">
+	      <h3 class="text-lg font-semibold">
 	        Withdraw Cash
 	      </h3>
 	      <button onclick="closeWithdrawModal()"
@@ -338,18 +339,18 @@
 
 	      <!-- Date -->
 	      <div>
-	        <label class="block text-sm font-medium text-gray-700">Date</label>
+	        <label class="block text-sm font-medium">Date</label>
 	        <input type="date"
 	               name="transactionDate"
 	               required
 				   th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
-	               class="mt-1 w-full rounded-md border-gray-300
+	               class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800
 	                      focus:border-red-500 focus:ring-red-500" />
 	      </div>
 
 	      <!-- Amount -->
 	      <div>
-	        <label class="block text-sm font-medium text-gray-700">
+	        <label class="block text-sm font-medium">
 	          Amount
 	        </label>
 	        <input type="number"
@@ -358,19 +359,19 @@
 	               min="0.01"
 	               required
 	               placeholder="0.00"
-	               class="mt-1 w-full rounded-md border-gray-300
+	               class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800
 	                      focus:border-red-500 focus:ring-red-500" />
 	      </div>
 
 	      <!-- Notes -->
 	      <div>
-	        <label class="block text-sm font-medium text-gray-700">
+	        <label class="block text-sm font-medium">
 	          Notes
 	        </label>
 	        <input type="text"
 	               name="description"
 	               placeholder="Transfer to checking"
-	               class="mt-1 w-full rounded-md border-gray-300
+	               class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800
 	                      focus:border-red-500 focus:ring-red-500" />
 	      </div>
 
@@ -379,12 +380,12 @@
 	        <button type="button"
 	                onclick="closeWithdrawModal()"
 	                class="rounded-md border px-4 py-2 text-sm
-	                       text-gray-600 hover:bg-gray-100">
+	                       text-slate-600 hover:bg-slate-600 hover:text-slate-900">
 	          Cancel
 	        </button>
 	        <button type="submit"
 	                class="rounded-md bg-red-600 px-4 py-2 text-sm
-	                       font-semibold text-white hover:bg-red-700">
+	                       font-semibold text-white hover:bg-red-800">
 	          Withdraw
 	        </button>
 	      </div>
@@ -397,10 +398,10 @@
 	<div id="cashEditModal"
 	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
 
-	  <div class="w-full max-w-lg rounded-2xl bg-white shadow-lg">
+	  <div class="w-full max-w-lg rounded-2xl bg-slate-900 text-slate-400 shadow-lg">
 
 	    <div class="flex items-center justify-between border-b px-6 py-4">
-	      <h3 class="text-lg font-semibold text-gray-800">Edit Cash Transaction</h3>
+	      <h3 class="text-lg font-semibold">Edit Cash Transaction</h3>
 	      <button type="button"
 	              onclick="closeCashEditModal()"
 	              class="text-gray-400 hover:text-gray-600">✕</button>
@@ -413,16 +414,16 @@
 	      <input type="hidden" name="id"        id="editId" />
 
 	      <div>
-	        <label class="block text-sm font-medium text-gray-700">Date</label>
+	        <label class="block text-sm font-medium">Date</label>
 			<input id="editDate" type="datetime-local" name="transactionDate" required
-			       class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2
+			       class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800 px-3 py-2
 			              focus:border-blue-500 focus:ring-blue-500" />
 	      </div>
 
 	      <div>
-	        <label class="block text-sm font-medium text-gray-700">Type</label>
+	        <label class="block text-sm font-medium">Type</label>
 	        <select id="editType" name="transactionType" required
-	                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2
+	                class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800 px-3 py-2
 	                       focus:border-blue-500 focus:ring-blue-500">
 	          <option th:each="t : ${T(dr.portfolio.domain.CashTransactionType).values()}"
 	                  th:value="${t}" th:text="${t}"></option>
@@ -430,25 +431,25 @@
 	      </div>
 
 	      <div>
-	        <label class="block text-sm font-medium text-gray-700">Symbol</label>
+	        <label class="block text-sm font-medium">Symbol</label>
 	        <input id="editSymbol" type="text" name="symbol"
-	               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 font-mono
+	               class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800 px-3 py-2 font-mono
 	                      focus:border-blue-500 focus:ring-blue-500"
 	               placeholder="Optional" />
 	      </div>
 
 	      <div>
-	        <label class="block text-sm font-medium text-gray-700">Description</label>
+	        <label class="block text-sm font-medium">Description</label>
 	        <input id="editDescription" type="text" name="description"
-	               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2
+	               class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800 px-3 py-2
 	                      focus:border-blue-500 focus:ring-blue-500"
 	               placeholder="Optional" />
 	      </div>
 
 	      <div>
-	        <label class="block text-sm font-medium text-gray-700">Amount</label>
+	        <label class="block text-sm font-medium">Amount</label>
 	        <input id="editAmount" type="number" name="amount" step="0.01"
-	               class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 font-mono
+	               class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800 px-3 py-2 font-mono
 	                      focus:border-blue-500 focus:ring-blue-500"
 	               placeholder="0.00" />
 	        <p class="mt-1 text-xs text-gray-600">
@@ -459,12 +460,12 @@
 	      <div class="flex justify-end gap-3 border-t pt-4">
 	        <button type="button"
 	                onclick="closeCashEditModal()"
-	                class="rounded-md border px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+	                class="rounded-md border px-4 py-2 text-sm text-slate-600 hover:bg-slate-600 hover:text-slate-900">
 	          Cancel
 	        </button>
 
 	        <button type="submit"
-	                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+	                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
 	          Save Changes
 	        </button>
 	      </div>
