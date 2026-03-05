@@ -16,6 +16,7 @@ import dr.portfolio.dto.CashSummary;
 import dr.portfolio.dto.CashTransactionEdit;
 import dr.portfolio.repositories.AccountRepository;
 import dr.portfolio.repositories.CashTransactionRepository;
+import dr.portfolio.repositories.TradeRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -24,13 +25,16 @@ public class CashTransactionService {
 
 	private final CashTransactionRepository cashTransactionRepository;
     private final AccountRepository accountRepository;
+    private final TradeRepository tradeRepository;
 	
 	public CashTransactionService(
 			CashTransactionRepository cashTransactionRepository,
-			AccountRepository accountRepository ) {
+			AccountRepository accountRepository,
+			TradeRepository tradeRepository) {
 		
 		this.cashTransactionRepository = cashTransactionRepository;
 		this.accountRepository = accountRepository;
+		this.tradeRepository = tradeRepository;
 	}
 	
 	public List<CashTransaction> findForAccount(UUID accountId) {
@@ -90,6 +94,16 @@ public class CashTransactionService {
         return (s == null || s.isBlank()) ? null : s.trim();
     }
 	
+    public List<String> findSymbols(UUID accountId) {
+    	
+    	List<String> symbols = tradeRepository.findDistinctSymbolsByAccountId(accountId)
+    		.stream()
+    		.filter(s -> !s.matches(".*\\d{6}[CP].*"))
+    		.toList();
+    	
+    	return symbols;
+    }
+    
 	public List<CashLedgerRow> buildLedger(UUID accountId) {
 
 	    List<CashTransaction> txs =

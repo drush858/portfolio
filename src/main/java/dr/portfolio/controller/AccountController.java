@@ -119,7 +119,7 @@ public class AccountController {
 
 		CashSummary summary = cashTransactionService.calculateSummary(id);
 
-		List<String> symbols = tradeRepository.findDistinctSymbolsByAccountId(id);
+		List<String> symbols = cashTransactionService.findSymbols(id);
 		model.addAttribute("symbols", symbols);
 
 		model.addAttribute("pageTitle", account.getName() + " Cash Ledger");
