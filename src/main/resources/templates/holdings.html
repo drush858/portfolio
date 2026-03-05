@@ -129,108 +129,126 @@
 	<table class="min-w-full divide-y divide-slate-600">
         <thead class="font-bold text-sm bg-slate-800">
 	    <tr>
-	      <th class="px-4 py-3">Symbol</th>
+	      <th class="px-4 py-3">
+			<button type="button"
+			        onclick="sortHoldings('symbol')"
+			        class="inline-flex items-center gap-1 hover:underline">
+				Symbol
+				<span id="symbolSortIcon" class="text-xs">↕</span>
+			</button>
+		  </th>
 	      <th class="px-4 py-3 text-right">Quantity</th>
 	      <th class="px-4 py-3 text-right">Avg Cost</th>
 		  <th class="px-4 py-3 text-right">Market Price</th>
 	      <th class="px-4 py-3 text-right">Market Value</th>
 		  <th class="px-4 py-3 text-right">Total Cost</th>
-	      <th class="px-4 py-3 text-right">% Gain</th>
+	      <th class="px-4 py-3 text-right">
+			<button type="button"
+			        onclick="sortHoldings('percentGain')"
+			        class="inline-flex items-center gap-1 hover:underline">
+			    % Gain
+			   <span id="gainSortIcon" class="text-xs">↕</span>
+			</button>
+		  </th>
 	      <th class="px-4 py-3">Action</th>
 	    </tr>
 	  </thead>
 
-	  <tbody th:each="h : ${holdings}" class="divide-y">
+	  <tbody class="divide-y divide-slate-600">
+		<th:block th:each="h : ${holdings}">
+			
+		<!-- MAIN ROW -->
 	    <tr class="hover:bg-slate-600"
-		    th:attr="data-symbol=${h.symbol}">
+		    th:attr="
+				data-holding-id=${h.holdingId},
+				data-symbol=${h.symbol},
+				data-percent-gain=${h.percentGain},
+				data-market-price=${h.marketPrice},
+				data-market-value=${h.marketValue},
+				data-total-cost=${h.totalCost},
+				data-quantity=${h.quantity}
+			">
 	      
 			<!-- Symbol -->
 		    <td class="px-4 py-2 font-mono">
 		        <span th:if="${!h.option}" 
-				      th:text="${h.symbol}"
-					  ></span>
+				      th:text="${h.symbol}">
+				</span>
 
 		        <span th:if="${h.option}"
-		              class="text-indigo-700 font-semibold"
+					  class="text-stone-400"
 		              th:text="${h.optionSummary}">
 		        </span>
 		    </td>
 
 			<!-- Quantity -->
 		    <td class="px-4 py-2 text-right">
-		        <span th:if="${!h.option}" th:text="${h.quantity}"></span>
+				<span th:text="${h.quantity}"></span>
 		        <span th:if="${h.option}">
-		            <span th:text="${h.quantity}"></span>
 		            <span class="text-xs text-gray-500">contracts</span>
 		        </span>
 		    </td>
 
 			<!-- Average Cost -->
-	      <td class="px-4 py-2 text-right font-mono"
-	          th:text="${#numbers.formatCurrency(h.averageCost)}">
-	      </td>
+	      	<td class="px-4 py-2 text-right font-mono"
+	          	th:text="${#numbers.formatCurrency(h.averageCost)}"></td>
 
-		  <!-- Market Price -->
-	      <td class="px-4 py-2 text-right font-mono"
-	          th:text="${#numbers.formatCurrency(h.marketPrice)}">
-	        ---
-	      </td>
+		  	<!-- Market Price -->
+	      	<td class="px-4 py-2 text-right font-mono"
+	       	    th:text="${#numbers.formatCurrency(h.marketPrice)}"></td>
 
-		  <!-- Market Value -->
-	      <td class="px-4 py-2 text-right font-mono"
-	          th:text="${#numbers.formatCurrency(h.marketValue)}">
-	        ---
-	      </td>
+		  	<!-- Market Value -->
+	      	<td class="px-4 py-2 text-right font-mono"
+	            th:text="${#numbers.formatCurrency(h.marketValue)}"></td>
 
-		  <!-- Total Cost -->
-		  <td class="px-4 py-2 text-right font-mono"
-		  	  th:text="${#numbers.formatCurrency(h.totalCost)}">
-		    </td>
+		  	<!-- Total Cost -->
+		  	<td class="px-4 py-2 text-right font-mono"
+		  	  	th:text="${#numbers.formatCurrency(h.totalCost)}"></td>
 
-			<!-- Percent Gain -->
-	      <td class="px-4 py-2 text-right font-mono"
-	          th:text="${#numbers.formatPercent(h.percentGain, 0, 2)}">
-	        ---
-	      </td>
+			<!-- % Gain -->
+	      	<td class="px-4 py-2 text-right font-mono"
+	          	th:text="${#numbers.formatPercent(h.percentGain, 0, 2)}"></td>
 
-	      <td class="px-4 py-2 space-x-2">
-			  <button type="button"
-			          data-action="BUY"
-			          onclick="openTradeModal(this)"
-			          class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 border border-slate-300">
-			    Buy
-			  </button>
+			<!-- Actions -->	
+	      	<td class="px-4 py-2 space-x-2">
+			  	<button type="button"
+			          	data-action="BUY"
+			          	onclick="openTradeModal(this)"
+			          	class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 border border-slate-300">
+			    	Buy
+			  	</button>
 
-			  <button type="button"
-			          data-action="SELL"
-			          onclick="openTradeModal(this)"
-			          class="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 border border-slate-300">
-			    Sell
-			  </button>
+			  	<button type="button"
+			          	data-action="SELL"
+			          	onclick="openTradeModal(this)"
+			          	class="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 border border-slate-300">
+			    	Sell
+			  	</button>
 
-			  <!-- Lots only for stocks -->
-			  <button th:if="${!h.option}"
-			          type="button"
-			          class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-800 border border-slate-300" 
-					  th:attr="data-holding-id=${h.holdingId}"
-			          th:onclick="toggleLots(this)">
-			    View lots
-			  </button>
-			
-	      </td>
+			  	<!-- Lots only for stocks -->
+			  	<button th:if="${!h.option}"
+			          	type="button"
+			          	class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-800 border border-slate-300" 
+					  	th:attr="data-holding-id=${h.holdingId}"
+			          	th:onclick="toggleLots(this)">
+			    	View lots
+			  	</button>
+	      	</td>
 	    </tr>
-		<!-- EXPANDABLE LOTS ROW -->
-       <tr th:id="'lots-' + ${h.holdingId}" class="hidden">
-           <td colspan="6" class="px-6 py-4">
+		<!-- LOTS ROW (only for stocks) -->
+       	<tr th:if="${!h.option}"
+			th:id="'lots-' + ${h.holdingId}" 
+			class="hidden">
+           	<td colspan="4" class="px-6 py-4">
 
-               <!-- reuse your fragment -->
-			   <div
-	               th:attr="data-holding-id=${h.holdingId}"
-	               class="lots-container text-sm">
+               	<!-- reuse your fragment -->
+				<div th:attr="data-holding-id=${h.holdingId}"
+					 class="lots-container text-sm">
 	               Loading…
-			   </div>
-           </td>
-       </tr>
+			   	</div>
+			</td>
+       	</tr>
+		</th:block>
 	  </tbody>
 	</table>
 </div>
@@ -526,6 +544,101 @@
 
 <script>
 	
+  // Tracks sort direction per column key
+  const sortState = {
+    activeKey: null,
+    ascByKey: {}   // key -> boolean
+  };
+
+  // Configuration: how to read and compare each column
+  const sortConfig = {
+    symbol: {
+      type: "string",
+      get: row => (row.dataset.symbol || "").toUpperCase()
+    },
+    percentGain: {
+      type: "number",
+      get: row => parseFloat(row.dataset.percentGain)
+    },
+    marketValue: {
+      type: "number",
+      get: row => parseFloat(row.dataset.marketValue)
+    },
+    totalCost: {
+      type: "number",
+      get: row => parseFloat(row.dataset.totalCost)
+    },
+    quantity: {
+      type: "number",
+      get: row => parseInt(row.dataset.quantity, 10)
+    }
+  };
+
+  function sortHoldings(key) {
+    const cfg = sortConfig[key];
+    if (!cfg) return;
+
+    const table = document.querySelector("table.min-w-full");
+    const tbody = table ? table.querySelector("tbody") : null;
+    if (!tbody) return;
+
+    // Find all main holding rows (not the lots rows)
+    const mainRows = Array.from(tbody.querySelectorAll("tr[data-holding-id]"));
+
+    // Build groups: [mainRow, lotsRow?]
+    const groups = mainRows.map(mainRow => {
+      const holdingId = mainRow.dataset.holdingId;
+      const lotsRow = document.getElementById("lots-" + holdingId);
+
+      let val = cfg.get(mainRow);
+      // Normalize NaN
+      if (cfg.type === "number") {
+        val = Number.isFinite(val) ? val : Number.NEGATIVE_INFINITY;
+      } else {
+        val = (val ?? "").toString();
+      }
+
+      return { holdingId, mainRow, lotsRow, val };
+    });
+
+    // Toggle direction: first click on a new key = descending for numbers, ascending for strings
+    const isNewKey = sortState.activeKey !== key;
+    if (isNewKey) {
+      sortState.activeKey = key;
+      sortState.ascByKey[key] = (cfg.type === "string"); // strings default asc, numbers default desc
+    } else {
+      sortState.ascByKey[key] = !sortState.ascByKey[key];
+    }
+
+    const asc = sortState.ascByKey[key];
+
+    groups.sort((a, b) => {
+      if (cfg.type === "number") {
+        return asc ? (a.val - b.val) : (b.val - a.val);
+      } else {
+        // localeCompare keeps it stable/pleasant for strings
+        return asc
+          ? a.val.localeCompare(b.val)
+          : b.val.localeCompare(a.val);
+      }
+    });
+
+    // Re-append in sorted order (moves nodes)
+    groups.forEach(g => {
+      tbody.appendChild(g.mainRow);
+      if (g.lotsRow) tbody.appendChild(g.lotsRow);
+    });
+
+    // Update icons: reset all to ↕, then set active to ↑/↓
+    document.querySelectorAll("[data-sort-icon]").forEach(el => el.textContent = "↕");
+    const activeIcon = document.querySelector(`[data-sort-icon="${key}"]`);
+    if (activeIcon) activeIcon.textContent = asc ? "↑" : "↓";
+  }
+  
+</script>
+
+<script>
+	
 	function openOptionTradeModal() {
 		document.getElementById('optionTradeModal').classList.remove('hidden');
 	    document.getElementById('optionTradeModal').classList.add('flex');
@@ -543,14 +656,17 @@
 
 	    const symbol = row.getAttribute("data-symbol");
 	    const action = button.getAttribute("data-action"); // BUY or SELL
-
+        const qty    = row.getAttribute("data-quantity");
+		const quantity = (action === "SELL") ? qty : "";
+		const marketPrice = row.getAttribute("data-market-price");
+		
 	    const formattedDate = new Date().toISOString().slice(0,10);  
 		
 	    // Fill modal fields
-	    document.getElementById("symbolInputModal").value = symbol || "";
+	    document.getElementById("symbolInputModal").value    = symbol || "";
 	    document.getElementById("tradeDateInputModal").value = formattedDate;
-	    document.getElementById("quantityInputModal").value = "";
-	    document.getElementById("priceInputModal").value = "";
+	    document.getElementById("quantityInputModal").value  = quantity;
+	    document.getElementById("priceInputModal").value     = marketPrice;
 
 	    // Title + formaction
 	    const title = (action === "SELL") ? "Sell" : "Buy";
@@ -583,5 +699,4 @@
 	  
 </script>
 </th:block>
-
 </html>
