@@ -19,31 +19,37 @@ public class SoldHoldingsExportService {
             List<AccountSoldTotals> accountTotals
     ) {
 
-        writer.println("Account,Symbol,Quantity Sold,Proceeds,Cost Basis,Gain");
+        writer.println("Account,Symbol,Quantity Sold,Proceeds,Cost Basis,Gain,Dividends,TotalReturn,TotalReturn%");
 
         for (SoldHoldingView v : holdings) {
             writer.printf(
-                "%s,%s,%d,%.2f,%.2f,%.2f%n",
+                "%s,%s,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f%n",
                 v.getAccountName(),
                 v.getSymbol(),
                 v.getQuantitySold(),
                 v.getProceeds(),
                 v.getCostBasis(),
-                v.getGain()
+                v.getGain(),
+                v.getDividends(),
+                v.getTotalReturn(),
+                v.getTotalReturnPercent()
             );
         }
 
         writer.println();
         writer.println("Account Totals");
-        writer.println("Account,Proceeds,Cost Basis,Gain");
+        writer.println("Account,Proceeds,Cost Basis,Gain,Dividends,TotalReturn,TotalReturn%");
 
         for (AccountSoldTotals t : accountTotals) {
             writer.printf(
-                "%s,%.2f,%.2f,%.2f%n",
+                "%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f%n",
                 t.getAccountName(),
                 t.getTotalProceeds(),
                 t.getTotalCostBasis(),
-                t.getTotalGain()
+                t.getTotalGain(),
+                t.getDividends(),
+                t.getTotalReturn(),
+                t.getTotalReturnPercent()
             );
         }
     }

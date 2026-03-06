@@ -22,7 +22,6 @@ import dr.portfolio.domain.User;
 import dr.portfolio.dto.CashLedgerRow;
 import dr.portfolio.dto.CashSummary;
 import dr.portfolio.repositories.AccountRepository;
-import dr.portfolio.repositories.TradeRepository;
 import dr.portfolio.repositories.UserRepository;
 import dr.portfolio.service.AccountService;
 import dr.portfolio.service.CashTransactionService;
@@ -35,20 +34,16 @@ public class AccountController {
 	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final CashTransactionService cashTransactionService;
-	private final TradeRepository tradeRepository;
-
 	
     public AccountController(AccountService accountService, 
     						 UserRepository userRepository,
     						 AccountRepository accountRepository,
-    						 CashTransactionService cashTransactionService,
-    						 TradeRepository tradeRepository) {
+    						 CashTransactionService cashTransactionService) {
 		super();
 		this.accountService = accountService;
 		this.userRepository = userRepository;
 		this.accountRepository = accountRepository;
 		this.cashTransactionService = cashTransactionService;
-		this.tradeRepository = tradeRepository;
 	}
 
     @GetMapping("/account")

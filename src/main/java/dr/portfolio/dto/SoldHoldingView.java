@@ -41,6 +41,19 @@ public class SoldHoldingView {
         this.totalReturnPercent = this.costBasis == 0 ? 0 : this.totalReturn / this.costBasis;
     }
         
+    
+	public double getDividends() {
+		return dividends;
+	}
+
+	public double getTotalReturn() {
+		return totalReturn;
+	}
+
+	public double getTotalReturnPercent() {
+		return totalReturnPercent;
+	}
+
 	public double getPercentGain() {
 		return percentGain;
 	}
