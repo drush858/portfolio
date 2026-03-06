@@ -59,7 +59,7 @@ public class HoldingController {
             priceCache.getAll(); //.getLivePrices(trades);
 
         HoldingsResult holdingsResult =
-            holdingsService.calculateHoldings(trades, prices, marketPriceService);
+            holdingsService.calculateHoldings(trades, prices, marketPriceService, id);
 
         Account acct = accountRepository.getReferenceById(id);
 

@@ -206,8 +206,13 @@
 		  	  	th:text="${#numbers.formatCurrency(h.totalCost)}"></td>
 
 			<!-- % Gain -->
-	      	<td class="px-4 py-2 text-right font-mono"
-	          	th:text="${#numbers.formatPercent(h.percentGain, 0, 2)}"></td>
+	      	<td class="px-4 py-2 text-right font-mono">
+				<div th:text="${#numbers.formatPercent(h.percentGain, 0, 2)}"></div>
+				<div class="text-xs text-slate-500"
+				     th:if="${!h.option}"
+				     th:text="'incl div: ' + ${#numbers.formatPercent(h.totalReturnPct, 0, 2)}">
+				</div>
+		  	</td>
 
 			<!-- Actions -->	
 	      	<td class="px-4 py-2 space-x-2">
