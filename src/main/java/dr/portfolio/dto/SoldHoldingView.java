@@ -13,6 +13,10 @@ public class SoldHoldingView {
     private double gain;
     private double percentGain;
     
+    private double dividends;
+    private double totalReturn;
+    private double totalReturnPercent;
+    
     private String accountName;
     
     public void addSale(int qty, double proceeds, double costBasis) {
@@ -22,8 +26,19 @@ public class SoldHoldingView {
         
         this.gain = this.proceeds - this.costBasis;
         
-        this.percentGain =
-                this.costBasis == 0.0 ? 0.0 : (this.proceeds - this.costBasis) / this.costBasis;
+        recalcTotals();
+    }
+    
+    public void addDividends(double dividends) {
+        this.dividends += dividends;
+        recalcTotals();
+    }
+
+    private void recalcTotals() {
+        this.gain = this.proceeds - this.costBasis;
+        this.totalReturn = this.gain + this.dividends;
+        this.percentGain = this.costBasis == 0 ? 0 : this.gain / this.costBasis;
+        this.totalReturnPercent = this.costBasis == 0 ? 0 : this.totalReturn / this.costBasis;
     }
         
 	public double getPercentGain() {

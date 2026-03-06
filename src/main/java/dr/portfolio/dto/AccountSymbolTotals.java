@@ -9,6 +9,10 @@ public class AccountSymbolTotals {
     private double costBasis;
     private double gain;
     private double percentGain;
+    
+    private double dividends;
+    private double totalReturn;
+    private double totalReturnPercent;
 
     public AccountSymbolTotals(String accountName, String symbol) {
         this.accountName = accountName;
@@ -18,13 +22,35 @@ public class AccountSymbolTotals {
     public void add(double proceeds, double costBasis) {
         this.proceeds += proceeds;
         this.costBasis += costBasis;
+        recalc();
+    }
+
+    public void addDividends(double dividends) {
+        this.dividends += dividends;
+        recalc();
+    }
+
+    private void recalc() {
         this.gain = this.proceeds - this.costBasis;
-        this.percentGain =
-                (this.costBasis == 0.0) ? 0.0 : (this.gain / this.costBasis);
+        this.totalReturn = this.gain + this.dividends;
+        this.percentGain = this.costBasis == 0 ? 0 : this.gain / this.costBasis;
+        this.totalReturnPercent = this.costBasis == 0 ? 0 : this.totalReturn / this.costBasis;
     }
 
     
-    public double getPercentGain() {
+    public double getDividends() {
+		return dividends;
+	}
+
+	public double getTotalReturn() {
+		return totalReturn;
+	}
+
+	public double getTotalReturnPercent() {
+		return totalReturnPercent;
+	}
+
+	public double getPercentGain() {
 		return percentGain;
 	}
 

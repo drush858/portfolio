@@ -51,6 +51,15 @@
 						<th class="px-6 py-3 text-right text-sm font-bold">
 						    % Gain
 						</th>
+						<th class="px-6 py-3 text-right text-sm font-bold">
+							Dividends
+						</th>
+						<th class="px-6 py-3 text-right text-sm font-bold">
+							Total Return
+						</th>
+						<th class="px-6 py-3 text-right text-sm font-bold">
+							Total Return %
+						</th>
                     </tr>
                 </thead>
 
@@ -79,6 +88,18 @@
                             th:text="${#numbers.formatPercent(s.percentGain, 0, 2)}"
                             th:classappend="${s.percentGain >= 0} ? 'text-green-600' : 'text-red-600'">
                         </td>
+						<td class="px-6 py-4 text-right font-medium"
+						    th:text="${#numbers.formatCurrency(s.dividends)}"
+							th:classappend="${s.dividends >= 0} ? 'text-green-600' : 'text-red-600'">
+						</td>
+						<td class="px-6 py-4 text-right font-medium"
+						    th:text="${#numbers.formatCurrency(s.totalReturn)}"
+							 th:classappend="${s.totalReturn >= 0} ? 'text-green-600' : 'text-red-600'">
+						 </td>
+						<td class="px-6 py-4 text-right font-medium"
+						    th:text="${#numbers.formatPercent(s.totalReturnPercent, 0, 2)}"
+							 th:classappend="${s.totalReturnPercent >= 0} ? 'text-green-600' : 'text-red-600'">
+						 </td>
                     </tr>
                 </tbody>
 
@@ -101,6 +122,18 @@
 						<td class="px-6 py-4 text-right"
 						    th:text="${#numbers.formatPercent(account.totalPercentGain, 0, 2)}"
 						    th:classappend="${account.totalPercentGain >= 0} ? 'text-green-700' : 'text-red-700'">
+						</td>
+						<td class="px-6 py-4 text-right"
+						    th:text="${#numbers.formatCurrency(account.dividends)}"
+							th:classappend="${account.dividends >= 0} ? 'text-green-600' : 'text-red-600'">
+						</td>
+						<td class="px-6 py-4 text-right"
+						    th:text="${#numbers.formatCurrency(account.totalReturn)}"
+							th:classappend="${account.totalReturn >= 0} ? 'text-green-600' : 'text-red-600'">
+						</td>
+						<td class="px-6 py-4 text-right"
+						    th:text="${#numbers.formatPercent(account.totalReturnPercent, 0, 2)}"
+						    th:classappend="${account.totalReturnPercent >= 0} ? 'text-green-600' : 'text-red-600'">
 						</td>
                     </tr>
                 </tfoot>

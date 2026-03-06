@@ -18,10 +18,20 @@ import dr.portfolio.dto.AccountSymbolTotals;
 import dr.portfolio.dto.BuyLot;
 import dr.portfolio.dto.SoldHoldingView;
 import dr.portfolio.dto.SoldHoldingsResult;
+import dr.portfolio.repositories.CashTransactionRepository;
 
 @Service
 public class RealizedGainService {
 
+	
+	private final CashTransactionRepository cashTransactionRepository;
+
+	public RealizedGainService(CashTransactionRepository cashTransactionRepository) 
+	{
+		
+		this.cashTransactionRepository = cashTransactionRepository;
+	}
+	    
 	private boolean isOptionSymbol(String symbol) {
 	    return symbol != null && symbol.matches(".*\\d{6}[CP].*");
 	}
@@ -106,6 +116,36 @@ public class RealizedGainService {
 	                )
 	                .add(proceeds, costBasis);
 	        }
+	    }
+	    
+	    for (SoldHoldingView view : byHolding.values()) {
+	        Trade matchingTrade = trades.stream()
+	            .filter(t -> t.getHolding().getId().equals(view.getHoldingId()))
+	            .findFirst()
+	            .orElse(null);
+
+	        if (matchingTrade == null) {
+	            continue;
+	        }
+
+	        UUID accountId = matchingTrade.getHolding().getAccount().getId();
+	        String accountName = matchingTrade.getHolding().getAccount().getName();
+	        String symbol = view.getSymbol();
+
+	        double dividends = cashTransactionRepository
+	            .sumDividendsByAccountAndSymbolAndYear(accountId, symbol, year)
+	            .doubleValue();
+
+	        view.addDividends(dividends);
+
+	        totalsByAccount
+	            .computeIfAbsent(accountName, AccountSoldTotals::new)
+	            .addDividends(dividends);
+
+	        String key = accountName + "|" + symbol;
+	        byAccountSymbol
+	            .computeIfAbsent(key, k -> new AccountSymbolTotals(accountName, symbol))
+	            .addDividends(dividends);
 	    }
 
 	    return new SoldHoldingsResult(
