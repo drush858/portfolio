@@ -31,17 +31,20 @@ public class OptionTradeService {
     private final HoldingRepository holdingRepository;
     private final TradeRepository tradeRepository;
     private final CashTransactionRepository cashTransactionRepository;
+    private final HoldingRebuildService holdingRebuildService;
 
     public OptionTradeService(
     		AccountRepository accountRepository,
     		HoldingRepository holdingRepository,
     		TradeRepository tradeRepository,
-    		CashTransactionRepository cashTransactionRepository) {
+    		CashTransactionRepository cashTransactionRepository,
+    		HoldingRebuildService holdingRebuildService) {
     	
     	this.accountRepository = accountRepository;
     	this.holdingRepository = holdingRepository;
     	this.tradeRepository = tradeRepository;
     	this.cashTransactionRepository = cashTransactionRepository;
+    	this.holdingRebuildService = holdingRebuildService;
     }
     
     public void recordOptionTrade(
@@ -103,6 +106,8 @@ public class OptionTradeService {
         trade.setTradeType(tradeType);
 
         tradeRepository.save(trade);
+        
+        holdingRebuildService.rebuildHolding(holding);
 
         // Cash impact (options = 100 multiplier)
         BigDecimal gross =

@@ -5,8 +5,6 @@ import org.springframework.security.access.AccessDeniedException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.List;
 
 import java.util.UUID;
@@ -38,6 +36,7 @@ public class TradeService {
     private final UserRepository userRepository;
     private final AlphaVantagePollingService alphaVantagePollingService;
     private final CashTransactionRepository cashTransactionRepository;
+    private final HoldingRebuildService holdingRebuildService;
 
     public TradeService(
             HoldingRepository holdingRepository,
@@ -45,7 +44,8 @@ public class TradeService {
             AccountRepository accountRepository,
             UserRepository userRepository,
             AlphaVantagePollingService alphaVantagePollingService,
-            CashTransactionRepository cashTransactionRepository) 
+            CashTransactionRepository cashTransactionRepository,
+            HoldingRebuildService holdingRebuildService) 
     {
         this.holdingRepository = holdingRepository;
         this.tradeRepository = tradeRepository;
@@ -53,6 +53,7 @@ public class TradeService {
         this.userRepository = userRepository;
         this.alphaVantagePollingService = alphaVantagePollingService;
         this.cashTransactionRepository = cashTransactionRepository;
+        this.holdingRebuildService = holdingRebuildService;
     }
     
     public List<Trade> getTradesForUser(String username) {
@@ -113,7 +114,7 @@ public class TradeService {
         alphaVantagePollingService.trackSymbol(trade.getSymbol());
         
         // recompute holding from trades
-        rebuildHolding(holding);
+        holdingRebuildService.rebuildHolding(holding);
         
         return trade;
     }
@@ -155,7 +156,7 @@ public class TradeService {
         );
         
         // recompute holding from trades
-        rebuildHolding(holding);
+        holdingRebuildService.rebuildHolding(holding);
         
         return trade;
     }
@@ -166,8 +167,8 @@ public class TradeService {
         Holding holding = new Holding();
         holding.setAccount(account);
         holding.setSymbol(tradeCreate.getSymbol().toUpperCase());
-        holding.setQuantity(tradeCreate.getQuantity());
-        holding.setAvgCost(tradeCreate.getPrice());
+        holding.setQuantity(0); //tradeCreate.getQuantity());
+        holding.setAvgCost(0); //tradeCreate.getPrice());
         holding.setType(InstrumentType.STOCK);
         return holding;
     }
@@ -202,6 +203,7 @@ public class TradeService {
     	return tradeRepository.getReferenceById(id);
     }
     
+    /*
     public void rebuildHolding(Holding holding) {
 
         List<Trade> trades =
@@ -262,6 +264,7 @@ public class TradeService {
         holding.setAvgCost(qty == 0 ? 0 : cost / qty);
         holdingRepository.save(holding);
     }
+    */
 
     public List<Trade> getTradesForAccount(UUID accountId) {
         return tradeRepository.findAllTradesForAccount(accountId);
