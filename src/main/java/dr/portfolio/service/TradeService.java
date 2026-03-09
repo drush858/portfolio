@@ -86,7 +86,7 @@ public class TradeService {
 
     	Holding holding = holdingRepository
                 .findByAccount_IdAndSymbol(account.getId(), tradeCreate.getSymbol())
-                .orElseGet(() -> createNewHolding(account, tradeCreate.getSymbol().toUpperCase()));
+                .orElseGet(() -> createNewHolding(account, tradeCreate));
 
         holdingRepository.save(holding);
         
@@ -162,12 +162,12 @@ public class TradeService {
 
     // ----------------- Helpers -----------------
 
-    private Holding createNewHolding(Account account, String symbol) {
+    private Holding createNewHolding(Account account, TradeCreate tradeCreate) {
         Holding holding = new Holding();
         holding.setAccount(account);
-        holding.setSymbol(symbol);
-        holding.setQuantity(0);
-        holding.setAvgCost(0);
+        holding.setSymbol(tradeCreate.getSymbol().toUpperCase());
+        holding.setQuantity(tradeCreate.getQuantity());
+        holding.setAvgCost(tradeCreate.getPrice());
         holding.setType(InstrumentType.STOCK);
         return holding;
     }

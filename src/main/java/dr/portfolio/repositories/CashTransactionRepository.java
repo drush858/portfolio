@@ -1,11 +1,14 @@
 package dr.portfolio.repositories;
 
 import dr.portfolio.domain.CashTransaction;
+import dr.portfolio.domain.CashTransactionType;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,5 +39,34 @@ public interface CashTransactionRepository
     	        @Param("symbol") String symbol,
     	        @Param("year") int year
     	);
+    
+    @Query("""
+            select coalesce(sum(c.amount), 0)
+            from CashTransaction c
+            where c.account.id in :accountIds
+              and c.transactionType = :type
+              and c.transactionDate between :start and :end
+        """)
+        BigDecimal sumByAccountsTypeAndDateRange(
+            @Param("accountIds") List<UUID> accountIds,
+            @Param("type") CashTransactionType type,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+        );
+
+        @Query("""
+            select c
+            from CashTransaction c
+            where c.account.id in :accountIds
+              and c.transactionType in :types
+              and c.transactionDate between :start and :end
+            order by c.transactionDate
+        """)
+        List<CashTransaction> findIncomeTransactionsByAccountsAndDateRange(
+            @Param("accountIds") List<UUID> accountIds,
+            @Param("types") List<CashTransactionType> types,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+        );
 }
 

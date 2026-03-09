@@ -25,6 +25,7 @@ import dr.portfolio.repositories.AccountRepository;
 import dr.portfolio.repositories.UserRepository;
 import dr.portfolio.service.AccountService;
 import dr.portfolio.service.CashTransactionService;
+import dr.portfolio.service.IncomeDashboardService;
 
 @Controller
 @RequestMapping("/accounts")
@@ -34,18 +35,38 @@ public class AccountController {
 	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final CashTransactionService cashTransactionService;
+	private final IncomeDashboardService incomeDashboardService;
 	
     public AccountController(AccountService accountService, 
     						 UserRepository userRepository,
     						 AccountRepository accountRepository,
-    						 CashTransactionService cashTransactionService) {
+    						 CashTransactionService cashTransactionService,
+    						 IncomeDashboardService incomeDashboardService) {
 		super();
 		this.accountService = accountService;
 		this.userRepository = userRepository;
 		this.accountRepository = accountRepository;
 		this.cashTransactionService = cashTransactionService;
+		this.incomeDashboardService = incomeDashboardService;
 	}
 
+    @GetMapping("/income/{year}")
+    public String incomeDashboard(
+            @PathVariable int year,
+            Principal principal,
+            Model model
+    ) {
+        var result = incomeDashboardService.buildForUser(principal.getName(), year);
+
+        model.addAttribute("pageTitle", "Income Dashboard");
+        model.addAttribute("year", year);
+        model.addAttribute("summary", result.summary());
+        model.addAttribute("monthlyRows", result.monthlyRows());
+        model.addAttribute("symbolRows", result.symbolRows());
+
+        return "income-dashboard";
+    }
+    
     @GetMapping("/account")
     public String viewAccounts(Model model, Principal principal) {
 

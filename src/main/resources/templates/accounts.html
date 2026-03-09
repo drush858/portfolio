@@ -106,6 +106,70 @@
         </table>
     </div>
 
+	<form id="incomeForm" method="get"
+	      onsubmit="event.preventDefault(); goToIncomeYear();"
+	      class="flex items-center gap-3">
+
+	    <input type="number"
+	           id="incomeYearInput"
+	           min="1900"
+	           max="2100"
+	           required
+	           th:value="${#temporals.createNow().year}"
+	           class="w-28 rounded-md border border-slate-300 px-3 py-2
+	                  focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
+
+	    <button type="submit"
+	            class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
+	        View Income Dashboard
+	    </button>
+	</form>
+	<script>
+	function goToIncomeYear() {
+	    const year = document.getElementById('incomeYearInput').value;
+	    if (!year) return;
+	    window.location.href = '/accounts/income/' + year;
+	}
+	</script>
+	
+	<!-- Totals -->
+    <div class="bg-slate-900">
+        <h2 class="text-xl font-bold mb-4">Sold Totals</h2>
+
+        <div class="flex flex-wrap gap-3">
+            <form id="soldForm" th:action="@{/trades/sold}" method="get" class="flex items-center gap-3">
+				
+				<input id="soldYear" 
+				       type="number"
+				       name="year"
+				       min="1900"
+				       max="2100"
+				       required
+				       placeholder="Year"
+				       class="w-28 rounded-md border px-3 py-2
+				              border-slate-300 focus:ring-blue-500 focus:border-blue-500 bg-slate-400 text-slate-800" />
+								  
+                <button type="submit" 
+				        class="px-4 py-2 rounded-lg bg-emerald-600 text-white 
+						       hover:bg-emerald-800 border border-slate-300">
+                    View Sold Totals
+                </button>
+            </form>
+
+            <form th:action="@{/trades/sold/2026/export/csv}" method="get">
+                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
+                    Download CSV
+                </button>
+            </form>
+
+            <form th:action="@{/trades/sold/2026/export/excel}" method="get">
+                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
+                    Download Excel
+                </button>
+            </form>
+        </div>
+    </div>
+		
     <!-- Create Account -->
     <div class="max-w-lg bg-slate-900">
         <h2 class="text-xl font-bold mb-4">Create Account</h2>
@@ -162,43 +226,7 @@
         </form>
     </div>
 
-    <!-- Totals -->
-    <div class="bg-slate-900">
-        <h2 class="text-xl font-bold mb-4">Sold Totals</h2>
-
-        <div class="flex flex-wrap gap-3">
-            <form id="soldForm" th:action="@{/trades/sold}" method="get" class="flex items-center gap-3">
-				
-				<input id="soldYear" 
-				       type="number"
-				       name="year"
-				       min="1900"
-				       max="2100"
-				       required
-				       placeholder="Year"
-				       class="w-28 rounded-md border px-3 py-2
-				              border-slate-300 focus:ring-blue-500 focus:border-blue-500 bg-slate-400 text-slate-800" />
-								  
-                <button type="submit" 
-				        class="px-4 py-2 rounded-lg bg-emerald-600 text-white 
-						       hover:bg-emerald-800 border border-slate-300">
-                    View Sold Totals
-                </button>
-            </form>
-
-            <form th:action="@{/trades/sold/2026/export/csv}" method="get">
-                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
-                    Download CSV
-                </button>
-            </form>
-
-            <form th:action="@{/trades/sold/2026/export/excel}" method="get">
-                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
-                    Download Excel
-                </button>
-            </form>
-        </div>
-    </div>
+    
 
 </div>
 </body>
