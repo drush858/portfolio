@@ -40,6 +40,21 @@ public class HoldingsService {
 	{
 		record BuyLot(int qty, double price) {}
 
+		record RawHolding(
+			UUID holdingId,
+			String symbol,
+			int quantity,
+			double averageCost,
+			double marketPrice,
+			double marketValue,
+			double percentGain,
+			double totalCost,
+			boolean option,
+			String optionSummary,
+			double dividends,
+			double totalReturnPct
+		) {}
+		 
 		Map<UUID, Deque<BuyLot>> buyQueues = new HashMap<>();
 		Map<UUID, String> symbols = new HashMap<>();
 		Map<UUID, Double> lastTradePrice = new HashMap<>();
@@ -89,7 +104,7 @@ public class HoldingsService {
 			}
 		}
 
-		List<HoldingView> results = new ArrayList<>();
+		List<RawHolding> rawResults = new ArrayList<>();
 
 		buyQueues.forEach((holdingId, lots) -> {
 
@@ -101,8 +116,7 @@ public class HoldingsService {
 				cost += lot.qty() * lot.price();
 			}
 
-			if (qty == 0)
-				return;
+			if (qty == 0) return;
 
 			double avgCost = cost / qty;
 
@@ -128,7 +142,6 @@ public class HoldingsService {
 
 			double marketValue = qty * marketPrice * multiplier;
 			double totalCost = qty * avgCost * multiplier;
-
 			double percentGain = totalCost == 0.0 ? 0.0 : (marketValue - totalCost) / totalCost;
 			
 			double dividends = 0.0;
@@ -143,7 +156,7 @@ public class HoldingsService {
 
 			String optionSummary = isOption ? OptionFormatter.format(symbol) : null;
 
-			results.add(new HoldingView(
+			rawResults.add(new RawHolding(
 					holdingId, 
 					symbol, 
 					qty, 
@@ -158,17 +171,41 @@ public class HoldingsService {
 					totalReturnPct));
 		});
 
-		results.sort(Comparator.comparing(HoldingView::symbol, String.CASE_INSENSITIVE_ORDER));
+		rawResults.sort(Comparator.comparing(RawHolding::symbol, String.CASE_INSENSITIVE_ORDER));
 
+		
+		double totalMarketValue = rawResults.stream().mapToDouble(RawHolding::marketValue).sum();
+		
+		List<HoldingView> results = rawResults.stream()
+			.map(r -> {
+                double allocationPercent =
+                        totalMarketValue == 0.0 ? 0.0 : (r.marketValue() / totalMarketValue) * 100.0;
+
+                return new HoldingView(
+                    r.holdingId(),
+                    r.symbol(),
+                    r.quantity(),
+                    r.averageCost(),
+                    r.marketPrice(),
+                    r.marketValue(),
+                    r.percentGain(),
+                    r.totalCost(),
+                    r.option(),
+                    r.optionSummary(),
+                    r.dividends(),
+                    r.totalReturnPct(),
+                    allocationPercent
+                );
+            })
+            .toList();
+		
 		// ---- Totals ----
-		HoldingsResult holdingsResult = new HoldingsResult();
-
-		double totalMarketValue = results.stream().mapToDouble(HoldingView::marketValue).sum();
 		double totalCostBasis = results.stream().mapToDouble(HoldingView::totalCost).sum();
 		double totalGain = totalMarketValue - totalCostBasis;
 
 		double totalGainPercent = totalCostBasis == 0.0 ? 0.0 : (totalGain / totalCostBasis);
 
+		HoldingsResult holdingsResult = new HoldingsResult();
 		holdingsResult.setTotalMarketValue(totalMarketValue);
 		holdingsResult.setTotalCostBasis(totalCostBasis);
 		holdingsResult.setTotalGain(totalGain); // dollars

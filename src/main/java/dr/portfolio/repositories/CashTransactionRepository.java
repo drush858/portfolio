@@ -15,7 +15,7 @@ import java.util.UUID;
 public interface CashTransactionRepository
         extends JpaRepository<CashTransaction, UUID> {
 
-    List<CashTransaction> findByAccountIdOrderByTransactionDateAsc(UUID accountId);
+    List<CashTransaction> findByAccountIdOrderByTransactionDateDesc(UUID accountId);
     
     @Query("""
     		select coalesce(sum(c.amount), 0)

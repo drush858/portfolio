@@ -14,5 +14,6 @@ public record HoldingView(
 	    boolean option,
 	    String optionSummary,  	// "AAPL 150C 06/21"
 	    double dividends,		// NEW: sum of dividend cash txns for symbol
-	    double totalReturnPct 	// NEW: (marketValue + realizedProceeds? + dividends - costBasis)/costBasis
+	    double totalReturnPct, 	// NEW: (marketValue + realizedProceeds? + dividends - costBasis)/costBasis
+	    double allocationPercent
 	) {}

@@ -150,6 +150,8 @@
 			   <span id="gainSortIcon" class="text-xs">↕</span>
 			</button>
 		  </th>
+		  <th class="px-4 py-3 text-right">Alloc %</th>
+		  <th class="px-4 py-3">Allocation</th>
 	      <th class="px-4 py-3">Action</th>
 	    </tr>
 	  </thead>
@@ -213,6 +215,18 @@
 				     th:text="'incl div: ' + ${#numbers.formatPercent(h.totalReturnPct, 0, 2)}">
 				</div>
 		  	</td>
+			
+			<td class="px-4 py-2 text-right font-mono"
+			    th:text="${#numbers.formatDecimal(h.allocationPercent, 1, 2)} + '%'">
+			</td>
+
+			<td class="px-4 py-2">
+			  <div class="w-28 bg-slate-700 rounded-full h-2">
+			    <div class="bg-blue-500 h-2 rounded-full"
+			         th:style="'width:' + ${h.allocationPercent} + '%'">
+			    </div>
+			  </div>
+			</td>
 
 			<!-- Actions -->	
 	      	<td class="px-4 py-2 space-x-2">

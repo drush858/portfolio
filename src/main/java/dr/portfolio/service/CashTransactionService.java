@@ -39,7 +39,7 @@ public class CashTransactionService {
 	
 	public List<CashTransaction> findForAccount(UUID accountId) {
 		
-		return cashTransactionRepository.findByAccountIdOrderByTransactionDateAsc(accountId);
+		return cashTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId);
 	}
 	
 	public CashTransactionEdit getEditModel(UUID txnId) {
@@ -107,7 +107,7 @@ public class CashTransactionService {
 	public List<CashLedgerRow> buildLedger(UUID accountId) {
 
 	    List<CashTransaction> txs =
-	    		cashTransactionRepository.findByAccountIdOrderByTransactionDateAsc(accountId);
+	    		cashTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId);
 
 	    double balance = 0;
 	    List<CashLedgerRow> rows = new ArrayList<>();
@@ -133,7 +133,7 @@ public class CashTransactionService {
 	public CashSummary calculateSummary(UUID accountId) {
 
         List<CashTransaction> txs =
-        		cashTransactionRepository.findByAccountIdOrderByTransactionDateAsc(accountId);
+        		cashTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId);
 
         double totalIn = 0.0;
         double totalOut = 0.0;
