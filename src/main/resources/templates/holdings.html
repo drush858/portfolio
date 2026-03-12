@@ -313,7 +313,7 @@
 <!-- Single Buy / Sell card -->
 <div class="rounded-xl shadow p-6 space-y-4">
     <!-- (buy/sell form) -->
-	<h3 class="text-lg font-semibold">Add Stock Trade</h3>
+	<h3 class="text-lg font-semibold text-lime-500">Add Stock Trade</h3>
 
 	<div class="overflow-hidden rounded-2xl shadow border border-slate-600 bg-slate-900 text-slate-400">
 		<form th:object="${tradeCreate}" method="post">
@@ -396,7 +396,7 @@
   <div class="w-full max-w-lg rounded-xl bg-slate-900 text-slate-400 shadow-lg">
 
     <!-- Header -->
-    <div class="flex items-center justify-between border-b px-6 py-4">
+    <div class="flex items-center justify-between border-b px-6 py-4 text-lime-500">
       <h3 id="tradeModalTitle" class="text-lg font-semibold">
         Trade
       </h3>
@@ -466,7 +466,7 @@
   <div class="w-full max-w-lg rounded-xl bg-slate-900 text-slate-400 shadow-lg">
 
     <!-- Header -->
-    <div class="flex items-center justify-between border-b px-6 py-4">
+    <div class="flex items-center justify-between border-b px-6 py-4 text-lime-500">
       <h3 id="optionModalTitle" class="text-lg font-semibold">
         Add Option Trade
       </h3>
@@ -722,10 +722,8 @@
 
 		const row = button.closest("tr");
 		if (!row) return;
-				
-		//const today = new Date().toISOString().slice(0, 10);
 		
-		const action = button.dataset.tradeType || "BUY"; // default to BUY if not specified
+		const action = button.dataset.tradeType || "BUY";
         
         const symbol = button.dataset.symbol || "";
 		
@@ -745,7 +743,6 @@
 
 	    document.getElementById('optionQuantityInput').value = '';
 	    document.getElementById('optionPriceInput').value = '';
-	    //document.getElementById('optionTradeDateInput').value = today;
 		
 		// Title
 		const title = (action === "SELL") ? "Sell" : "Buy";
