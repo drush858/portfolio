@@ -230,20 +230,50 @@
 
 			<!-- Actions -->	
 	      	<td class="px-4 py-2 space-x-2">
-			  	<button type="button"
-			          	data-action="BUY"
-			          	onclick="openTradeModal(this)"
-			          	class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 border border-slate-300">
-			    	Buy
-			  	</button>
+				<button th:if="${!h.option}"
+				        type="button"
+				        data-action="BUY"
+				        onclick="openTradeModal(this)"
+				        class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 border border-slate-300">
+				  Buy
+				</button>
 
-			  	<button type="button"
-			          	data-action="SELL"
-			          	onclick="openTradeModal(this)"
-			          	class="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 border border-slate-300">
-			    	Sell
-			  	</button>
+				<button th:if="${!h.option}"
+				        type="button"
+				        data-action="SELL"
+				        onclick="openTradeModal(this)"
+				        class="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 border border-slate-300">
+				  Sell
+				</button>
+				
+				<button th:if="${h.option}"
+				        type="button"
+				        onclick="openOptionTradeModalForRow(this)"
+				        th:attr="
+				          data-trade-type='BUY',
+				          data-symbol=${h.symbol},
+				          data-underlying=${h.underlyingSymbol},
+				          data-option-type=${h.optionType},
+				          data-expiration=${#temporals.format(h.expiration, 'yyyy-MM-dd')},
+				          data-strike-price=${h.strikePrice}"
+				        class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 border border-slate-300">
+				  Buy More
+				</button>
 
+				<button th:if="${h.option}"
+				        type="button"
+				        onclick="openOptionTradeModalForRow(this)"
+				        th:attr="
+				          data-trade-type='SELL',
+				          data-symbol=${h.symbol},
+				          data-underlying=${h.underlyingSymbol},
+				          data-option-type=${h.optionType},
+				          data-expiration=${#temporals.format(h.expiration, 'yyyy-MM-dd')},
+				          data-strike-price=${h.strikePrice}"
+				        class="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 border border-slate-300">
+				  Sell
+				</button>
+				
 			  	<!-- Lots only for stocks -->
 			  	<button th:if="${!h.option}"
 			          	type="button"
@@ -360,7 +390,7 @@
 	</div>
 </div>
 
-<!-- Stock Dialog Buy/Sell Modal -->
+<!-- Stock Dialog Buy/Sell Modal ###########################################-->
 <div id="tradeModal"
      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
   <div class="w-full max-w-lg rounded-xl bg-slate-900 text-slate-400 shadow-lg">
@@ -437,7 +467,7 @@
 
     <!-- Header -->
     <div class="flex items-center justify-between border-b px-6 py-4">
-      <h3 class="text-lg font-semibold">
+      <h3 id="optionModalTitle" class="text-lg font-semibold">
         Add Option Trade
       </h3>
       <button onclick="closeOptionTradeModal()"
@@ -445,17 +475,17 @@
     </div>
 
     <!-- Form -->
-    <form th:action="@{/trades/option/add}" method="post"
+    <form id="optionForm" th:action="@{/trades/option/add}" method="post"
           class="space-y-4 px-6 py-5">
 
-      <input type="hidden" name="accountId" th:value="${accountId}" />
+      <input type="hidden" id="accountIdInput" name="accountId" th:value="${accountId}" />
 
       <!-- Underlying Symbol -->
       <div>
         <label class="block text-sm font-medium">
           Underlying Symbol
         </label>
-        <input type="text" name="underlyingSymbol" required
+        <input id="optionUnderlyingInput" type="text" name="underlyingSymbol" required
                placeholder="AAPL"
                class="mt-1 w-full rounded-md border-slate-300 border
                       focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
@@ -466,7 +496,7 @@
         <label class="block text-sm font-medium">
           Option Type
         </label>
-        <select name="optionType" required
+        <select id="optionTypeInput" name="optionType" required
                 class="mt-1 w-full rounded-md border-slate-300 border
                        focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800">
           <option value="CALL">Call</option>
@@ -479,7 +509,7 @@
         <label class="block text-sm font-medium">
           Expiration Date
         </label>
-        <input type="date" name="expiration" required
+        <input id="optionExpirationInput" type="date" name="expiration" required
                class="mt-1 w-full rounded-md border-slate-300 border
                       focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
       </div>
@@ -489,7 +519,7 @@
         <label class="block text-sm font-medium">
           Strike Price
         </label>
-        <input type="number" name="strikePrice" step="0.01" required
+        <input id="optionStrikeInput" type="number" name="strikePrice" step="0.01" required
                placeholder="150.00"
                class="mt-1 w-full rounded-md border-slate-300 border
                       focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
@@ -501,7 +531,7 @@
           <label class="block text-sm font-medium">
             Contracts
           </label>
-          <input type="number" name="quantity" step="1" min="1" required
+          <input id="optionQuantityInput" type="number" name="quantity" step="1" min="1" required
                  placeholder="1" value="1"
                  class="mt-1 w-full rounded-md border-slate-300 border
                         focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
@@ -511,7 +541,7 @@
           <label class="block text-sm font-medium">
             Price (per contract)
           </label>
-          <input type="number" name="price" step="0.01" required
+          <input id="optionPriceInput" type="number" name="price" step="0.01" required
                  placeholder="2.35"
                  class="mt-1 w-full rounded-md border-slate-300 border
                         focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
@@ -523,7 +553,7 @@
         <label class="block text-sm font-medium">
           Action
         </label>
-        <select name="tradeType" required
+        <select id="optionTradeTypeInput" name="tradeType" required
                 class="mt-1 w-full rounded-md border-slate-300 border
                        focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800">
           <option value="BUY">Buy to Open</option>
@@ -536,7 +566,7 @@
         <label class="block text-sm font-medium">
           Trade Date
         </label>
-        <input type="date" name="tradeDate" required
+        <input id="optionTradeDateInput"  type="date" name="tradeDate" required
 			   th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
                class="mt-1 w-full rounded-md border-slate-300 border
                       focus:border-blue-500 focus:ring-blue-500 bg-slate-400 bg-slate-400 text-slate-800" />
@@ -553,7 +583,7 @@
         <button type="submit"
                 class="rounded-md border bg-blue-600 px-4 py-2 text-sm
                        font-semibold text-white hover:bg-blue-800">
-          Save Trade
+          Submit
         </button>
       </div>
 
@@ -659,6 +689,25 @@
 <script>
 	
 	function openOptionTradeModal() {
+		
+		const action = "BUY"; // default to BUY
+		        
+        document.getElementById('optionUnderlyingInput').value = '';
+
+	    document.getElementById('optionTypeInput').value = 'CALL';
+
+	    document.getElementById('optionExpirationInput').value = '';
+
+	    document.getElementById('optionStrikeInput').value = '';
+
+	    document.getElementById('optionTradeTypeInput').value = action;
+
+	    document.getElementById('optionQuantityInput').value = '';
+	    document.getElementById('optionPriceInput').value = '';
+		
+		// Title
+		document.getElementById("optionModalTitle").innerText = 'Add Option Trade';
+
 		document.getElementById('optionTradeModal').classList.remove('hidden');
 	    document.getElementById('optionTradeModal').classList.add('flex');
 	}
@@ -669,6 +718,44 @@
 	    modal.classList.remove('flex');
 	}
 	
+	function openOptionTradeModalForRow(button) {
+
+		const row = button.closest("tr");
+		if (!row) return;
+				
+		//const today = new Date().toISOString().slice(0, 10);
+		
+		const action = button.dataset.tradeType || "BUY"; // default to BUY if not specified
+        
+        const symbol = button.dataset.symbol || "";
+		
+	    document.getElementById('optionUnderlyingInput').value = 
+			button.dataset.underlying || '';
+
+	    document.getElementById('optionTypeInput').value =
+	        button.dataset.optionType || 'CALL';
+
+	    document.getElementById('optionExpirationInput').value =
+	        button.dataset.expiration || '';
+
+	    document.getElementById('optionStrikeInput').value =
+	        button.dataset.strikePrice || '';
+
+	    document.getElementById('optionTradeTypeInput').value = action;
+
+	    document.getElementById('optionQuantityInput').value = '';
+	    document.getElementById('optionPriceInput').value = '';
+	    //document.getElementById('optionTradeDateInput').value = today;
+		
+		// Title
+		const title = (action === "SELL") ? "Sell" : "Buy";
+		document.getElementById("optionModalTitle").innerText = title + " " + (symbol || "");
+		
+	    const modal = document.getElementById('optionTradeModal');
+	    modal.classList.remove('hidden');
+	    modal.classList.add('flex');
+	}
+
 	function openTradeModal(button) {
 	    const row = button.closest("tr");
 	    if (!row) return;

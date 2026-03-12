@@ -3,6 +3,8 @@ package dr.portfolio.repositories;
 import dr.portfolio.domain.CashTransaction;
 import dr.portfolio.domain.CashTransactionType;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +17,20 @@ import java.util.UUID;
 public interface CashTransactionRepository
         extends JpaRepository<CashTransaction, UUID> {
 
-    List<CashTransaction> findByAccountIdOrderByTransactionDateDesc(UUID accountId);
+    Page<CashTransaction> findByAccountIdOrderByTransactionDateDesc(UUID accountId, Pageable pageable);
+    
+    List<CashTransaction> findByAccountIdOrderByTransactionDateAsc(UUID accountId);
+    
+    @Query("""
+    	    select coalesce(sum(c.amount), 0)
+    	    from CashTransaction c
+    	    where c.account.id = :accountId
+    	      and c.transactionDate < :beforeDate
+    	""")
+    	BigDecimal sumAmountsBeforeDate(
+    	        @Param("accountId") UUID accountId,
+    	        @Param("beforeDate") LocalDateTime beforeDate
+    	);
     
     @Query("""
     		select coalesce(sum(c.amount), 0)

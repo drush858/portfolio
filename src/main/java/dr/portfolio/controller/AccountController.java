@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,7 @@ import dr.portfolio.repositories.AccountRepository;
 import dr.portfolio.repositories.UserRepository;
 import dr.portfolio.service.AccountService;
 import dr.portfolio.service.CashTransactionService;
+import dr.portfolio.service.HoldingMaintenanceService;
 import dr.portfolio.service.IncomeDashboardService;
 
 @Controller
@@ -36,20 +39,29 @@ public class AccountController {
 	private final AccountRepository accountRepository;
 	private final CashTransactionService cashTransactionService;
 	private final IncomeDashboardService incomeDashboardService;
+	private final HoldingMaintenanceService holdingMaintenanceService;
 	
     public AccountController(AccountService accountService, 
     						 UserRepository userRepository,
     						 AccountRepository accountRepository,
     						 CashTransactionService cashTransactionService,
-    						 IncomeDashboardService incomeDashboardService) {
+    						 IncomeDashboardService incomeDashboardService,
+    						 HoldingMaintenanceService holdingMaintenanceService) {
 		super();
 		this.accountService = accountService;
 		this.userRepository = userRepository;
 		this.accountRepository = accountRepository;
 		this.cashTransactionService = cashTransactionService;
 		this.incomeDashboardService = incomeDashboardService;
+		this.holdingMaintenanceService = holdingMaintenanceService;
 	}
 
+    @PostMapping("/admin/rebuild-holdings")
+    public String rebuildHoldings() {
+        holdingMaintenanceService.rebuildAllHoldings();
+        return "redirect:/accounts";
+    }
+    
     @GetMapping("/income/{year}")
     public String incomeDashboard(
             @PathVariable int year,
@@ -127,22 +139,29 @@ public class AccountController {
 	}
 
 	@GetMapping("/cash/{id}")
-	public String cashLedger(@PathVariable UUID id, Principal principal, Model model) {
+	public String cashLedger( 
+			@PathVariable UUID id,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size, 
+	        Principal principal, 
+	        Model model) {
 
 		Account account = accountService.findByAccountIdAndUsername(id, principal.getName());
 
-		List<CashLedgerRow> transactions = cashTransactionService.buildLedger(id);
+		Page<CashLedgerRow> ledgerPage =
+		        cashTransactionService.buildLedger(id, page, size);
+
+		model.addAttribute("transactions", ledgerPage.getContent());
+		model.addAttribute("page", ledgerPage);
 
 		CashSummary summary = cashTransactionService.calculateSummary(id);
-
 		List<String> symbols = cashTransactionService.findSymbols(id);
+		model.addAttribute("summary", summary);
 		model.addAttribute("symbols", symbols);
 
-		model.addAttribute("pageTitle", account.getName() + " Cash Ledger");
 		model.addAttribute("account", account);
-		model.addAttribute("transactions", transactions);
-		model.addAttribute("summary", summary);
-
+		model.addAttribute("accountId", id);
+		model.addAttribute("pageTitle", account.getName() + " Cash Ledger");
 		return "cash-ledger";
 	}
 

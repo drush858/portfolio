@@ -79,6 +79,10 @@ public class TradeService {
     
     public Trade buy(TradeCreate tradeCreate, String username) throws ParseException, AccessDeniedException {
     	
+    	if (isOptionSymbol(tradeCreate.getSymbol())) {
+    	    throw new IllegalArgumentException("Option trades must use the option trade workflow");
+    	}
+    	
     	Account account = accountRepository.findById(tradeCreate.getAccountId())
     	        .filter(a -> a.getUser().getUsername().equals(username))
     	        .orElseThrow(() -> new AccessDeniedException("Unauthorized"));
@@ -120,6 +124,10 @@ public class TradeService {
     }
 
     public Trade sell(TradeCreate tradeCreate, String username) throws ParseException, AccessDeniedException {
+    	
+    	if (isOptionSymbol(tradeCreate.getSymbol())) {
+    	    throw new IllegalArgumentException("Option trades must use the option trade workflow");
+    	}
     	
     	Account account = accountRepository.findById(tradeCreate.getAccountId())
     	        .filter(a -> a.getUser().getUsername().equals(username))
@@ -198,73 +206,14 @@ public class TradeService {
         }
     }
     
+    private boolean isOptionSymbol(String symbol) {
+        return symbol != null && symbol.matches(".*\\d{6}[CP].*");
+    }
+    
     public Trade getTrade(UUID id) {
     	
     	return tradeRepository.getReferenceById(id);
     }
-    
-    /*
-    public void rebuildHolding(Holding holding) {
-
-        List<Trade> trades =
-            tradeRepository.findByHoldingOrderByTradeDateAscIdAsc(holding);
-
-        record BuyLot(int qty, double price) {}
-
-        Deque<BuyLot> lots = new ArrayDeque<>();
-
-        for (Trade trade : trades) {
-        	
-        	switch (trade.getTradeType()) {
-        	
-	        	case BUY -> {
-	        		lots.addLast(new BuyLot(
-	        				 trade.getQuantity(), 
-	        				 trade.getPrice()
-	        		));
-	        	}
-	        	
-	        	case SELL, OPTION_EXPIRE -> {
-	        		int sellQty = trade.getQuantity();
-	                while (sellQty > 0) {
-	                    BuyLot lot = lots.peekFirst();
-	                    
-	                    if (lot == null) {
-	                        throw new IllegalStateException(
-	                        		"Trade reduces position below zero for holding "
-	                                        + holding.getSymbol()
-	                        );
-	                    }
-	
-	                    int matched = Math.min(sellQty, lot.qty());
-	                    sellQty -= matched;
-	
-	                    lots.pollFirst();
-	                    if (lot.qty() > matched) {
-	                        lots.addFirst(new BuyLot(lot.qty() - matched, lot.price()));
-	                    }
-	                }	
-	        	}
-        	
-	        	default -> throw new IllegalArgumentException(
-	                    "Unsupported TradeType in rebuildHolding: " + trade.getTradeType()
-	            );
-        	}
-        }
-
-        int qty = 0;
-        double cost = 0;
-
-        for (BuyLot lot : lots) {
-            qty += lot.qty();
-            cost += lot.qty() * lot.price();
-        }
-
-        holding.setQuantity(qty);
-        holding.setAvgCost(qty == 0 ? 0 : cost / qty);
-        holdingRepository.save(holding);
-    }
-    */
 
     public List<Trade> getTradesForAccount(UUID accountId) {
         return tradeRepository.findAllTradesForAccount(accountId);

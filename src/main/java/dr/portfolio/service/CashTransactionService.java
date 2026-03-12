@@ -3,9 +3,14 @@ package dr.portfolio.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import dr.portfolio.domain.Account;
@@ -39,7 +44,7 @@ public class CashTransactionService {
 	
 	public List<CashTransaction> findForAccount(UUID accountId) {
 		
-		return cashTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId);
+		return cashTransactionRepository.findByAccountIdOrderByTransactionDateAsc(accountId);
 	}
 	
 	public CashTransactionEdit getEditModel(UUID txnId) {
@@ -104,36 +109,60 @@ public class CashTransactionService {
     	return symbols;
     }
     
-	public List<CashLedgerRow> buildLedger(UUID accountId) {
+    public Page<CashLedgerRow> buildLedger(UUID accountId, int page, int size) {
 
-	    List<CashTransaction> txs =
-	    		cashTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId);
+        Pageable pageable = PageRequest.of(page, size);
 
-	    double balance = 0;
-	    List<CashLedgerRow> rows = new ArrayList<>();
+        Page<CashTransaction> txPage =
+            cashTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId, pageable);
 
-	    for (CashTransaction tx : txs) {
-	        balance += tx.getAmount().doubleValue();
+        List<CashTransaction> pageTxs = new ArrayList<>(txPage.getContent());
 
-	        rows.add(new CashLedgerRow(
-	        	tx.getId(),
-	            tx.getTransactionDate(),
-	            tx.getTransactionType(),
-	            tx.getSymbol(),
-	            tx.getDescription(),
-	            tx.getAmount(),
-	            balance,
-	            tx.isEditable()
-	        ));
-	    }
+        if (pageTxs.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, txPage.getTotalElements());
+        }
 
-	    return rows;
-	}
+        // Newest-first page returned by DB
+        // Find oldest txn on this page
+        CashTransaction oldestOnPage = pageTxs.get(pageTxs.size() - 1);
+
+        BigDecimal startingBalance =
+            cashTransactionRepository.sumAmountsBeforeDate(
+                accountId,
+                oldestOnPage.getTransactionDate()
+            );
+
+        // Reverse to chronological order for running balance calculation
+        Collections.reverse(pageTxs);
+
+        List<CashLedgerRow> rows = new ArrayList<>();
+        BigDecimal runningBalance = startingBalance;
+
+        for (CashTransaction tx : pageTxs) {
+            runningBalance = runningBalance.add(tx.getAmount());
+
+            rows.add(new CashLedgerRow(
+                tx.getId(),
+                tx.getTransactionDate(),
+                tx.getTransactionType(),
+                tx.getSymbol(),
+                tx.getDescription(),
+                tx.getAmount(),
+                runningBalance.doubleValue(),
+                tx.isEditable()
+            ));
+        }
+
+        // Reverse back to newest-first for display
+        Collections.reverse(rows);
+
+        return new PageImpl<>(rows, pageable, txPage.getTotalElements());
+    }
 
 	public CashSummary calculateSummary(UUID accountId) {
 
         List<CashTransaction> txs =
-        		cashTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId);
+        		cashTransactionRepository.findByAccountIdOrderByTransactionDateAsc(accountId);
 
         double totalIn = 0.0;
         double totalOut = 0.0;

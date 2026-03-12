@@ -1,5 +1,7 @@
 package dr.portfolio.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -52,18 +54,35 @@ public class HoldingsService {
 			boolean option,
 			String optionSummary,
 			double dividends,
-			double totalReturnPct
+			double totalReturnPct,
+		    String underlyingSymbol,
+		    String optionType,
+		    LocalDate expiration,
+		    BigDecimal strikePrice
 		) {}
 		 
 		Map<UUID, Deque<BuyLot>> buyQueues = new HashMap<>();
 		Map<UUID, String> symbols = new HashMap<>();
 		Map<UUID, Double> lastTradePrice = new HashMap<>();
 		Map<UUID, java.time.LocalDateTime> lastTradeDate = new HashMap<>();
-
+		Map<UUID, String> underlyingSymbols = new HashMap<>();
+		Map<UUID, String> optionTypes = new HashMap<>();
+		Map<UUID, LocalDate> expirations = new HashMap<>();
+		Map<UUID, BigDecimal> strikePrices = new HashMap<>();
+		
 		for (Trade trade : trades) {
 
 			UUID holdingId = trade.getHolding().getId();
+			var holding = trade.getHolding();
 
+			if (holding.getType() != null && holding.getType().name().equals("OPTION")) {
+			    underlyingSymbols.putIfAbsent(holdingId, extractUnderlyingFromOptionSymbol(trade.getSymbol()));
+			    optionTypes.putIfAbsent(holdingId,
+			        holding.getOptionType() != null ? holding.getOptionType().name() : null);
+			    expirations.putIfAbsent(holdingId, holding.getExpiration());
+			    strikePrices.putIfAbsent(holdingId, holding.getStrikePrice());
+			}
+			
 			symbols.putIfAbsent(holdingId, trade.getSymbol());
 			buyQueues.putIfAbsent(holdingId, new ArrayDeque<>());
 
@@ -168,7 +187,12 @@ public class HoldingsService {
 					isOption, 
 					optionSummary,
 					dividends,
-					totalReturnPct));
+					totalReturnPct,
+				    underlyingSymbols.get(holdingId),
+				    optionTypes.get(holdingId),
+				    expirations.get(holdingId),
+				    strikePrices.get(holdingId)
+			));
 		});
 
 		rawResults.sort(Comparator.comparing(RawHolding::symbol, String.CASE_INSENSITIVE_ORDER));
@@ -194,7 +218,11 @@ public class HoldingsService {
                     r.optionSummary(),
                     r.dividends(),
                     r.totalReturnPct(),
-                    allocationPercent
+                    allocationPercent,
+                    r.underlyingSymbol(),
+                    r.optionType(),
+                    r.expiration(),
+                    r.strikePrice()
                 );
             })
             .toList();
@@ -213,5 +241,10 @@ public class HoldingsService {
 
 		holdingsResult.setHoldings(results);
 		return holdingsResult;
+	}
+	
+	private String extractUnderlyingFromOptionSymbol(String symbol) {
+	    if (symbol == null) return null;
+	    return symbol.replaceFirst("\\d{6}[CP].*$", "");
 	}
 }

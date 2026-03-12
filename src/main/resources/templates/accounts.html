@@ -124,6 +124,11 @@
 	        View Income Dashboard
 	    </button>
 	</form>
+	<form th:action="@{/accounts/admin/rebuild-holdings}" method="post">
+		<button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
+	    	Rebuild Holdings
+	    </button>
+	</form>
 	<script>
 	function goToIncomeYear() {
 	    const year = document.getElementById('incomeYearInput').value;

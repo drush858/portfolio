@@ -138,7 +138,30 @@
 	  </tbody>
 	</table>
 	</div>
-	
+	<div class="flex justify-between items-center mt-4 text-sm">
+
+	  <div>
+	    Page <span th:text="${page.number + 1}"></span>
+	    of <span th:text="${page.totalPages}"></span>
+	  </div>
+
+	  <div class="flex gap-2">
+
+	    <a th:if="${page.hasPrevious()}"
+	       th:href="@{/accounts/cash/{id}(id=${accountId}, page=${page.number - 1})}"
+	       class="px-3 py-1 border rounded hover:bg-gray-200">
+	       Previous
+	    </a>
+
+	    <a th:if="${page.hasNext()}"
+	       th:href="@{/accounts/cash/{id}(id=${accountId}, page=${page.number + 1})}"
+	       class="px-3 py-1 border rounded hover:bg-gray-200">
+	       Next
+	    </a>
+
+	  </div>
+
+	</div>
 	<!-- Add Dividend Modal -->
 	<div id="dividendModal"
 	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">

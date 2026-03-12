@@ -36,6 +36,13 @@ public class HoldingRebuildService {
         Deque<BuyLot> lots = new ArrayDeque<>();
 
         for (Trade trade : trades) {
+        	
+        	if (trade.getQuantity() <= 0) {
+        		throw new IllegalArgumentException(
+        			"Trade quantity must be positive for holding " + holding.getSymbol()
+    			);
+        	}
+        	 
             switch (trade.getTradeType()) {
                 case BUY -> lots.addLast(new BuyLot(
                         trade.getQuantity(),
@@ -46,6 +53,7 @@ public class HoldingRebuildService {
                     int remaining = trade.getQuantity();
 
                     while (remaining > 0) {
+                    	
                         BuyLot lot = lots.peekFirst();
 
                         if (lot == null) {
@@ -84,7 +92,6 @@ public class HoldingRebuildService {
 
         holding.setQuantity(totalQty);
         holding.setAvgCost(totalQty == 0 ? 0.0 : totalCost / totalQty);
-
         holdingRepository.save(holding);
     }
 }
