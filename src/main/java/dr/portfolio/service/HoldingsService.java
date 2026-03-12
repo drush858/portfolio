@@ -38,7 +38,9 @@ public class HoldingsService {
 			List<Trade> trades, 
 			Map<String, CachedPrice> cachedPrices,
 			MarketPriceService marketPriceService,
-			UUID accountId) 
+			UUID accountId,
+		    int page,
+		    int size) 
 	{
 		record BuyLot(int qty, double price) {}
 
@@ -230,16 +232,28 @@ public class HoldingsService {
 		// ---- Totals ----
 		double totalCostBasis = results.stream().mapToDouble(HoldingView::totalCost).sum();
 		double totalGain = totalMarketValue - totalCostBasis;
-
 		double totalGainPercent = totalCostBasis == 0.0 ? 0.0 : (totalGain / totalCostBasis);
 
+		int totalElements = results.size();
+		int totalPages = (int) Math.ceil((double) totalElements / size);
+
+		int fromIndex = Math.min(page * size, totalElements);
+		int toIndex = Math.min(fromIndex + size, totalElements);
+
+		List<HoldingView> pagedResults = results.subList(fromIndex, toIndex);
+		
 		HoldingsResult holdingsResult = new HoldingsResult();
 		holdingsResult.setTotalMarketValue(totalMarketValue);
 		holdingsResult.setTotalCostBasis(totalCostBasis);
 		holdingsResult.setTotalGain(totalGain); // dollars
 		holdingsResult.setTotalPercentGain(totalGainPercent); // fraction (0.12 = 12%)
 
-		holdingsResult.setHoldings(results);
+		holdingsResult.setHoldings(pagedResults);
+		holdingsResult.setPage(page);
+		holdingsResult.setSize(size);
+		holdingsResult.setTotalPages(totalPages);
+		holdingsResult.setTotalElements(totalElements);
+				
 		return holdingsResult;
 	}
 	

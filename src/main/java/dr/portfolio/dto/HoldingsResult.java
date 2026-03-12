@@ -10,6 +10,52 @@ public class HoldingsResult {
 	private double totalGain;
 	private double totalPercentGain;
 	
+	// paging
+    private int page;
+    private int size;
+    private int totalPages;
+    private long totalElements;
+
+    public boolean isHasNext() {
+        return page + 1 < totalPages;
+    }
+
+    public boolean isHasPrevious() {
+        return page > 0;
+    }
+    
+	public int getPage() {
+		return page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public int getTotalPages() {
+		return totalPages;
+	}
+
+	public void setTotalPages(int totalPages) {
+		this.totalPages = totalPages;
+	}
+
+	public long getTotalElements() {
+		return totalElements;
+	}
+
+	public void setTotalElements(long totalElements) {
+		this.totalElements = totalElements;
+	}
+
 	public List<HoldingView> getHoldings() {
 		return holdings;
 	}

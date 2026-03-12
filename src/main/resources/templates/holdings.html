@@ -302,6 +302,30 @@
 	</table>
 </div>
 
+<div class="flex items-center justify-between mt-4 text-sm text-slate-400">
+  <div>
+    Page <span th:text="${page + 1}"></span>
+    of <span th:text="${totalPages}"></span>
+    <span class="ml-2">
+      (<span th:text="${totalElements}"></span> holdings)
+    </span>
+  </div>
+
+  <div class="flex gap-2">
+    <a th:if="${page > 0}"
+       th:href="@{/holdings/view/{id}(id=${accountId}, page=${page - 1}, size=${size})}"
+       class="px-3 py-1 rounded border border-slate-600 hover:bg-slate-700">
+      Previous
+    </a>
+
+    <a th:if="${page + 1 < totalPages}"
+       th:href="@{/holdings/view/{id}(id=${accountId}, page=${page + 1}, size=${size})}"
+       class="px-3 py-1 rounded border border-slate-600 hover:bg-slate-700">
+      Next
+    </a>
+  </div>
+</div>
+
 <button
     type="button"
     onclick="openOptionTradeModal()"

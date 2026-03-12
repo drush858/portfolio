@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import dr.portfolio.domain.Account;
 import dr.portfolio.domain.Holding;
@@ -51,7 +52,14 @@ public class HoldingController {
     }
     
     @GetMapping("/view/{id}")
-    public String viewHoldings(Model model, Principal principal, @PathVariable UUID id) {
+    public String viewHoldings( 
+    		@PathVariable UUID id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size,
+            Principal principal,
+            Model model) {
+
+    	Account acct = accountRepository.getReferenceById(id);
 
     	List<Trade> trades = tradeRepository.findAllTradesForAccount(id);
         
@@ -59,12 +67,21 @@ public class HoldingController {
             priceCache.getAll(); //.getLivePrices(trades);
 
         HoldingsResult holdingsResult =
-            holdingsService.calculateHoldings(trades, prices, marketPriceService, id);
-
-        Account acct = accountRepository.getReferenceById(id);
+            holdingsService.calculateHoldings(
+            		trades, 
+            		prices, 
+            		marketPriceService, 
+            		id,
+                    page,
+                    size);
 
         model.addAttribute("pageTitle", acct.getName() + " Holdings");
         model.addAttribute("holdings", holdingsResult.getHoldings());
+
+        model.addAttribute("page", holdingsResult.getPage());
+        model.addAttribute("size", holdingsResult.getSize());
+        model.addAttribute("totalPages", holdingsResult.getTotalPages());
+        model.addAttribute("totalElements", holdingsResult.getTotalElements());
         
         model.addAttribute("totalMarketValue", holdingsResult.getTotalMarketValue());
         model.addAttribute("totalCostBasis", holdingsResult.getTotalCostBasis());
