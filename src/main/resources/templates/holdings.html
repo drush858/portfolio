@@ -80,41 +80,41 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 </th:block>
 
-<div th:fragment="content" class="space-y-10">
+<div th:fragment="content" class="space-y-2">
 <div>	
-	<h1 class="text-3xl font-bold"
+	<p class="font-bold"
 	    th:text="${accountName}">
 	    Stock Holdings
-	</h1>
-<p class="text-slate-400 mt-1">Manage your account holdings</p>
+	</p>
+<!--p class="text-sm text-slate-400 mt-1">Manage your account holdings</p-->
 </div>
 
 <!-- Portfolio Summary -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 text-slate-400">
 
   <!-- Market Value -->
-  <div class="rounded-xl shadow p-4 border border-slate-600 ">
+  <div class="rounded-xl shadow p-1 border border-slate-600 ">
     <div class="text-sm font-bold">Market Value</div>
-    <div class="text-2xl font-semibold text-green-700"
+    <div class="text-xl font-semibold text-green-700"
          th:text="${#numbers.formatDecimal(totalMarketValue, 1, 'COMMA', 2, 'POINT')}">
       $0.00
     </div>
   </div>
 
   <!-- Cost Basis -->
-  <div class="rounded-xl shadow p-4 border border-slate-600">
+  <div class="rounded-xl shadow p-1 border border-slate-600">
     <div class="text-sm font-bold">Cost Basis</div>
-    <div class="text-2xl font-semibold text-blue-600"
+    <div class="text-xl font-semibold text-blue-600"
          th:text="${#numbers.formatDecimal(totalCostBasis, 1, 'COMMA', 2, 'POINT')}">
       $0.00
     </div>
   </div>
 
   <!-- Gain / Loss -->
-  <div class="rounded-xl shadow p-4 border border-slate-600">
+  <div class="rounded-xl shadow p-1 border border-slate-600">
     <div class="text-sm font-bold">Unrealized Gain / Loss</div>
     <div th:classappend="${totalGain >= 0} ? 'text-green-700' : 'text-red-700'"
-         class="text-2xl font-semibold">
+         class="text-xl font-semibold">
       <span th:text="${#numbers.formatDecimal(totalGain, 1, 'COMMA', 2, 'POINT')}"></span>
       <span class="text-sm ml-1 font-semibold"
             th:text="'(' + ${#numbers.formatDecimal(totalGainPercent, 1, 'COMMA', 2, 'POINT')} + '%)'">
@@ -126,6 +126,7 @@
 
 <!-- Holdings table -->
 <div class="overflow-hidden rounded-2xl shadow border border-slate-600 text-slate-400">
+	
 	<table class="min-w-full divide-y divide-slate-600">
         <thead class="font-bold text-sm bg-slate-800">
 	    <tr>
@@ -300,64 +301,79 @@
 		</th:block>
 	  </tbody>
 	</table>
-</div>
+	<div class="px-1 py-1 flex items-center justify-between mt-4 text-sm text-slate-400">
+		<form method="get" class="px-2 flex items-center gap-2">
+			  <label class="text-sm text-lime-500">Rows:</label>
 
-<div class="flex items-center justify-between mt-4 text-sm text-slate-400">
-  <div>
-    Page <span th:text="${page + 1}"></span>
-    of <span th:text="${totalPages}"></span>
-    <span class="ml-2">
-      (<span th:text="${totalElements}"></span> holdings)
-    </span>
-  </div>
+			  <select name="size"
+			          onchange="this.form.submit()"
+			          class="border rounded bg-slate-800">
 
-  <div class="flex gap-2">
-    <a th:if="${page > 0}"
-       th:href="@{/holdings/view/{id}(id=${accountId}, page=${page - 1}, size=${size})}"
-       class="px-3 py-1 rounded border border-slate-600 hover:bg-slate-700">
-      Previous
-    </a>
+			    <option th:value="10" th:selected="${size == 10}">10</option>
+				<option th:value="15" th:selected="${size == 15}">15</option>
+			    <option th:value="20" th:selected="${size == 20}">20</option>
+			    <option th:value="30" th:selected="${size == 30}">30</option>
 
-    <a th:if="${page + 1 < totalPages}"
-       th:href="@{/holdings/view/{id}(id=${accountId}, page=${page + 1}, size=${size})}"
-       class="px-3 py-1 rounded border border-slate-600 hover:bg-slate-700">
-      Next
-    </a>
-  </div>
+			  </select>
+
+			  <input type="hidden" name="page" th:value="${page}" />
+			</form>
+	  <div>
+	    Page <span th:text="${page + 1}"></span>
+	    of <span th:text="${totalPages}"></span>
+	    <span class="ml-2">
+	      (<span th:text="${totalElements}"></span> holdings)
+	    </span>
+	  </div>
+
+	  <div class="px-1 flex gap-2">
+	    <a th:if="${page > 0}"
+	       th:href="@{/holdings/view/{id}(id=${accountId}, page=${page - 1}, size=${size})}"
+	       class="px-3 py-1 rounded border border-slate-600 hover:bg-slate-700">
+	      Previous
+	    </a>
+
+	    <a th:if="${page + 1 < totalPages}"
+	       th:href="@{/holdings/view/{id}(id=${accountId}, page=${page + 1}, size=${size})}"
+	       class="px-3 py-1 rounded border border-slate-600 hover:bg-slate-700">
+	      Next
+	    </a>
+	  </div>
+	</div>
 </div>
 
 <button
     type="button"
     onclick="openOptionTradeModal()"
-    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2
-           text-sm font-semibold text-white hover:bg-blue-700 border border-slate-300">
+    class="inline-flex items-center rounded-lg bg-blue-600 px-1 py-1
+           text-sm text-white hover:bg-blue-700 border border-slate-300">
     Buy Option
 </button>
 	
 <!-- Single Buy / Sell card -->
-<div class="rounded-xl shadow p-6 space-y-4">
+<div class="rounded-xl shadow"> <!-- space-y-4"-->
     <!-- (buy/sell form) -->
-	<h3 class="text-lg font-semibold text-lime-500">Add Stock Trade</h3>
+	<p class="font-bold text-lime-500">Add Stock Trade</p>
 
-	<div class="overflow-hidden rounded-2xl shadow border border-slate-600 bg-slate-900 text-slate-400">
+	<div class="overflow-hidden rounded-xl shadow border border-slate-600 bg-slate-900 text-slate-400">
 		<form th:object="${tradeCreate}" method="post">
 		 	<div class="overflow-hidden rounded-2xl shadow">
 		        <table class="min-w-full divide-y divide-slate-600">
 		            <thead>
 		                <tr>
-		                    <th class="px-6 py-3 text-left text-sm font-bold">
+		                    <th class=" px-1 py-1 text-left text-sm font-bold">
 		                        Symbol
 		                    </th>
-		                    <th class="px-6 py-3 text-left text-sm font-bold">
+		                    <th class=" px-1 py-1 text-left text-sm font-bold">
 		                        Quantity
 		                    </th>
-		                    <th class="px-6 py-3 text-left text-sm font-bold">
+		                    <th class=" px-1 py-1 text-left text-sm font-bold">
 		                        Price
 		                    </th>
-							<th class="px-6 py-3 text-left text-sm font-bold">
+							<th class=" px-1 py-1 text-left text-sm font-bold">
 		                        Date
 		                    </th>
-							<th class="px-6 py-3 text-right text-sm font-bold">
+							<th class=" px-1 py-1 text-right text-sm font-bold">
 		                        Action
 		                    </th>
 		                </tr>
@@ -365,43 +381,43 @@
 	
 		            <tbody class="divide-y divide-slate-600">
 		                <tr>
-		                    <td class="px-6 py-4 font-medium">
+		                    <td class=" px-1 py-1 font-medium">
 								<input id="symbolInput"
 							           th:field="*{symbol}"
 							           placeholder="Symbol"
-							           class="border rounded px-3 py-2 bg-slate-400 text-slate-800"/>
+							           class="border rounded px-1 py-1 bg-slate-400 text-slate-800"/>
 		                    </td>
 	
-		                    <td class="px-6 py-4">
+		                    <td class=" px-1 py-1">
 								<input id="quantityInput"
 							           th:field="*{quantity}"
 							           placeholder="Quantity"
-							           class="border rounded px-3 py-2 bg-slate-400 text-slate-800"/>
+							           class="border rounded px-1 py-1 bg-slate-400 text-slate-800"/>
 		                    </td>
-							<td class="px-6 py-4">
+							<td class=" px-1 py-1">
 								<input id="priceInput"
 							           th:field="*{price}"
 							           placeholder="Price"
-							           class="border rounded px-3 py-2 bg-slate-400 text-slate-800"/>
+							           class="border rounded px-1 py-1 bg-slate-400 text-slate-800"/>
 							</td>
-							<td class="px-6 py-4">
+							<td class=" px-1 py-1">
 								<input id="dateInput"
 							           th:field="*{date}"
 									   type="date"
 									   placeholder="MM/DD/YYYY"
-							           class="border rounded px-3 py-2 bg-slate-400 text-slate-800"/>
+							           class="border rounded px-1 py-1 bg-slate-400 text-slate-800"/>
 							</td>
-							<td class="px-6 py-4">
+							<td class=" px-1 py-1">
 								<div class="flex gap-2">
 								      <button type="submit"
 								              th:formaction="@{/trades/buy/{id}(id=${accountId})}"
-								              class="flex-1 bg-green-600 text-white rounded px-3 py-2 hover:bg-green-700 border border-slate-300">
+								              class="flex-1 bg-green-600 text-white rounded px-1 py-1 text-sm hover:bg-green-700 border border-slate-300">
 								        Buy
 								      </button>
 	
 								      <button type="submit"
 								              th:formaction="@{/trades/sell/{id}(id=${accountId})}"
-								              class="flex-1 bg-red-600 text-white rounded px-3 py-2 hover:bg-red-700 border border-slate-300">
+								              class="flex-1 bg-red-600 text-white rounded px-1 py-1 text-sm hover:bg-red-700 border border-slate-300">
 								        Sell
 								      </button>
 								</div>

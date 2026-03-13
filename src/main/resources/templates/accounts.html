@@ -7,46 +7,27 @@
           ~{::head}
       )}">
 
-<head>
-	
-	<script type="text/javascript">
-
-		function getTodaysYear() {
-						
-			const currentYear = new Date().getFullYear();  
-			document.getElementById("soldYear").value = currentYear;
-			//date = formattedDate;
-			//year = currentYear;
-		}
-			
-		//var year;
-
-		// Assign function to window.onload
-		window.onload = getTodaysYear;
-			
-	</script>
-</head>
+<head></head>
 <body>
-<div th:fragment="content" class="space-y-10">
+<div th:fragment="content" class="space-y-3">
 
     <!-- Header -->
     <div>
-        <h1 class="text-2xl font-bold">Brokerage Accounts</h1>
-        <p class="text-slate-400 mt-1">Manage your brokerage accounts and holdings</p>
+        <p class="font-bold">Brokerage Accounts</p>
     </div>
 
     <!-- Accounts Table -->
-    <div class="overflow-hidden rounded-2xl shadow border border-slate-600 bg-slate-900 text-slate-400">
+    <div class="overflow-hidden rounded-xl shadow border border-slate-600 bg-slate-900 text-slate-400">
         <table class="min-w-full divide-y divide-slate-600">
             <thead class="bg-slate-800">
                 <tr>
-                    <th class="px-6 py-3 text-left text-sm font-bold">
+                    <th class="px-1 py-1 text-left text-sm font-bold">
                         Name
                     </th>
-                    <th class="px-6 py-3 text-left text-sm font-bold">
+                    <th class="px-1 py-1 text-left text-sm font-bold">
                         Number
                     </th>
-                    <th class="px-6 py-3 text-right text-sm font-bold">
+                    <th class="px-1 py-1 text-right text-sm font-bold">
                         Actions
                     </th>
                 </tr>
@@ -54,21 +35,21 @@
 
             <tbody class="divide-y divide-slate-600">
                 <tr th:each="a : ${accounts}" class="hover:bg-slate-600 ">
-                    <td class="px-6 py-4 font-medium"
+                    <td class="px-1 py-1 font-medium"
                         th:text="${a.name}">
                     </td>
 
-                    <td class="px-6 py-4"
+                    <td class="px-1 py-1"
                         th:text="${a.number}">
                     </td>
 
-                    <td class="px-6 py-4">
+                    <td class="px-1 py-1">
                         <div class="flex justify-end gap-2">
 
                             <form th:action="@{/holdings/view/{id}(id=${a.id})}"
                                   method="get">
                                 <button
-                                    class="px-3 py-1.5 text-sm rounded-lg bg-blue-600 border border-slate-300 text-white hover:bg-blue-700">
+                                    class="px-1 py-1 text-sm rounded-lg bg-blue-600 border border-slate-300 text-white hover:bg-blue-700">
                                     Holdings
                                 </button>
                             </form>
@@ -76,7 +57,7 @@
 							<form th:action="@{/accounts/cash/{id}(id=${a.id})}"
                                   method="get">
                                 <button
-                                    class="px-3 py-1.5 text-sm rounded-lg bg-blue-600 border border-slate-300 text-white hover:bg-blue-700">
+                                    class="px-1 py-1 text-sm rounded-lg bg-blue-600 border border-slate-300 text-white hover:bg-blue-700">
                                     Cash
                                 </button>
                             </form>
@@ -85,7 +66,7 @@
                                   th:action="@{/accounts/deactivate/{id}(id=${a.id})}"
                                   method="post">
                                 <button
-                                    class="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white border border-slate-300 hover:bg-red-700">
+                                    class="px-1 py-1 text-sm rounded-lg bg-red-600 text-white border border-slate-300 hover:bg-red-700">
                                     Deactivate
                                 </button>
                             </form>
@@ -94,7 +75,7 @@
                                   th:action="@{/accounts/activate/{id}(id=${a.id})}"
                                   method="post">
                                 <button
-                                    class="px-3 py-1.5 text-sm rounded-lg bg-green-600 border border-slate-300 text-white hover:bg-green-700">
+                                    class="px-1 py-1.5 text-sm rounded-lg bg-green-600 border border-slate-300 text-white hover:bg-green-700">
                                     Activate
                                 </button>
                             </form>
@@ -116,19 +97,15 @@
 	           max="2100"
 	           required
 	           th:value="${#temporals.createNow().year}"
-	           class="w-28 rounded-md border border-slate-300 px-3 py-2
+	           class="w-28 rounded-md border border-slate-300 px-1 py-1
 	                  focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
 
 	    <button type="submit"
-	            class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
+	            class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
 	        View Income Dashboard
 	    </button>
 	</form>
-	<form th:action="@{/accounts/admin/rebuild-holdings}" method="post">
-		<button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
-	    	Rebuild Holdings
-	    </button>
-	</form>
+	
 	<script>
 	function goToIncomeYear() {
 	    const year = document.getElementById('incomeYearInput').value;
@@ -139,7 +116,7 @@
 	
 	<!-- Totals -->
     <div class="bg-slate-900">
-        <h2 class="text-xl font-bold mb-4">Sold Totals</h2>
+        <h2 class="font-bold mb-4">Sold Totals</h2>
 
         <div class="flex flex-wrap gap-3">
             <form id="soldForm" th:action="@{/trades/sold}" method="get" class="flex items-center gap-3">
@@ -150,39 +127,66 @@
 				       min="1900"
 				       max="2100"
 				       required
+					   th:value="${#temporals.createNow().year}"
 				       placeholder="Year"
-				       class="w-28 rounded-md border px-3 py-2
+				       class="w-28 rounded-md border px-1 py-1
 				              border-slate-300 focus:ring-blue-500 focus:border-blue-500 bg-slate-400 text-slate-800" />
 								  
                 <button type="submit" 
-				        class="px-4 py-2 rounded-lg bg-emerald-600 text-white 
+				        class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white 
 						       hover:bg-emerald-800 border border-slate-300">
                     View Sold Totals
                 </button>
             </form>
 
-            <form th:action="@{/trades/sold/2026/export/csv}" method="get">
-                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
+            <form id="csvForm" method="get">
+                <button class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
                     Download CSV
                 </button>
             </form>
 
-            <form th:action="@{/trades/sold/2026/export/excel}" method="get">
-                <button class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
+            <form id="excelForm" method="get">
+                <button class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
                     Download Excel
                 </button>
             </form>
         </div>
     </div>
+	
+	<script>
+
+	document.getElementById("csvForm").addEventListener("submit", function(e) {
+	    const year = document.getElementById("soldYear").value;
+	    if (!year) {
+	        e.preventDefault();
+	        alert("Please enter a year first.");
+	        return;
+	    }
+
+	    this.action = "/trades/sold/" + year + "/export/csv";
+	});
+
+	document.getElementById("excelForm").addEventListener("submit", function(e) {
+	    const year = document.getElementById("soldYear").value;
+	    if (!year) {
+	        e.preventDefault();
+	        alert("Please enter a year first.");
+	        return;
+	    }
+
+	    this.action = "/trades/sold/" + year + "/export/excel";
+	});
+
+	</script>
 		
     <!-- Create Account -->
     <div class="max-w-lg bg-slate-900">
-        <h2 class="text-xl font-bold mb-4">Create Account</h2>
+        <p class="font-bold mb-4">Create Account</p>
 
         <form th:action="@{/accounts}"
               th:object="${account}"
               method="post"
-              class="shadow rounded-2xl p-6 space-y-4 border border-slate-600 text-slate-400">
+              class="shadow rounded-xl p-1 space-y-1 border border-slate-600 text-slate-400">
 
             <div>
                 <label class="block text-sm">
@@ -202,7 +206,7 @@
 
             <div class="text-right">
                 <button
-                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 border border-slate-300">
+                    class="px-1 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 border border-slate-300">
                     Add Account
                 </button>
             </div>
@@ -211,12 +215,12 @@
 
     <!-- Import Trades -->
     <div class="max-w-lg bg-slate-900">
-        <h2 class="text-xl font-bold mb-4">Import Trades</h2>
+        <p class="font-bold mb-4">Import Trades</p>
 
         <form th:action="@{/trades/import}"
               method="post"
               enctype="multipart/form-data"
-              class="shadow rounded-2xl p-6 border border-slate-600 space-y-4">
+              class="shadow rounded-xl p-1 border border-slate-600 space-y-1">
 
             <input type="file"
                    name="file"
@@ -225,12 +229,17 @@
                    class="block w-full text-sm text-slate-400"/>
 
             <button
-                class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 border border-slate-300">
+                class="px-1 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 border border-slate-300">
                 Import CSV
             </button>
         </form>
     </div>
-
+	<p class="font-bold mb-4">Maintenance Only</p>
+	<form th:action="@{/accounts/admin/rebuild-holdings}" method="post">
+			<button class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
+		    	Rebuild Holdings
+		    </button>
+	</form>
     
 
 </div>

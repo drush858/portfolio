@@ -55,7 +55,7 @@ public class HoldingController {
     public String viewHoldings( 
     		@PathVariable UUID id,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "9") int size,
+            @RequestParam(defaultValue = "10") int size,
             Principal principal,
             Model model) {
 
