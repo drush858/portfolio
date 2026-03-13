@@ -231,6 +231,7 @@ public class TradeService {
         if (!ownerUsername.equals(username)) {
             throw new AccessDeniedException("Unauthorized access to holding");
         }
+        
         return tradeRepository.findByHoldingOrderByTradeDateDescIdAsc(holding);
     }
 

@@ -11,27 +11,6 @@
 	<!-- Page-specific HEAD -->
 	<th:block th:fragment="head">
 
-		<!-- Page-specific JS (unchanged) 
-		<script type="text/javascript">
-
-			function getTodayDate() {
-
-				const formattedDate = new Date().toISOString().slice(0, 10);
-				document.getElementById("dateInput").value = formattedDate;
-				date = formattedDate;
-			}
-
-			var date;
-
-			// Assign function to window.onload
-			window.onload = getTodayDate;
-
-			function showDetails(id) {
-				window.open(`/trades/lots/${id}`, "_blank", "top=200,left=500,height=200,width=600");
-			}
-
-		</script>
-		-->
 		<script>
 			/*
 			const socket = new SockJS('/ws');
@@ -85,7 +64,6 @@
 			<p class="font-bold" th:text="${accountName}">
 				Stock Holdings
 			</p>
-			<!--p class="text-sm text-slate-400 mt-1">Manage your account holdings</p-->
 		</div>
 
 		<!-- Portfolio Summary -->
@@ -272,7 +250,7 @@
 						</tr>
 						<!-- LOTS ROW (only for stocks) -->
 						<tr th:if="${!h.option}" th:id="'lots-' + ${h.holdingId}" class="hidden">
-							<td colspan="4" class="px-6 py-4">
+							<td colspan="5" class="px-6 py-4">
 
 								<!-- reuse your fragment -->
 								<div th:attr="data-holding-id=${h.holdingId}" class="lots-container text-sm">
