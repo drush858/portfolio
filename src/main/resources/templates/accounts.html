@@ -87,36 +87,9 @@
         </table>
     </div>
 
-	<form id="incomeForm" method="get"
-	      onsubmit="event.preventDefault(); goToIncomeYear();"
-	      class="flex items-center gap-3">
-
-	    <input type="number"
-	           id="incomeYearInput"
-	           min="1900"
-	           max="2100"
-	           required
-	           th:value="${#temporals.createNow().year}"
-	           class="w-28 rounded-md border border-slate-300 px-1 py-1
-	                  focus:border-blue-500 focus:ring-blue-500 bg-slate-400 text-slate-800" />
-
-	    <button type="submit"
-	            class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-800 border border-slate-300">
-	        View Income Dashboard
-	    </button>
-	</form>
-	
-	<script>
-	function goToIncomeYear() {
-	    const year = document.getElementById('incomeYearInput').value;
-	    if (!year) return;
-	    window.location.href = '/accounts/income/' + year;
-	}
-	</script>
-	
 	<!-- Totals -->
     <div class="bg-slate-900">
-        <h2 class="font-bold mb-4">Sold Totals</h2>
+        <p class="font-bold mb-4">Income/Sold Totals</p>
 
 		<div class="flex flex-wrap gap-3">
 		    <form id="soldActionsForm" method="get" class="flex items-center gap-3">
@@ -132,7 +105,13 @@
 		                      border-slate-300 focus:ring-blue-500 focus:border-blue-500
 		                      bg-slate-400 text-slate-800" />
 
-		        <button type="button"
+			  	<button type="button"
+			  	        onclick="submitSoldAction('income')"
+			  	        class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white
+			  	               hover:bg-emerald-800 border border-slate-300">
+			  	    Income Dashboard
+			  	</button>
+				<button type="button"
 		                onclick="submitSoldAction('view')"
 		                class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white
 		                       hover:bg-emerald-800 border border-slate-300">
@@ -152,6 +131,7 @@
 		                       hover:bg-emerald-800 border border-slate-300">
 		            Download Excel
 		        </button>
+				
 		    </form>
 		</div>
 		
@@ -177,7 +157,10 @@
 	    } else if (action === "excel") {
 	        form.action = "/trades/sold/" + year + "/export/excel";
 	        yearInput.name = "";
-	    }
+		} else if (action === "income") {
+			form.action = "/accounts/income/" + year;
+			yearInput.name = "";
+		}
 
 	    form.submit();
 
