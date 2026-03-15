@@ -94,39 +94,40 @@
 		<div class="flex flex-wrap gap-3">
 		    <form id="soldActionsForm" method="get" class="flex items-center gap-3">
 
-		        <input id="soldYear"
-		               type="number"
+		        <input 
+				       type="number"
+					   name="year"
 		               min="1900"
 		               max="2100"
 		               required
-		               placeholder="Year"
+		               placeholder="Tax Year"
 		               th:value="${#temporals.format(#temporals.createNow(), 'yyyy')}"
 		               class="w-28 rounded-md border px-1 py-1
 		                      border-slate-300 focus:ring-blue-500 focus:border-blue-500
 		                      bg-slate-400 text-slate-800" />
 
-			  	<button type="button"
-			  	        onclick="submitSoldAction('income')"
+			  	<button type="submit"
+			  	        formaction="/accounts/income"
 			  	        class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white
 			  	               hover:bg-emerald-800 border border-slate-300">
 			  	    Income Dashboard
 			  	</button>
-				<button type="button"
-		                onclick="submitSoldAction('view')"
-		                class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white
+				<button type="submit"
+		                formaction="/trades/sold"
+						class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white
 		                       hover:bg-emerald-800 border border-slate-300">
 		            View Sold Totals
 		        </button>
 
-		        <button type="button"
-		                onclick="submitSoldAction('csv')"
+		        <button type="submit"
+		                formaction="/trades/sold/export/csv"
 		                class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white
 		                       hover:bg-emerald-800 border border-slate-300">
 		            Download CSV
 		        </button>
 
-		        <button type="button"
-		                onclick="submitSoldAction('excel')"
+		        <button type="submit"
+		                formaction="/trades/sold/export/excel"
 		                class="px-1 py-1 text-sm rounded-lg bg-emerald-600 text-white
 		                       hover:bg-emerald-800 border border-slate-300">
 		            Download Excel
@@ -136,38 +137,6 @@
 		</div>
 		
     </div>
-	
-	<script>
-	function submitSoldAction(action) {
-	    const yearInput = document.getElementById("soldYear");
-	    const form = document.getElementById("soldActionsForm");
-	    const year = yearInput.value;
-
-	    if (!year) {
-	        yearInput.reportValidity();
-	        return;
-	    }
-
-	    if (action === "view") {
-	        form.action = "/trades/sold";
-	        yearInput.name = "year";
-	    } else if (action === "csv") {
-	        form.action = "/trades/sold/" + year + "/export/csv";
-	        yearInput.name = "";
-	    } else if (action === "excel") {
-	        form.action = "/trades/sold/" + year + "/export/excel";
-	        yearInput.name = "";
-		} else if (action === "income") {
-			form.action = "/accounts/income/" + year;
-			yearInput.name = "";
-		}
-
-	    form.submit();
-
-	    // restore for next use
-	    yearInput.name = "year";
-	}
-	</script>
 		
     <!-- Create Account -->
     <div class="max-w-lg bg-slate-900">

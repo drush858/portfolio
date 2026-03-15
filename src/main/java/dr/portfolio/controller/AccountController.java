@@ -62,9 +62,9 @@ public class AccountController {
         return "redirect:/accounts";
     }
     
-    @GetMapping("/income/{year}")
+    @GetMapping("/income")
     public String incomeDashboard(
-            @PathVariable int year,
+            @RequestParam int year,
             Principal principal,
             Model model
     ) {

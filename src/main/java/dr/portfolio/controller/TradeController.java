@@ -84,9 +84,9 @@ public class TradeController {
         return "soldHoldings";
     }
     
-    @GetMapping("/sold/{year}/export/csv")
+    @GetMapping("/sold/export/csv")
     public void exportSoldCsv(
-            @PathVariable int year,
+            @RequestParam int year,
             Principal principal,
             HttpServletResponse response
     ) throws IOException {
@@ -113,9 +113,9 @@ public class TradeController {
         }
     }
 
-    @GetMapping("/sold/{year}/export/excel")
+    @GetMapping("/sold/export/excel")
     public void exportSoldExcel(
-            @PathVariable int year,
+            @RequestParam int year,
             Principal principal,
             HttpServletResponse response
     ) throws IOException {
