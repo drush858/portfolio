@@ -75,11 +75,12 @@ public class TradeController {
         SoldHoldingsResult result =
                 realizedGainService.getSoldHoldingsForYear(trades, year);
 
-            model.addAttribute("soldHoldings", result.soldHoldings());
-            model.addAttribute("accountTotals", result.accountTotals());
-            model.addAttribute("accountSymbolTotals", result.accountSymbolTotals());
-            model.addAttribute("year", year);
-            model.addAttribute("pageTitle", "Sold Holdings");
+        model.addAttribute("soldLotDetails", result.soldLotDetails());
+        model.addAttribute("soldHoldings", result.soldHoldings());
+        model.addAttribute("accountTotals", result.accountTotals());
+        model.addAttribute("accountSymbolTotals", result.accountSymbolTotals());
+        model.addAttribute("year", year);
+        model.addAttribute("pageTitle", "Sold Holdings");
 
         return "soldHoldings";
     }

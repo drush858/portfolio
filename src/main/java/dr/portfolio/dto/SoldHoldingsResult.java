@@ -5,5 +5,6 @@ import java.util.List;
 public record SoldHoldingsResult(
         List<SoldHoldingView> soldHoldings,
         List<AccountSoldTotals> accountTotals,
-        List<AccountSymbolTotals> accountSymbolTotals
+        List<AccountSymbolTotals> accountSymbolTotals,
+        List<SoldLotDetail> soldLotDetails
 ) {}

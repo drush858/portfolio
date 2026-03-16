@@ -1,9 +1,13 @@
 package dr.portfolio.dto;
 
+import java.time.LocalDateTime;
+
 public class AccountSymbolTotals {
 
     private String accountName;
     private String symbol;
+    private LocalDateTime lastSoldDate;
+    private long maxDaysHeld;
 
     private double proceeds;
     private double costBasis;
@@ -37,8 +41,31 @@ public class AccountSymbolTotals {
         this.totalReturnPercent = this.costBasis == 0 ? 0 : this.totalReturn / this.costBasis;
     }
 
+    public long getMaxDaysHeld() {
+        return maxDaysHeld;
+    }
+
+    public void updateMaxDaysHeld(long daysHeld) {
+        if (daysHeld > this.maxDaysHeld) {
+            this.maxDaysHeld = daysHeld;
+        }
+    }
     
-    public double getDividends() {
+    public void updateLastSoldDate(LocalDateTime date) {
+        if (lastSoldDate == null || date.isAfter(lastSoldDate)) {
+            lastSoldDate = date;
+        }
+    }    
+
+	public LocalDateTime getLastSoldDate() {
+		return lastSoldDate;
+	}
+
+	public void setLastSoldDate(LocalDateTime lastSoldDate) {
+		this.lastSoldDate = lastSoldDate;
+	}
+
+	public double getDividends() {
 		return dividends;
 	}
 

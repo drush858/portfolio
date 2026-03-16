@@ -1,146 +1,264 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      th:replace="~{layout/main :: layout(
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout/main :: layout(
           ~{::content},
           ${pageTitle},
           ~{::head}
       )}">
 
 <head></head>
+
 <body>
-<div th:fragment="content" class="space-y-10">
+	<div th:fragment="content" class="space-y-10">
 
-    <!-- Header -->
-    <div>
-        <h1 class="text-3xl font-bold">
-            Per Account / Symbol Totals
-        </h1>
-        <p class="text-slate-400 mt-1">
-            Realized gains and losses by account and symbol
-        </p>
-    </div>
-  <div class="overflow-hidden rounded-2xl shadow text-slate-400">
-	
-    <!-- Account Sections -->
-    <div th:each="account : ${accountTotals}"
-         class="space-y-4">
+		<!-- Header -->
+		<div>
+			<h1 class="text-3xl font-bold">
+				Per Account / Symbol Totals
+			</h1>
+			<p class="text-slate-400 mt-1">
+				Realized gains and losses by account and symbol
+			</p>
+		</div>
+		<div class="overflow-hidden rounded-2xl shadow text-slate-400">
 
-        <!-- Account Name -->
-        <h2 class="text-xl mb-4 font-semibold"
-            th:text="${account.accountName}">
-        </h2>
+			<!-- Account Sections -->
+			<div th:each="account : ${accountTotals}" class="space-y-4">
 
-        <!-- Table -->
-        <div class="overflow-hidden rounded-2xl shadow border border-slate-600">
-            <table class="min-w-full divide-y divide-slate-600">
-                <thead class="bg-slate-800">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-sm font-bold">
-                            Symbol
-                        </th>
-                        <th class="px-6 py-3 text-right text-sm font-bold">
-                            Proceeds
-                        </th>
-                        <th class="px-6 py-3 text-right text-sm font-bold">
-                            Cost Basis
-                        </th>
-                        <th class="px-6 py-3 text-right text-sm font-bold">
-                            Gain
-                        </th>
-						<th class="px-6 py-3 text-right text-sm font-bold">
-						    % Gain
-						</th>
-						<th class="px-6 py-3 text-right text-sm font-bold">
-							Dividends
-						</th>
-						<th class="px-6 py-3 text-right text-sm font-bold">
-							Total Return
-						</th>
-						<th class="px-6 py-3 text-right text-sm font-bold">
-							Total Return %
-						</th>
-                    </tr>
-                </thead>
+				<!-- Account Name -->
+				<h2 class="text-xl mb-4 font-semibold" th:text="${account.accountName}">
+				</h2>
 
-                <tbody class="divide-y divide-slate-600">
-                    <tr th:each="s : ${accountSymbolTotals}"
-                        th:if="${s.accountName == account.accountName}"
-                        class="hover:bg-slate-600">
+				<!-- Table -->
+				<div class="overflow-hidden rounded-2xl shadow border border-slate-600">
+					<table class="min-w-full divide-y divide-slate-600">
+						<thead class="bg-slate-800">
+							<tr>
+								<th class="px-1 py-1 text-left text-sm font-bold">
+                                    Sold Date
+								</th>	
+								<th class="px-1 py-1 text-left text-sm font-bold">
+									Symbol
+								</th>
+								<th class="px-1 py-1 text-right text-sm font-bold">
+									Proceeds
+								</th>
+								<th class="px-1 py-1 text-right text-sm font-bold">
+									Cost Basis
+								</th>
+								<th class="px-1 py-1 text-right text-sm font-bold">
+									Gain
+								</th>
+								<th class="px-1 py-1 text-right text-sm font-bold">
+									% Gain
+								</th>
+								<th class="px-1 py-1 text-right text-sm font-bold">
+									Dividends
+								</th>
+								<th class="px-1 py-1 text-right text-sm font-bold">
+									Total Return
+								</th>
+								<th class="px-1 py-1 text-right text-sm font-bold">
+									Total Return %
+								</th>
+								<th class="px-1 py-1 text-left">Action</th>
+							</tr>
+						</thead>
 
-                        <td class="px-6 py-4 font-medium"
-                            th:text="${s.symbol}">
-                        </td>
+						<tbody class="divide-y divide-slate-600">
+						  <th:block th:each="s : ${accountSymbolTotals}" th:if="${s.accountName == account.accountName}">
 
-                        <td class="px-6 py-4 text-right"
-                            th:text="${#numbers.formatCurrency(s.proceeds)}">
-                        </td>
+						    <!-- Summary row -->
+						    <tr class="hover:bg-slate-600">
 
-                        <td class="px-6 py-4 text-right"
-                            th:text="${#numbers.formatCurrency(s.costBasis)}">
-                        </td>
+							  <td class="px-1 py-1 font-medium"
+								  th:text="${#temporals.format(s.lastSoldDate, 'MM-dd-yyyy')}">
+							  </td>
+						      <td class="px-1 py-1 font-medium" th:text="${s.symbol}"></td>
 
-                        <td class="px-6 py-4 text-right font-medium"
-                            th:text="${#numbers.formatCurrency(s.gain)}"
-                            th:classappend="${s.gain >= 0} ? 'text-green-600' : 'text-red-600'">
-                        </td>
-						<td class="px-6 py-4 text-right font-medium"
-                            th:text="${#numbers.formatPercent(s.percentGain, 0, 2)}"
-                            th:classappend="${s.percentGain >= 0} ? 'text-green-600' : 'text-red-600'">
-                        </td>
-						<td class="px-6 py-4 text-right font-medium"
-						    th:text="${#numbers.formatCurrency(s.dividends)}"
-							th:classappend="${s.dividends >= 0} ? 'text-green-600' : 'text-red-600'">
-						</td>
-						<td class="px-6 py-4 text-right font-medium"
-						    th:text="${#numbers.formatCurrency(s.totalReturn)}"
-							 th:classappend="${s.totalReturn >= 0} ? 'text-green-600' : 'text-red-600'">
-						 </td>
-						<td class="px-6 py-4 text-right font-medium"
-						    th:text="${#numbers.formatPercent(s.totalReturnPercent, 0, 2)}"
-							 th:classappend="${s.totalReturnPercent >= 0} ? 'text-green-600' : 'text-red-600'">
-						 </td>
-                    </tr>
-                </tbody>
+						      <td class="px-1 py-1 text-right"
+						          th:text="${#numbers.formatCurrency(s.proceeds)}"></td>
 
-                <!-- Totals Row -->
-                <tfoot class="font-semibold bg-slate-800">
-                    <tr>
-                        <td class="px-6 py-4">
-                            Total
-                        </td>
-                        <td class="px-6 py-4 text-right"
-                            th:text="${#numbers.formatCurrency(account.totalProceeds)}">
-                        </td>
-                        <td class="px-6 py-4 text-right"
-                            th:text="${#numbers.formatCurrency(account.totalCostBasis)}">
-                        </td>
-                        <td class="px-6 py-4 text-right"
-                            th:text="${#numbers.formatCurrency(account.totalGain)}"
-                            th:classappend="${account.totalGain >= 0} ? 'text-green-700' : 'text-red-700'">
-                        </td>
-						<td class="px-6 py-4 text-right"
-						    th:text="${#numbers.formatPercent(account.totalPercentGain, 0, 2)}"
-						    th:classappend="${account.totalPercentGain >= 0} ? 'text-green-700' : 'text-red-700'">
-						</td>
-						<td class="px-6 py-4 text-right"
-						    th:text="${#numbers.formatCurrency(account.dividends)}"
-							th:classappend="${account.dividends >= 0} ? 'text-green-600' : 'text-red-600'">
-						</td>
-						<td class="px-6 py-4 text-right"
-						    th:text="${#numbers.formatCurrency(account.totalReturn)}"
-							th:classappend="${account.totalReturn >= 0} ? 'text-green-600' : 'text-red-600'">
-						</td>
-						<td class="px-6 py-4 text-right"
-						    th:text="${#numbers.formatPercent(account.totalReturnPercent, 0, 2)}"
-						    th:classappend="${account.totalReturnPercent >= 0} ? 'text-green-600' : 'text-red-600'">
-						</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-    </div>
-  </div>
-</div>
+						      <td class="px-1 py-1 text-right"
+						          th:text="${#numbers.formatCurrency(s.costBasis)}"></td>
+
+						      <td class="px-1 py-1 text-right font-medium"
+						          th:text="${#numbers.formatCurrency(s.gain)}"
+						          th:classappend="${s.gain >= 0} ? 'text-green-600' : 'text-red-600'"></td>
+
+						      <td class="px-1 py-1 text-right font-medium"
+						          th:text="${#numbers.formatPercent(s.percentGain, 0, 2)}"
+						          th:classappend="${s.percentGain >= 0} ? 'text-green-600' : 'text-red-600'"></td>
+
+						      <td class="px-1 py-1 text-right font-medium"
+						          th:text="${#numbers.formatCurrency(s.dividends)}"
+						          th:classappend="${s.dividends >= 0} ? 'text-green-600' : 'text-red-600'"></td>
+
+						      <td class="px-1 py-1 text-right font-medium"
+						          th:text="${#numbers.formatCurrency(s.totalReturn)}"
+						          th:classappend="${s.totalReturn >= 0} ? 'text-green-600' : 'text-red-600'"></td>
+
+						      <td class="px-1 py-1 text-right font-medium"
+						          th:text="${#numbers.formatPercent(s.totalReturnPercent, 0, 2)}"
+						          th:classappend="${s.totalReturnPercent >= 0} ? 'text-green-600' : 'text-red-600'"></td>
+
+						      <td class="px-1 py-1">
+						        <button type="button"
+						                th:attr="
+						                  data-account=${s.accountName},
+						                  data-symbol=${s.symbol}"
+						                onclick="toggleSoldDetails(this)"
+						                class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-800 border border-slate-300">
+						          Show Details
+						        </button>
+						      </td>
+						    </tr>
+
+						    <!-- Expandable detail row -->
+						    <tr th:id="'sold-details-' + ${#strings.replace(s.accountName, ' ', '_')} + '-' + ${s.symbol}"
+						        class="hidden bg-slate-900">
+						      <td colspan="10" class="px-6 py-4">
+
+						        <div class="overflow-hidden rounded-xl border border-slate-700">
+						          <table class="min-w-full divide-y divide-slate-700 text-sm">
+						            <thead class="bg-slate-800">
+						              <tr>
+										<th class="px-1 py-1 text-left">Buy Date</th>
+										<th class="px-1 py-1 text-right">Held</th>
+						                <th class="px-1 py-1 text-right">Qty</th>
+						                <th class="px-1 py-1 text-right">Avg Cost</th>
+						                <th class="px-1 py-1 text-right">Sold Price</th>
+						                <th class="px-1 py-1 text-right">Gain</th>
+										<th class="px-1 py-1 text-right">Term</th>
+						              </tr>
+						            </thead>
+
+									<tbody class="divide-y divide-slate-700"
+									       th:with="
+									         matchingDetails=${soldLotDetails.?[accountName == #vars.s.accountName and symbol == #vars.s.symbol]},
+									         totalQty=${#aggregates.sum(matchingDetails.![quantity])},
+									         totalCost=${#aggregates.sum(matchingDetails.![quantity * avgCost])},
+									         totalProceeds=${#aggregates.sum(matchingDetails.![quantity * soldPrice])},
+											 totalGain=${#aggregates.sum(matchingDetails.![gain])}
+									       ">
+
+									  <tr th:each="d : ${matchingDetails}"
+									      class="hover:bg-slate-800">
+
+										<td class="px-1 py-1 "
+                                            th:text="${#temporals.format(d.buyDate, 'MM-dd-yyyy')}"></td>
+											
+										<td class="px-1 py-1 text-right"
+                                            th:text="${d.daysHeld + ' d'}"></td>
+											
+									    <td class="px-1 py-1 text-right"
+									        th:text="${d.quantity}"></td>
+
+									    <td class="px-1 py-1 text-right font-mono"
+									        th:text="${#numbers.formatCurrency(d.avgCost)}"></td>
+
+									    <td class="px-1 py-1 text-right font-mono"
+									        th:text="${#numbers.formatCurrency(d.soldPrice)}"></td>
+
+									    <td class="px-1 py-1 text-right font-mono"
+									        th:text="${#numbers.formatCurrency(d.gain)}"
+									        th:classappend="${d.gain >= 0} ? 'text-green-700' : 'text-red-700'">
+									    </td>
+									  </tr>
+
+									  <tr th:if="${#lists.isEmpty(matchingDetails)}">
+									    <td colspan="5" class="px-1 py-1 text-center text-slate-400">
+									      No detail rows found
+									    </td>
+									  </tr>
+
+									  <tr th:if="${totalQty != null and totalQty > 0}"
+									      class="bg-slate-800 font-semibold">
+									    <td class="px-1 py-1">Total</td>
+
+										<td class="px-1 py-1 text-right"
+											th:text="${s.maxDaysHeld + ' d'}">
+										</td>
+										
+									    <td class="px-1 py-1 text-right"
+									        th:text="${totalQty}"></td>
+
+									    <td class="px-1 py-1 text-right font-mono"
+									        th:text="${#numbers.formatCurrency(totalCost / totalQty)}"></td>
+
+									    <td class="px-1 py-1 text-right font-mono"
+									        th:text="${#numbers.formatCurrency(totalProceeds / totalQty)}"></td>
+
+									    <td class="px-1 py-1 text-right font-mono"
+									        th:text="${#numbers.formatCurrency(totalGain)}"
+									        th:classappend="${totalGain >= 0} ? 'text-green-700' : 'text-red-700'">
+									    </td>
+										
+										<td class="px-1 py-1 text-right font-mono"
+										    th:text="${s.maxDaysHeld >= 365 ? 'Long-Term' : 'Short-Term'}">
+										</td>
+										
+									  </tr>
+
+									</tbody>
+									
+						          </table>
+						        </div>
+
+						      </td>
+						    </tr>
+
+						  </th:block>
+						</tbody>
+						<!-- Totals Row -->
+						<tfoot class="font-semibold bg-slate-800">
+							<tr>
+								<td class="px-6 py-4">
+									Total
+								</td>
+								<td class="px-6 py-4 text-right"></td>
+								<td class="px-6 py-4 text-right"
+									th:text="${#numbers.formatCurrency(account.totalProceeds)}">
+								</td>
+								<td class="px-6 py-4 text-right"
+									th:text="${#numbers.formatCurrency(account.totalCostBasis)}">
+								</td>
+								<td class="px-6 py-4 text-right" th:text="${#numbers.formatCurrency(account.totalGain)}"
+									th:classappend="${account.totalGain >= 0} ? 'text-green-700' : 'text-red-700'">
+								</td>
+								<td class="px-6 py-4 text-right"
+									th:text="${#numbers.formatPercent(account.totalPercentGain, 0, 2)}"
+									th:classappend="${account.totalPercentGain >= 0} ? 'text-green-700' : 'text-red-700'">
+								</td>
+								<td class="px-6 py-4 text-right" th:text="${#numbers.formatCurrency(account.dividends)}"
+									th:classappend="${account.dividends >= 0} ? 'text-green-600' : 'text-red-600'">
+								</td>
+								<td class="px-6 py-4 text-right"
+									th:text="${#numbers.formatCurrency(account.totalReturn)}"
+									th:classappend="${account.totalReturn >= 0} ? 'text-green-600' : 'text-red-600'">
+								</td>
+								<td class="px-1 py-1 text-right"
+									th:text="${#numbers.formatPercent(account.totalReturnPercent, 0, 2)}"
+									th:classappend="${account.totalReturnPercent >= 0} ? 'text-green-600' : 'text-red-600'">
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
+
 </html>
+<script>
+function toggleSoldDetails(button) {
+    const account = button.dataset.account.replaceAll(' ', '_');
+    const symbol = button.dataset.symbol;
+    const row = document.getElementById(`sold-details-${account}-${symbol}`);
+    if (!row) return;
+
+    const isHidden = row.classList.contains("hidden");
+    row.classList.toggle("hidden");
+    button.textContent = isHidden ? "Hide Details" : "Show Details";
+}
+</script>
