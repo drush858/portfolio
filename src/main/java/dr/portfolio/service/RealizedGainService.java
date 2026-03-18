@@ -26,183 +26,195 @@ import dr.portfolio.repositories.CashTransactionRepository;
 @Service
 public class RealizedGainService {
 
-	
-	private final CashTransactionRepository cashTransactionRepository;
+    private final CashTransactionRepository cashTransactionRepository;
 
-	public RealizedGainService(CashTransactionRepository cashTransactionRepository) 
-	{
-		
-		this.cashTransactionRepository = cashTransactionRepository;
-	}
-	    
-	private boolean isOptionSymbol(String symbol) {
-	    return symbol != null && symbol.matches(".*\\d{6}[CP].*");
-	}
-	
-	public SoldHoldingsResult getSoldHoldingsForYear(
-	        List<Trade> trades,
-	        int year
-	) {
+    public RealizedGainService(CashTransactionRepository cashTransactionRepository) {
+        this.cashTransactionRepository = cashTransactionRepository;
+    }
 
-	    Map<UUID, SoldHoldingView> byHolding = new LinkedHashMap<>();
-	    Map<String, AccountSoldTotals> totalsByAccount = new LinkedHashMap<>();
-	    Map<String, AccountSymbolTotals> byAccountSymbol = new LinkedHashMap<>();
+    private boolean isOptionSymbol(String symbol) {
+        return symbol != null && symbol.matches(".*\\d{6}[CP].*");
+    }
 
-	    List<SoldLotDetail> soldLotDetails = new ArrayList<>();
-	    
-	    // FIFO tracking per holding
-	    Map<UUID, Deque<BuyLot>> fifo = new HashMap<>();
+    public SoldHoldingsResult getSoldHoldingsForYear(List<Trade> trades, int year) {
 
-	    for (Trade trade : trades) 
-	    {
+        Map<UUID, SoldHoldingView> byHolding = new LinkedHashMap<>();
+        Map<String, AccountSoldTotals> totalsByAccount = new LinkedHashMap<>();
+        Map<String, AccountSymbolTotals> byAccountSymbol = new LinkedHashMap<>();
+        List<SoldLotDetail> soldLotDetails = new ArrayList<>();
 
-	        if (trade.getTradeDate().getYear() > year) {
-	            break;
-	        }
+        Map<UUID, Deque<BuyLot>> fifo = new HashMap<>();
 
-	        UUID holdingId = trade.getHolding().getId();
-	        String accountName = trade.getHolding().getAccount().getName();
-	        String symbol = trade.getSymbol();
+        for (Trade trade : trades) {
 
-	        double multiplier = isOptionSymbol(symbol) ? 100.0 : 1.0;
+            if (trade.getTradeDate().getYear() > year) {
+                break;
+            }
 
-	        fifo.putIfAbsent(holdingId, new ArrayDeque<>());
-	        Deque<BuyLot> lots = fifo.get(holdingId);
+            UUID holdingId = trade.getHolding().getId();
+            String accountName = trade.getHolding().getAccount().getName();
+            String symbol = trade.getSymbol();
+            double multiplier = isOptionSymbol(symbol) ? 100.0 : 1.0;
 
-	        if (trade.getTradeType() == TradeType.BUY) {
-	            lots.addLast(new BuyLot(trade.getQuantity(), trade.getPrice(), trade.getTradeDate()));
-	            continue;
-	        }
+            fifo.putIfAbsent(holdingId, new ArrayDeque<>());
+            Deque<BuyLot> lots = fifo.get(holdingId);
 
-	        if (trade.getTradeType() == TradeType.SELL &&
-	            trade.getTradeDate().getYear() == year) 
-	        {
+            if (trade.getTradeType() == TradeType.BUY) {
+                lots.addLast(new BuyLot(
+                    trade.getQuantity(),
+                    trade.getPrice(),
+                    trade.getTradeDate()
+                ));
+                continue;
+            }
 
-	            int sellQty = trade.getQuantity();
-	            double proceeds = sellQty * trade.getPrice() * multiplier;
-	            double costBasis = 0;
-	         
-	            // NEW: per-account + per-symbol totals
-	            String key = accountName + "|" + symbol;
+            if (trade.getTradeType() == TradeType.SELL
+                    && trade.getTradeDate().getYear() == year) {
 
-	            AccountSymbolTotals totals =
-	            	byAccountSymbol.computeIfAbsent(
-	            		key,
-	            	    k -> new AccountSymbolTotals(accountName, symbol)
-	            	);
-	            
-	            
-	            while (sellQty > 0) {
-	            	
-	                BuyLot lot = lots.pollFirst();
-	                if (lot == null) {
-	                    throw new IllegalStateException("Sell exceeds available buy quantity");
-	                }
-	                int matched = Math.min(sellQty, lot.qty());
-	                long daysHeld = ChronoUnit.DAYS.between(lot.buyDate(), trade.getTradeDate());
-	                
-	                double matchedCostBasis = matched * lot.price() * multiplier;
-	                double matchedProceeds = matched * trade.getPrice() * multiplier;
-	                double matchedGain = matchedProceeds - matchedCostBasis;
-	                
-	                costBasis += matchedCostBasis;
-	                sellQty -= matched;
+                double proceeds = trade.getQuantity() * trade.getPrice() * multiplier;
 
-	                soldLotDetails.add(new SoldLotDetail(
-                        accountName,
-                        lot.buyDate(),
-                        trade.getTradeDate(),
-                        symbol,
-                        matched,
-                        lot.price(),
-                        trade.getPrice(),
-                        matchedGain,
-                        daysHeld)
-	                );
-	                
-	                totals.updateMaxDaysHeld(daysHeld);
-	                
-	                if (lot.qty() > matched) {
-	                    lots.addFirst(new BuyLot(
-	                    		lot.qty() - matched, 
-	                    		lot.price(), 
-	                    		lot.buyDate()));
-	                }
-	                
-	            } // while sellQty > 0
-	            
-	            SoldHoldingView view =
-	                byHolding.computeIfAbsent(holdingId, id -> {
-	                    SoldHoldingView v = new SoldHoldingView();
-	                    v.setHoldingId(id);
-	                    v.setSymbol(trade.getSymbol());
-	                    v.setAccountName(accountName);
-	                    return v;
-	                });
+                String key = accountName + "|" + symbol;
+                AccountSymbolTotals symbolTotals =
+                    byAccountSymbol.computeIfAbsent(
+                        key,
+                        k -> new AccountSymbolTotals(accountName, symbol)
+                    );
 
-	            view.addSale(trade.getQuantity(), proceeds, costBasis);
+                double costBasis = consumeLotsForSale(
+                    lots,
+                    trade,
+                    accountName,
+                    symbol,
+                    multiplier,
+                    soldLotDetails,
+                    symbolTotals
+                );
 
-	            totalsByAccount
-	                .computeIfAbsent(accountName, AccountSoldTotals::new)
-	                .add(proceeds, costBasis);
-	            
-            	totals.add(proceeds, costBasis);
-            	totals.updateLastSoldDate(trade.getTradeDate());
-            	
-	        } // if sell
-	      
-	    } // for each trade
-	    
-	    for (SoldHoldingView view : byHolding.values()) {
-	        Trade matchingTrade = trades.stream()
-	            .filter(t -> t.getHolding().getId().equals(view.getHoldingId()))
-	            .findFirst()
-	            .orElse(null);
+                SoldHoldingView holdingView =
+                    byHolding.computeIfAbsent(holdingId, id -> {
+                        SoldHoldingView v = new SoldHoldingView();
+                        v.setHoldingId(id);
+                        v.setSymbol(symbol);
+                        v.setAccountName(accountName);
+                        return v;
+                    });
 
-	        if (matchingTrade == null) {
-	            continue;
-	        }
+                holdingView.addSale(trade.getQuantity(), proceeds, costBasis);
 
-	        UUID accountId = matchingTrade.getHolding().getAccount().getId();
-	        String accountName = matchingTrade.getHolding().getAccount().getName();
-	        String symbol = view.getSymbol();
+                totalsByAccount
+                    .computeIfAbsent(accountName, AccountSoldTotals::new)
+                    .add(proceeds, costBasis);
 
-	        double dividends = cashTransactionRepository
-	            .sumDividendsByAccountAndSymbolAndYear(accountId, symbol, year)
-	            .doubleValue();
+                symbolTotals.add(proceeds, costBasis);
+                symbolTotals.updateLastSoldDate(trade.getTradeDate());
+            }
+        }
 
-	        view.addDividends(dividends);
+        for (SoldHoldingView view : byHolding.values()) {
+            Trade matchingTrade = trades.stream()
+                .filter(t -> t.getHolding().getId().equals(view.getHoldingId()))
+                .findFirst()
+                .orElse(null);
 
-	        totalsByAccount
-	            .computeIfAbsent(accountName, AccountSoldTotals::new)
-	            .addDividends(dividends);
+            if (matchingTrade == null) {
+                continue;
+            }
 
-	        String key = accountName + "|" + symbol;
-	        byAccountSymbol
-	            .computeIfAbsent(key, k -> new AccountSymbolTotals(accountName, symbol))
-	            .addDividends(dividends);
-	    }
-	    
-	    List<AccountSymbolTotals> sortedAccountSymbolTotals = byAccountSymbol.values()
-    	    .stream()
-    	    .sorted(
-    	        Comparator.comparing(
-    	            AccountSymbolTotals::getLastSoldDate,
-    	            Comparator.nullsLast(Comparator.naturalOrder())
-    	        ).reversed()
-    	    )
-    	    .toList();
-	   
-	    soldLotDetails.sort(
-	    	Comparator.comparing(SoldLotDetail::buyDate).reversed()
-                      .thenComparing(SoldLotDetail::symbol, String.CASE_INSENSITIVE_ORDER)
+            UUID accountId = matchingTrade.getHolding().getAccount().getId();
+            String accountName = matchingTrade.getHolding().getAccount().getName();
+            String symbol = view.getSymbol();
+
+            double dividends = cashTransactionRepository
+                .sumDividendsByAccountAndSymbolAndYear(accountId, symbol, year)
+                .doubleValue();
+
+            view.addDividends(dividends);
+
+            totalsByAccount
+                .computeIfAbsent(accountName, AccountSoldTotals::new)
+                .addDividends(dividends);
+
+            String key = accountName + "|" + symbol;
+            byAccountSymbol
+                .computeIfAbsent(key, k -> new AccountSymbolTotals(accountName, symbol))
+                .addDividends(dividends);
+        }
+
+        List<AccountSymbolTotals> sortedAccountSymbolTotals = byAccountSymbol.values()
+            .stream()
+            .sorted(
+                Comparator.comparing(
+                    AccountSymbolTotals::getLastSoldDate,
+                    Comparator.nullsLast(Comparator.naturalOrder())
+                ).reversed()
+            )
+            .toList();
+
+        soldLotDetails.sort(
+            Comparator.comparing(SoldLotDetail::buyDate).reversed()
+                .thenComparing(SoldLotDetail::symbol, String.CASE_INSENSITIVE_ORDER)
         );
 
-	    return new SoldHoldingsResult(
-	        new ArrayList<>(byHolding.values()),
-	        new ArrayList<>(totalsByAccount.values()),
-	        new ArrayList<>(sortedAccountSymbolTotals),
-	        soldLotDetails
-	    );
-	}
+        return new SoldHoldingsResult(
+            new ArrayList<>(byHolding.values()),
+            new ArrayList<>(totalsByAccount.values()),
+            sortedAccountSymbolTotals,
+            soldLotDetails
+        );
+    }
+
+    private double consumeLotsForSale(
+            Deque<BuyLot> lots,
+            Trade trade,
+            String accountName,
+            String symbol,
+            double multiplier,
+            List<SoldLotDetail> soldLotDetails,
+            AccountSymbolTotals symbolTotals) {
+
+        int sellQty = trade.getQuantity();
+        double costBasis = 0.0;
+
+        while (sellQty > 0) {
+            BuyLot lot = lots.pollFirst();
+
+            if (lot == null) {
+                throw new IllegalStateException("Sell exceeds available buy quantity");
+            }
+
+            int matched = Math.min(sellQty, lot.qty());
+            long daysHeld = ChronoUnit.DAYS.between(lot.buyDate(), trade.getTradeDate());
+
+            double matchedCostBasis = matched * lot.price() * multiplier;
+            double matchedProceeds = matched * trade.getPrice() * multiplier;
+            double matchedGain = matchedProceeds - matchedCostBasis;
+
+            costBasis += matchedCostBasis;
+            sellQty -= matched;
+
+            soldLotDetails.add(new SoldLotDetail(
+                accountName,
+                lot.buyDate(),
+                trade.getTradeDate(),
+                symbol,
+                matched,
+                lot.price(),
+                trade.getPrice(),
+                matchedGain,
+                daysHeld
+            ));
+
+            symbolTotals.updateMaxDaysHeld(daysHeld);
+
+            if (lot.qty() > matched) {
+                lots.addFirst(new BuyLot(
+                    lot.qty() - matched,
+                    lot.price(),
+                    lot.buyDate()
+                ));
+            }
+        }
+
+        return costBasis;
+    }
 }

@@ -212,31 +212,31 @@
 						<!-- Totals Row -->
 						<tfoot class="font-semibold bg-slate-800">
 							<tr>
-								<td class="px-6 py-4">
+								<td class="px-1 py-2">
 									Total
 								</td>
-								<td class="px-6 py-4 text-right"></td>
-								<td class="px-6 py-4 text-right"
+								<td class="px-1 py-2 text-right"></td>
+								<td class="px-1 py-2 text-right"
 									th:text="${#numbers.formatCurrency(account.totalProceeds)}">
 								</td>
-								<td class="px-6 py-4 text-right"
+								<td class="px-1 py-2 text-right"
 									th:text="${#numbers.formatCurrency(account.totalCostBasis)}">
 								</td>
-								<td class="px-6 py-4 text-right" th:text="${#numbers.formatCurrency(account.totalGain)}"
+								<td class="px-1 py-2 text-right" th:text="${#numbers.formatCurrency(account.totalGain)}"
 									th:classappend="${account.totalGain >= 0} ? 'text-green-700' : 'text-red-700'">
 								</td>
-								<td class="px-6 py-4 text-right"
+								<td class="px-1 py-2 text-right"
 									th:text="${#numbers.formatPercent(account.totalPercentGain, 0, 2)}"
 									th:classappend="${account.totalPercentGain >= 0} ? 'text-green-700' : 'text-red-700'">
 								</td>
-								<td class="px-6 py-4 text-right" th:text="${#numbers.formatCurrency(account.dividends)}"
+								<td class="px-1 py-2 text-right" th:text="${#numbers.formatCurrency(account.dividends)}"
 									th:classappend="${account.dividends >= 0} ? 'text-green-600' : 'text-red-600'">
 								</td>
-								<td class="px-6 py-4 text-right"
+								<td class="px-1 py-2 text-right"
 									th:text="${#numbers.formatCurrency(account.totalReturn)}"
 									th:classappend="${account.totalReturn >= 0} ? 'text-green-600' : 'text-red-600'">
 								</td>
-								<td class="px-1 py-1 text-right"
+								<td class="px-1 py-2 text-right"
 									th:text="${#numbers.formatPercent(account.totalReturnPercent, 0, 2)}"
 									th:classappend="${account.totalReturnPercent >= 0} ? 'text-green-600' : 'text-red-600'">
 								</td>
