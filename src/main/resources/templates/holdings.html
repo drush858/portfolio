@@ -331,16 +331,17 @@
 					<!-- Symbol -->
 					<div>
 						<label class="block text-sm font-medium">Symbol</label>
-						<input id="symbolInputModal" name="symbol" readonly
-							class="mt-1 w-full rounded-md border font-mono border-slate-300 bg-slate-400 text-slate-800" />
+						<input id="symbolInputModal" type="text" name="symbol" 
+							   required class="mt-1 w-full rounded-md border border-slate-300 bg-slate-400 text-slate-800 
+							                   border focus:border-blue-500 focus:ring-blue-500" />
 					</div>
 
 					<!-- Quantity -->
 					<div>
 						<label class="block text-sm font-medium">Quantity</label>
 						<input id="quantityInputModal" type="number" name="quantity" min="1" step="1" 
-							   required class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800 border
-                      focus:border-blue-500 focus:ring-blue-500" />
+							   required class="mt-1 w-full rounded-md border-slate-300 bg-slate-400 text-slate-800 
+							                   border focus:border-blue-500 focus:ring-blue-500" />
 					</div>
 
 					<!-- Price -->
