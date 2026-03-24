@@ -130,30 +130,60 @@
 	  </tbody>
 	</table>
 	</div>
+	<div th:replace="~{fragments/pagination :: pager(
+	    '/accounts/cash/{id}',
+	    ${accountId},
+	    ${pageObj},
+	    ${size},
+	    ${start},
+	    ${end},
+	    'transactions'
+	)}">
+    </div>
+	<!--
 	<div class="flex justify-between items-center mt-4 text-sm">
 
-	  <div>
-	    Page <span th:text="${page.number + 1}"></span>
-	    of <span th:text="${page.totalPages}"></span>
-	  </div>
-
-	  <div class="flex gap-2">
-
-	    <a th:if="${page.hasPrevious()}"
-	       th:href="@{/accounts/cash/{id}(id=${accountId}, page=${page.number - 1})}"
-	       class="px-3 py-1 border rounded hover:bg-gray-200">
-	       Previous
-	    </a>
-
-	    <a th:if="${page.hasNext()}"
-	       th:href="@{/accounts/cash/{id}(id=${accountId}, page=${page.number + 1})}"
-	       class="px-3 py-1 border rounded hover:bg-gray-200">
-	       Next
-	    </a>
-
-	  </div>
+		 <form method="get"
+		        th:action="@{/accounts/cash/{id}(id=${accountId})}"
+		        class="flex items-center gap-2">
+		    <label for="ledgerSize">Rows:</label>
+	
+		    <select id="ledgerSize"
+		            name="size"
+		            onchange="this.form.submit()"
+		            class="rounded-md border border-slate-300 px-2 py-1 bg-slate-400 text-slate-800">
+		      <option value="10" th:selected="${size == 10}">10</option>
+		      <option value="25" th:selected="${size == 25}">25</option>
+		      <option value="50" th:selected="${size == 50}">50</option>
+		      <option value="100" th:selected="${size == 100}">100</option>
+		    </select>
+	
+		    <input type="hidden" name="page" value="0" />
+		  </form>
+			  	
+		  <div>
+		    Page <span th:text="${page.number + 1}"></span>
+		    of <span th:text="${page.totalPages}"></span>
+		  </div>
+	
+		  <div class="flex justify-end gap-2 mt-4 text-sm">
+	
+		    <a th:if="${page.hasPrevious()}"
+		       th:href="@{/accounts/cash/{id}(id=${accountId}, page=${page.number - 1}, size=${size})}"
+		       class="px-3 py-1 border rounded hover:bg-slate-700 text-slate-400 border-slate-600">
+		      Previous
+		    </a>
+	
+		    <a th:if="${page.hasNext()}"
+		       th:href="@{/accounts/cash/{id}(id=${accountId}, page=${page.number + 1}, size=${size})}"
+		       class="px-3 py-1 border rounded hover:bg-slate-700 text-slate-400 border-slate-600">
+		      Next
+		    </a>
+	
+		  </div>
 
 	</div>
+	
 	<!-- Add Dividend Modal -->
 	<div id="dividendModal"
 	     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">

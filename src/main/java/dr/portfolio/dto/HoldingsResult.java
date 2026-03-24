@@ -1,90 +1,53 @@
 package dr.portfolio.dto;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public class HoldingsResult {
-	
-	private List<HoldingView> holdings;
-	private double totalMarketValue;
-	private double totalCostBasis;
-	private double totalGain;
-	private double totalPercentGain;
-	
-	// paging
-    private int page;
-    private int size;
-    private int totalPages;
-    private long totalElements;
 
-    public boolean isHasNext() {
-        return page + 1 < totalPages;
+    private Page<HoldingView> holdingsPage;
+
+    private double totalMarketValue;
+    private double totalCostBasis;
+    private double totalGain;
+    private double totalPercentGain;
+
+    public Page<HoldingView> getHoldingsPage() {
+        return holdingsPage;
     }
 
-    public boolean isHasPrevious() {
-        return page > 0;
+    public void setHoldingsPage(Page<HoldingView> holdingsPage) {
+        this.holdingsPage = holdingsPage;
     }
-    
-	public int getPage() {
-		return page;
-	}
 
-	public void setPage(int page) {
-		this.page = page;
-	}
+    public double getTotalMarketValue() {
+        return totalMarketValue;
+    }
 
-	public int getSize() {
-		return size;
-	}
+    public void setTotalMarketValue(double totalMarketValue) {
+        this.totalMarketValue = totalMarketValue;
+    }
 
-	public void setSize(int size) {
-		this.size = size;
-	}
+    public double getTotalCostBasis() {
+        return totalCostBasis;
+    }
 
-	public int getTotalPages() {
-		return totalPages;
-	}
+    public void setTotalCostBasis(double totalCostBasis) {
+        this.totalCostBasis = totalCostBasis;
+    }
 
-	public void setTotalPages(int totalPages) {
-		this.totalPages = totalPages;
-	}
+    public double getTotalGain() {
+        return totalGain;
+    }
 
-	public long getTotalElements() {
-		return totalElements;
-	}
+    public void setTotalGain(double totalGain) {
+        this.totalGain = totalGain;
+    }
 
-	public void setTotalElements(long totalElements) {
-		this.totalElements = totalElements;
-	}
+    public double getTotalPercentGain() {
+        return totalPercentGain;
+    }
 
-	public List<HoldingView> getHoldings() {
-		return holdings;
-	}
-	public void setHoldings(List<HoldingView> holdings) {
-		this.holdings = holdings;
-	}
-	public double getTotalMarketValue() {
-		return totalMarketValue;
-	}
-	public void setTotalMarketValue(double totalMarketValue) {
-		this.totalMarketValue = totalMarketValue;
-	}
-	public double getTotalCostBasis() {
-		return totalCostBasis;
-	}
-	public void setTotalCostBasis(double totalCostBasis) {
-		this.totalCostBasis = totalCostBasis;
-	}
-	public double getTotalGain() {
-		return totalGain;
-	}
-	public void setTotalGain(double totalGain) {
-		this.totalGain = totalGain;
-	}
-	public double getTotalPercentGain() {
-		return totalPercentGain;
-	}
-	public void setTotalPercentGain(double totalPercentGain) {
-		this.totalPercentGain = totalPercentGain;
-	}
-	
+    public void setTotalPercentGain(double totalPercentGain) {
+        this.totalPercentGain = totalPercentGain;
+    }
 }

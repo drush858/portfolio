@@ -261,6 +261,8 @@
 					</th:block>
 				</tbody>
 			</table>
+			
+			<!--
 			<div class="px-1 py-1 flex items-center justify-between mt-4 text-sm text-slate-400">
 				<form method="get" class="px-2 flex items-center gap-2">
 					<label class="text-sm text-lime-500">Rows:</label>
@@ -298,8 +300,17 @@
 					</a>
 				</div>
 			</div>
+			-->
 		</div>
-
+		<div th:replace="~{fragments/pagination :: pager(
+					    '/holdings/view/{id}',
+					    ${accountId},
+					    ${pageObj},
+					    ${size},
+					    ${start},
+					    ${end},
+					    'holdings'
+					)}"></div>
 		<button type="button" onclick="openOptionTradeModal()" class="inline-flex items-center rounded-lg bg-green-600 px-1 py-1
            text-sm text-white hover:bg-green-700 border border-slate-300">
 			Buy Option

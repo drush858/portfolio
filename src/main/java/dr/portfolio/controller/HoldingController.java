@@ -4,6 +4,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import dr.portfolio.domain.Account;
 import dr.portfolio.domain.Holding;
 import dr.portfolio.domain.Trade;
+import dr.portfolio.dto.HoldingView;
 import dr.portfolio.dto.HoldingsResult;
 import dr.portfolio.dto.TradeCreate;
 import dr.portfolio.dto.market.CachedPrice;
@@ -76,12 +79,18 @@ public class HoldingController {
                     size);
 
         model.addAttribute("pageTitle", acct.getName() + " Holdings");
-        model.addAttribute("holdings", holdingsResult.getHoldings());
+        
+        Page<HoldingView> pageObj = holdingsResult.getHoldingsPage();
 
-        model.addAttribute("page", holdingsResult.getPage());
-        model.addAttribute("size", holdingsResult.getSize());
-        model.addAttribute("totalPages", holdingsResult.getTotalPages());
-        model.addAttribute("totalElements", holdingsResult.getTotalElements());
+        model.addAttribute("holdings", pageObj.getContent());
+        model.addAttribute("pageObj", pageObj);
+        model.addAttribute("size", size);
+
+        int start = pageObj.getTotalElements() == 0 ? 0 : pageObj.getNumber() * pageObj.getSize() + 1;
+        int end = Math.min((pageObj.getNumber() + 1) * pageObj.getSize(), (int) pageObj.getTotalElements());
+
+        model.addAttribute("start", start);
+        model.addAttribute("end", end);
         
         model.addAttribute("totalMarketValue", holdingsResult.getTotalMarketValue());
         model.addAttribute("totalCostBasis", holdingsResult.getTotalCostBasis());

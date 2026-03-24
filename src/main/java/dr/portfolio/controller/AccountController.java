@@ -148,20 +148,27 @@ public class AccountController {
 
 		Account account = accountService.findByAccountIdAndUsername(id, principal.getName());
 
-		Page<CashLedgerRow> ledgerPage =
+		Page<CashLedgerRow> pageObj =
 		        cashTransactionService.buildLedger(id, page, size);
-
-		model.addAttribute("transactions", ledgerPage.getContent());
-		model.addAttribute("page", ledgerPage);
-
 		CashSummary summary = cashTransactionService.calculateSummary(id);
 		List<String> symbols = cashTransactionService.findSymbols(id);
-		model.addAttribute("summary", summary);
-		model.addAttribute("symbols", symbols);
 
+		model.addAttribute("pageTitle", account.getName() + " Cash Ledger");
 		model.addAttribute("account", account);
 		model.addAttribute("accountId", id);
-		model.addAttribute("pageTitle", account.getName() + " Cash Ledger");
+		model.addAttribute("summary", summary);
+		model.addAttribute("symbols", symbols);
+		model.addAttribute("transactions", pageObj.getContent());
+		model.addAttribute("size", size);
+		
+		int start = pageObj.getTotalElements() == 0 ? 0 : page * size + 1;
+		int end = Math.min((page + 1) * size, (int) pageObj.getTotalElements());
+
+		model.addAttribute("pageObj", pageObj);
+		model.addAttribute("size", size);
+		model.addAttribute("start", start);
+		model.addAttribute("end", end);
+
 		return "cash-ledger";
 	}
 

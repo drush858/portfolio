@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import dr.portfolio.domain.Trade;
@@ -234,25 +238,24 @@ public class HoldingsService {
 		double totalGain = totalMarketValue - totalCostBasis;
 		double totalGainPercent = totalCostBasis == 0.0 ? 0.0 : (totalGain / totalCostBasis);
 
-		int totalElements = results.size();
-		int totalPages = (int) Math.ceil((double) totalElements / size);
+		Pageable pageable = PageRequest.of(page, size);
 
-		int fromIndex = Math.min(page * size, totalElements);
-		int toIndex = Math.min(fromIndex + size, totalElements);
+	    int start = (int) pageable.getOffset();
+	    int end = Math.min(start + pageable.getPageSize(), results.size());
 
-		List<HoldingView> pagedResults = results.subList(fromIndex, toIndex);
-		
-		HoldingsResult holdingsResult = new HoldingsResult();
-		holdingsResult.setTotalMarketValue(totalMarketValue);
-		holdingsResult.setTotalCostBasis(totalCostBasis);
-		holdingsResult.setTotalGain(totalGain); // dollars
-		holdingsResult.setTotalPercentGain(totalGainPercent); // fraction (0.12 = 12%)
+	    List<HoldingView> pageContent =
+	            start >= results.size() ? List.of() : results.subList(start, end);
 
-		holdingsResult.setHoldings(pagedResults);
-		holdingsResult.setPage(page);
-		holdingsResult.setSize(size);
-		holdingsResult.setTotalPages(totalPages);
-		holdingsResult.setTotalElements(totalElements);
+	    Page<HoldingView> holdingsPage =
+	            new PageImpl<>(pageContent, pageable, results.size());
+
+	    HoldingsResult holdingsResult = new HoldingsResult();
+	    holdingsResult.setHoldingsPage(holdingsPage);
+	    holdingsResult.setTotalMarketValue(totalMarketValue);
+	    holdingsResult.setTotalCostBasis(totalCostBasis);
+	    holdingsResult.setTotalGain(totalGain);
+	    holdingsResult.setTotalPercentGain(totalGainPercent);
+
 				
 		return holdingsResult;
 	}

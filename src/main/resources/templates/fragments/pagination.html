@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="pager(baseUrl, id, pageObj, size, start, end, itemLabel)"
+     class="flex flex-wrap items-center justify-between gap-3 mt-4 text-sm text-slate-400">
+
+    <div>
+        Showing <span th:text="${start}"></span> -
+        <span th:text="${end}"></span>
+        of <span th:text="${pageObj.totalElements}"></span>
+        <span th:text="${itemLabel}"></span>
+    </div>
+
+    <form method="get"
+          th:action="@{${baseUrl}(id=${id})}"
+          class="flex items-center gap-2">
+        <label for="pageSize">Rows:</label>
+
+        <select id="pageSize"
+                name="size"
+                onchange="this.form.submit()"
+                class="rounded-md border border-slate-300 px-2 py-1 bg-slate-400 text-slate-800">
+            <option value="10" th:selected="${size == 10}">10</option>
+            <option value="25" th:selected="${size == 25}">25</option>
+            <option value="50" th:selected="${size == 50}">50</option>
+            <option value="100" th:selected="${size == 100}">100</option>
+        </select>
+
+        <input type="hidden" name="page" value="0" />
+    </form>
+
+    <div class="flex items-center gap-2">
+        <span>
+            Page <span th:text="${pageObj.number + 1}"></span>
+            of <span th:text="${pageObj.totalPages}"></span>
+        </span>
+
+        <a th:if="${pageObj.hasPrevious()}"
+           th:href="@{${baseUrl}(id=${id}, page=${pageObj.number - 1}, size=${size})}"
+           class="px-3 py-1 border rounded hover:bg-slate-700 border-slate-600">
+            Previous
+        </a>
+
+        <a th:if="${pageObj.hasNext()}"
+           th:href="@{${baseUrl}(id=${id}, page=${pageObj.number + 1}, size=${size})}"
+           class="px-3 py-1 border rounded hover:bg-slate-700 border-slate-600">
+            Next
+        </a>
+    </div>
+</div>
+
+</body>
+</html>
