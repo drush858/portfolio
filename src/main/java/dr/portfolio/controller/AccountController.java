@@ -143,13 +143,14 @@ public class AccountController {
 			@PathVariable UUID id,
 	        @RequestParam(defaultValue = "0") int page,
 	        @RequestParam(defaultValue = "10") int size, 
+	        @RequestParam(required = false) String symbol,
 	        Principal principal, 
 	        Model model) {
 
 		Account account = accountService.findByAccountIdAndUsername(id, principal.getName());
 
 		Page<CashLedgerRow> pageObj =
-		        cashTransactionService.buildLedger(id, page, size);
+		        cashTransactionService.buildLedger(id, page, size, symbol);
 		CashSummary summary = cashTransactionService.calculateSummary(id);
 		List<String> symbols = cashTransactionService.findSymbols(id);
 
@@ -168,6 +169,7 @@ public class AccountController {
 		model.addAttribute("size", size);
 		model.addAttribute("start", start);
 		model.addAttribute("end", end);
+		model.addAttribute("symbol", symbol == null ? "" : symbol);
 
 		return "cash-ledger";
 	}

@@ -17,6 +17,12 @@ import java.util.UUID;
 public interface CashTransactionRepository
         extends JpaRepository<CashTransaction, UUID> {
 
+	Page<CashTransaction> findByAccountIdAndSymbolOrderByTransactionDateDescIdDesc(
+	        UUID accountId,
+	        String symbol,
+	        Pageable pageable
+	);
+	
     Page<CashTransaction> findByAccountIdOrderByTransactionDateDesc(UUID accountId, Pageable pageable);
     
     List<CashTransaction> findByAccountIdOrderByTransactionDateAsc(UUID accountId);
@@ -27,9 +33,10 @@ public interface CashTransactionRepository
     	    where c.account.id = :accountId
     	      and c.transactionDate < :beforeDate
     	""")
-    	BigDecimal sumAmountsBeforeDate(
+    	BigDecimal sumAmountsBeforeDateAndId(
     	        @Param("accountId") UUID accountId,
-    	        @Param("beforeDate") LocalDateTime beforeDate
+    	        @Param("beforeDate") LocalDateTime beforeDate,
+    	        @Param("beforeId") UUID beforeId
     	);
     
     @Query("""
@@ -83,5 +90,22 @@ public interface CashTransactionRepository
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
         );
+        
+        @Query("""
+        	    select coalesce(sum(c.amount), 0)
+        	    from CashTransaction c
+        	    where c.account.id = :accountId
+        	      and c.symbol = :symbol
+        	      and (
+        	            c.transactionDate < :beforeDate
+        	            or (c.transactionDate = :beforeDate and c.id < :beforeId)
+        	          )
+        	""")
+        	BigDecimal sumAmountsByAccountAndSymbolBeforeDateAndId(
+        	        @Param("accountId") UUID accountId,
+        	        @Param("symbol") String symbol,
+        	        @Param("beforeDate") LocalDateTime beforeDate,
+        	        @Param("beforeId") UUID beforeId
+        	);
 }
 

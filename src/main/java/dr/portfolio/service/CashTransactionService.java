@@ -109,12 +109,23 @@ public class CashTransactionService {
     	return symbols;
     }
     
-    public Page<CashLedgerRow> buildLedger(UUID accountId, int page, int size) {
+    public Page<CashLedgerRow> buildLedger(UUID accountId, int page, int size, String symbol) {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<CashTransaction> txPage =
-            cashTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId, pageable);
+        Page<CashTransaction> txPage;
+        
+        if (symbol != null && !symbol.isBlank()) {
+            txPage = cashTransactionRepository
+                    .findByAccountIdAndSymbolOrderByTransactionDateDescIdDesc(
+                            accountId,
+                            symbol.trim().toUpperCase(),
+                            pageable
+                    );
+        } else {
+            txPage = cashTransactionRepository
+                    .findByAccountIdOrderByTransactionDateDesc(accountId, pageable);
+        }
 
         List<CashTransaction> pageTxs = new ArrayList<>(txPage.getContent());
 
@@ -126,11 +137,21 @@ public class CashTransactionService {
         // Find oldest txn on this page
         CashTransaction oldestOnPage = pageTxs.get(pageTxs.size() - 1);
 
-        BigDecimal startingBalance =
-            cashTransactionRepository.sumAmountsBeforeDate(
-                accountId,
-                oldestOnPage.getTransactionDate()
+        BigDecimal startingBalance;
+        if (symbol != null && !symbol.isBlank()) {
+            startingBalance = cashTransactionRepository.sumAmountsByAccountAndSymbolBeforeDateAndId(
+                    accountId,
+                    symbol.trim().toUpperCase(),
+                    oldestOnPage.getTransactionDate(),
+                    oldestOnPage.getId()
             );
+        } else {
+            startingBalance = cashTransactionRepository.sumAmountsBeforeDateAndId(
+                    accountId,
+                    oldestOnPage.getTransactionDate(),
+                    oldestOnPage.getId()
+            );
+        }
 
         // Reverse to chronological order for running balance calculation
         Collections.reverse(pageTxs);

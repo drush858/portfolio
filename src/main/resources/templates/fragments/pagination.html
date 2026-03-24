@@ -37,13 +37,13 @@
         </span>
 
         <a th:if="${pageObj.hasPrevious()}"
-           th:href="@{${baseUrl}(id=${id}, page=${pageObj.number - 1}, size=${size})}"
+           th:href="@{${baseUrl}(id=${id}, page=${pageObj.number - 1}, size=${size}, symbol=${symbol})}"
            class="px-3 py-1 border rounded hover:bg-slate-700 border-slate-600">
             Previous
         </a>
 
         <a th:if="${pageObj.hasNext()}"
-           th:href="@{${baseUrl}(id=${id}, page=${pageObj.number + 1}, size=${size})}"
+           th:href="@{${baseUrl}(id=${id}, page=${pageObj.number + 1}, size=${size}, symbol=${symbol})}"
            class="px-3 py-1 border rounded hover:bg-slate-700 border-slate-600">
             Next
         </a>
