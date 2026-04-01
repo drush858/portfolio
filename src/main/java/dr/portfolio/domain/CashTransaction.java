@@ -21,6 +21,10 @@ public class CashTransaction {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "account_id")
     private Account account;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trade_id")
+    private Trade trade;   // nullable, only used when cash came from a trade
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -62,6 +66,7 @@ public class CashTransaction {
 
     public CashTransaction(
             Account account,
+            Trade trade,
             CashTransactionType transactionType,
             BigDecimal amount,
             String symbol,
@@ -69,6 +74,7 @@ public class CashTransaction {
             String description) {
 
         this.account = account;
+        this.trade = trade;
         this.transactionType = transactionType;
         this.amount = amount;
         this.symbol = symbol;
@@ -91,6 +97,14 @@ public class CashTransaction {
     public LocalDateTime getTransactionDate() { return transactionDate; }
 
     public String getDescription() { return description; }
+    
+	public Trade getTrade() {
+		return trade;
+	}
+
+	public void setTrade(Trade trade) {
+		this.trade = trade;
+	}
 
 	public void setId(UUID id) {
 		this.id = id;

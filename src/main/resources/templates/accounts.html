@@ -62,6 +62,14 @@
                                 </button>
                             </form>
 
+							<form th:action="@{/trades/view/{id}(id=${a.id})}"
+                                  method="get">
+                                <button
+                                    class="px-1 py-1 text-sm rounded-lg bg-blue-600 border border-slate-300 text-white hover:bg-blue-700">
+                                    Trades
+                                </button>
+                            </form>
+														
                             <form th:if="${a.active}"
                                   th:action="@{/accounts/deactivate/{id}(id=${a.id})}"
                                   method="post">

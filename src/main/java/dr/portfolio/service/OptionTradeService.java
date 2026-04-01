@@ -142,6 +142,7 @@ public class OptionTradeService {
         	cashTransactionRepository.save(
 	        	new CashTransaction(
 	        		account,
+	        		trade,
 	        		cashType,
 	                cashAmount,   // cash out
 	                optionSymbol,

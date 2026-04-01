@@ -261,46 +261,6 @@
 					</th:block>
 				</tbody>
 			</table>
-			
-			<!--
-			<div class="px-1 py-1 flex items-center justify-between mt-4 text-sm text-slate-400">
-				<form method="get" class="px-2 flex items-center gap-2">
-					<label class="text-sm text-lime-500">Rows:</label>
-
-					<select name="size" onchange="this.form.submit()" class="border rounded bg-slate-800">
-
-						<option th:value="10" th:selected="${size == 10}">10</option>
-						<option th:value="15" th:selected="${size == 15}">15</option>
-						<option th:value="20" th:selected="${size == 20}">20</option>
-						<option th:value="30" th:selected="${size == 30}">30</option>
-
-					</select>
-
-					<input type="hidden" name="page" th:value="${page}" />
-				</form>
-				<div>
-					Page <span th:text="${page + 1}"></span>
-					of <span th:text="${totalPages}"></span>
-					<span class="ml-2">
-						(<span th:text="${totalElements}"></span> holdings)
-					</span>
-				</div>
-
-				<div class="px-1 flex gap-2">
-					<a th:if="${page > 0}"
-						th:href="@{/holdings/view/{id}(id=${accountId}, page=${page - 1}, size=${size})}"
-						class="px-3 py-1 rounded border border-slate-600 hover:bg-slate-700">
-						Previous
-					</a>
-
-					<a th:if="${page + 1 < totalPages}"
-						th:href="@{/holdings/view/{id}(id=${accountId}, page=${page + 1}, size=${size})}"
-						class="px-3 py-1 rounded border border-slate-600 hover:bg-slate-700">
-						Next
-					</a>
-				</div>
-			</div>
-			-->
 		</div>
 		<div th:replace="~{fragments/pagination :: pager(
 					    '/holdings/view/{id}',

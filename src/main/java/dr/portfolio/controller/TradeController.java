@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,13 +22,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import dr.portfolio.domain.Account;
+import dr.portfolio.domain.CashTransaction;
 import dr.portfolio.domain.OptionType;
 import dr.portfolio.domain.Trade;
 import dr.portfolio.domain.TradeType;
 import dr.portfolio.dto.ImportResult;
 import dr.portfolio.dto.SoldHoldingsResult;
 import dr.portfolio.dto.TradeCreate;
+import dr.portfolio.dto.TradeDetailView;
+import dr.portfolio.dto.TradeEditForm;
+import dr.portfolio.repositories.AccountRepository;
 import dr.portfolio.service.OptionTradeService;
 import dr.portfolio.service.RealizedGainService;
 import dr.portfolio.service.SoldHoldingsExcelExportService;
@@ -47,13 +54,15 @@ public class TradeController {
     private final SoldHoldingsExcelExportService excelExportService;
     private final TradeImportService tradeImportService;
     private final OptionTradeService optionTradeService;
+    private final AccountRepository accountRepository;
 
     public TradeController(TradeService tradeService, 
     		               RealizedGainService realizedGainService,
     		               SoldHoldingsExportService exportService,
     		               SoldHoldingsExcelExportService excelExportService,
     		               TradeImportService tradeImportService,
-    		               OptionTradeService optionTradeService) {
+    		               OptionTradeService optionTradeService,
+    		               AccountRepository accountRepository) {
     	
         this.tradeService = tradeService;
         this.realizedGainService = realizedGainService;
@@ -61,108 +70,63 @@ public class TradeController {
         this.excelExportService = excelExportService;
         this.tradeImportService = tradeImportService;
         this.optionTradeService = optionTradeService;
-    }
-
-    @GetMapping("/sold")
-    public String soldHoldings(
-            @RequestParam int year,
-    		Principal principal,
-            Model model) {
-
-        List<Trade> trades =
-        	    tradeService.getTradesForUser(principal.getName());
-
-        SoldHoldingsResult result =
-                realizedGainService.getSoldHoldingsForYear(trades, year);
-
-        model.addAttribute("soldLotDetails", result.soldLotDetails());
-        model.addAttribute("soldHoldings", result.soldHoldings());
-        model.addAttribute("accountTotals", result.accountTotals());
-        model.addAttribute("accountSymbolTotals", result.accountSymbolTotals());
-        model.addAttribute("year", year);
-        model.addAttribute("pageTitle", "Sold Holdings");
-
-        return "soldHoldings";
+        this.accountRepository = accountRepository;
     }
     
-    @GetMapping("/sold/export/csv")
-    public void exportSoldCsv(
-            @RequestParam int year,
-            Principal principal,
-            HttpServletResponse response
-    ) throws IOException {
+    @GetMapping("/view/{id}")
+    public String listTrades(@PathVariable UUID id, Model model, Principal principal) {
+    	        
+    	Account account = accountRepository.getReferenceById(id);
+        model.addAttribute("trades", tradeService.getTradesForAccount(id));
+        model.addAttribute("pageTitle", account.getName() + " Trades");
+        model.addAttribute("account", account);
+        return "trades";
+    }
 
-        List<Trade> trades =
-            tradeService.getTradesForUser(principal.getName());
+    @GetMapping("/sell/{id}/edit")
+    public String showEditSellForm(
+    		@PathVariable UUID id, 
+    		Model model, Principal principal) throws AccessDeniedException {
+    	
+        Trade trade = tradeService.getTradeForUser(id, principal.getName());
 
-        SoldHoldingsResult result =
-            realizedGainService.getSoldHoldingsForYear(trades, year);
-
-        response.setContentType("text/csv");
-        response.setHeader(
-            "Content-Disposition",
-            "attachment; filename=\"sold-holdings-" + year + ".csv\""
-        );
-
-        try (PrintWriter writer = response.getWriter()) {
-            exportService.writeCsv(
-                writer,
-                result.soldHoldings(),
-                result.accountSymbolTotals(),
-                result.accountTotals()
-            );
+        if (trade.getTradeType() != TradeType.SELL) {
+            throw new IllegalArgumentException("Not a sell trade");
         }
+
+        TradeEditForm form = new TradeEditForm();
+        form.setAccountId(trade.getHolding().getAccount().getId());
+        form.setSymbol(trade.getSymbol());
+        form.setTradeId(trade.getId());
+        form.setTradeDate(trade.getTradeDate().toLocalDate());
+        form.setPrice(trade.getPrice());
+        form.setQuantity(trade.getQuantity());
+
+        model.addAttribute("tradeEditForm", form);
+        model.addAttribute("trade", trade);
+
+        return "trade-edit-sell";
     }
+    
+    @PostMapping("/sell/{id}/edit")
+    public String updateSell(@PathVariable UUID id,
+                            @Valid @ModelAttribute TradeEditForm tradeEditForm,
+                            BindingResult bindingResult,
+                             Principal principal,
+                             RedirectAttributes redirectAttributes) throws AccessDeniedException {
+    	
+		if (bindingResult.hasErrors()) {
+			return "trade-edit-sell";
+		}
+    	
+        tradeEditForm.setTradeId(id);
+        tradeService.updateSellTrade(tradeEditForm, principal.getName());
 
-    @GetMapping("/sold/export/excel")
-    public void exportSoldExcel(
-            @RequestParam int year,
-            Principal principal,
-            HttpServletResponse response
-    ) throws IOException {
-
-        List<Trade> trades =
-            tradeService.getTradesForUser(principal.getName());
-
-        SoldHoldingsResult result =
-            realizedGainService.getSoldHoldingsForYear(trades, year);
-
-        response.setContentType(
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        );
-        response.setHeader(
-            "Content-Disposition",
-            "attachment; filename=\"sold-holdings-" + year + ".xlsx\""
-        );
-
-        Workbook wb = excelExportService.createWorkbook(
-            result.soldHoldings(),
-            result.accountSymbolTotals(),
-            result.accountTotals()
-        );
-
-        wb.write(response.getOutputStream());
-        wb.close();
+        redirectAttributes.addFlashAttribute("successMessage", "Sell trade updated");
+        return "redirect:/trades{id}";
     }
-
-    @PostMapping("/import")
-    public String importTrades(
-            @RequestParam("file") MultipartFile file,
-            Principal principal,
-            Model model
-    ) throws IOException {
-
-        ImportResult result =
-            tradeImportService.importTrades(
-                file,
-                principal.getName()
-            );
-
-        model.addAttribute("imported", result.importedCount());
-        model.addAttribute("errors", result.errors());
-
-        return "trade-import-result";
-    }
+    
+    
     
     @PostMapping("/buy/{id}")
     public String buy(
@@ -266,36 +230,31 @@ public class TradeController {
     	return "redirect:/holdings/view/" + accountId;
     }
 
-    @PostMapping("/delete/{id}")
-    public String delete(
-    		@PathVariable UUID id,
-    		Principal principal) {
+    @PostMapping("/{id}/delete")
+    public String deleteTrade(@PathVariable UUID id,
+                              Principal principal,
+                              RedirectAttributes redirectAttributes) {
     	
-    	tradeService.deleteById(id, principal.getName());
-    	
+        tradeService.deleteById(id, principal.getName());
+        redirectAttributes.addFlashAttribute("successMessage", "Trade deleted");
         return "redirect:/trades";
     }
     
-    @GetMapping("/{id}")
-    public ResponseEntity<String> getTrade(@PathVariable UUID id) {
-        
-    	
-    	if (id == null) {
-    		return ResponseEntity.notFound().build();
-    	}
-    	
-    	Trade trade = tradeService.getTrade(id);
-    	
-    	if (trade != null) {
+    @GetMapping("/{id}&{accountId}")
+    public String showTrade(@PathVariable UUID id,
+    						@PathVariable UUID accountId,
+                            Model model,
+                            Principal principal) throws AccessDeniedException {
 
-    		return ResponseEntity.ok("<hr> Account: " + trade.getHolding().getAccount().getName()
-    			+ "<hr> Stock: " + trade.getSymbol()
-    			+ "<hr> Qty: " + trade.getQuantity() 
-    			+ "<hr> Price: " + trade.getPrice());
-    	} else {
-    		
-    		 return ResponseEntity.notFound().build();
-    	}
+    	Trade trade = tradeService.getTradeForUser(id, principal.getName());
+    	CashTransaction cashTransaction = tradeService.getCashTransactionForTrade(id, principal.getName());
+
+    	model.addAttribute("trade", trade);
+    	model.addAttribute("cashTransaction", cashTransaction);
+    	model.addAttribute("accountId", accountId);
+    	model.addAttribute("pageTitle", "Trade Detail");
+
+        return "trade-view";
     }
     
     @GetMapping("/lots/{id}")
@@ -337,6 +296,107 @@ public class TradeController {
         );
 
         return "redirect:/holdings/view/" + accountId;
+    }
+    
+    @GetMapping("/sold")
+    public String soldHoldings(
+            @RequestParam int year,
+    		Principal principal,
+            Model model) {
+
+        List<Trade> trades =
+        	    tradeService.getTradesForUser(principal.getName());
+
+        SoldHoldingsResult result =
+                realizedGainService.getSoldHoldingsForYear(trades, year);
+
+        model.addAttribute("soldLotDetails", result.soldLotDetails());
+        model.addAttribute("soldHoldings", result.soldHoldings());
+        model.addAttribute("accountTotals", result.accountTotals());
+        model.addAttribute("accountSymbolTotals", result.accountSymbolTotals());
+        model.addAttribute("year", year);
+        model.addAttribute("pageTitle", "Sold Holdings");
+
+        return "soldHoldings";
+    }
+    
+    @GetMapping("/sold/export/csv")
+    public void exportSoldCsv(
+            @RequestParam int year,
+            Principal principal,
+            HttpServletResponse response
+    ) throws IOException {
+
+        List<Trade> trades =
+            tradeService.getTradesForUser(principal.getName());
+
+        SoldHoldingsResult result =
+            realizedGainService.getSoldHoldingsForYear(trades, year);
+
+        response.setContentType("text/csv");
+        response.setHeader(
+            "Content-Disposition",
+            "attachment; filename=\"sold-holdings-" + year + ".csv\""
+        );
+
+        try (PrintWriter writer = response.getWriter()) {
+            exportService.writeCsv(
+                writer,
+                result.soldHoldings(),
+                result.accountSymbolTotals(),
+                result.accountTotals()
+            );
+        }
+    }
+
+    @GetMapping("/sold/export/excel")
+    public void exportSoldExcel(
+            @RequestParam int year,
+            Principal principal,
+            HttpServletResponse response
+    ) throws IOException {
+
+        List<Trade> trades =
+            tradeService.getTradesForUser(principal.getName());
+
+        SoldHoldingsResult result =
+            realizedGainService.getSoldHoldingsForYear(trades, year);
+
+        response.setContentType(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        response.setHeader(
+            "Content-Disposition",
+            "attachment; filename=\"sold-holdings-" + year + ".xlsx\""
+        );
+
+        Workbook wb = excelExportService.createWorkbook(
+            result.soldHoldings(),
+            result.accountSymbolTotals(),
+            result.accountTotals()
+        );
+
+        wb.write(response.getOutputStream());
+        wb.close();
+    }
+
+    @PostMapping("/import")
+    public String importTrades(
+            @RequestParam("file") MultipartFile file,
+            Principal principal,
+            Model model
+    ) throws IOException {
+
+        ImportResult result =
+            tradeImportService.importTrades(
+                file,
+                principal.getName()
+            );
+
+        model.addAttribute("imported", result.importedCount());
+        model.addAttribute("errors", result.errors());
+
+        return "trade-import-result";
     }
     
 }

@@ -1,0 +1,55 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: layout(
+          ~{::content},
+          ${pageTitle},
+          ~{::head}
+      )}">
+
+<head></head>
+<body>
+<div th:fragment="content" class="space-y-1">
+
+	<div class="flex items-center justify-between mb-6">
+		<p class="font-bold">Edit Sell Trade</p>
+	    <form th:action="@{/trades/view/{id}(id=${tradeEditForm.accountId})}" method="get">
+			<button class="px-1 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-800 border border-slate-300">
+			   	Back to Trades
+			</button>
+		</form>
+	</div>
+
+	<div class="overflow-hidden rounded-xl p-6 mb-6 shadow border border-slate-600 text-slate-400 bg-slate-900 text-slate-400">
+		<form th:action="@{/trades/sell/{id}/edit(id=${trade.id})}" th:object="${tradeEditForm}" method="post">
+		<table class="min-w-full divide-y divide-gray-200">	
+			<thead class="bg-slate-800 text-slate-400">
+	            <tr>
+					<th class="px-4 py-3 text-left text-sm font-semibold">Symbol</th>
+			        <th class="px-4 py-3 text-left text-sm font-semibold">Price</th>
+			        <th class="px-4 py-3 text-left text-sm font-semibold">Quantity</th>
+			        <th class="px-4 py-3 text-left text-sm font-semibold">Date</th>
+	            </tr>
+		    </thead>
+			<tbody class="divide-y divide-gray-100">
+				<tr>
+					<td class="px-4 py-3 text-sm font-medium bg-slate-900 text-slate-400" th:text="*{symbol}">AAPL</td>
+					<td class="px-4 py-3 text-sm">
+                        <input type="number" step="0.01" th:field="*{price}" class="bg-slate-900 text-slate-400" required>
+					</td>
+					<td class="px-4 py-3 text-sm">
+						<input type="number" th:field="*{quantity}" min="1" class="bg-slate-900 text-slate-400" required>
+					</td>
+					<td class="px-4 py-3 text-sm">
+                        <input type="date" th:field="*{tradeDate}" class="bg-slate-900 text-slate-400" required>
+					</td>
+				</tr>				
+			</tbody>
+			</table>
+		    <button type="submit" class="px-1 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-800 border border-slate-300">
+				Update Sell</button>
+		</form>
+	</div>
+	<!--<div class="text-red-400 text-sm" th:if="${#fields.hasErrors('tradeDate')}" th:errors="*{tradeDate}"></div>
+	<div class="text-red-400 text-sm" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+	<div class="text-red-400 text-sm" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>-->
+</div>

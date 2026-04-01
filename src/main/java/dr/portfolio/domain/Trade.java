@@ -1,6 +1,8 @@
 package dr.portfolio.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import jakarta.persistence.*;
 
@@ -21,10 +23,13 @@ public class Trade {
 	@JoinColumn(name = "holding_id", nullable = false)
 	private Holding holding;
 	
+	@OneToMany(mappedBy = "trade")
+    private List<CashTransaction> cashTransactions = new ArrayList<>();
+	
 	@Column(nullable = false, updatable = false)
 	private String symbol;
 	
-	@Column(nullable = false, updatable = false)
+	@Column(nullable = false)
 	private int quantity;
 	
 	@Column(nullable = false)
@@ -38,6 +43,14 @@ public class Trade {
 	private TradeType tradeType;
 	
 	public Trade() {}
+		
+	public List<CashTransaction> getCashTransactions() {
+		return cashTransactions;
+	}
+
+	public void setCashTransactions(List<CashTransaction> cashTransactions) {
+		this.cashTransactions = cashTransactions;
+	}
 
 	public UUID getId() {
 		return id;

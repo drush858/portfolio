@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: layout(
+          ~{::content},
+          ${pageTitle},
+          ~{::head}
+      )}">
+
+<head></head>
+<body>
+<div th:fragment="content" class="space-y-1">
+
+    <div class="flex items-center justify-between mb-6">
+        <p class="font-bold">Trade Details</p>
+        <form th:action="@{/trades/view/{id}(id=${accountId})}" method="get">
+			<button class="px-1 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-800 border border-slate-300">
+			   	Back to Trades
+			</button>
+		</form>
+    </div>
+
+    <div class="rounded-2xl shadow p-6 mb-6 border border-slate-300 text-slate-400">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold" th:text="${trade.symbol}">AAPL</h2>
+            <span th:if="${trade.tradeType.name() == 'BUY'}"
+			      class="inline-flex rounded-full bg-red-600 text-white px-2 py-1 text-xs font-semibold"
+			      th:text="${trade.tradeType}">BUY</span>
+            <span th:if="${trade.tradeType.name() == 'SELL'}"
+                  class="inline-flex rounded-full bg-green-600 text-white px-2 py-1 text-xs font-semibold"
+                  th:text="${trade.tradeType}">SELL</span>
+        </div>
+
+        <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <dt class="text-sm">Account</dt>
+                <dd class="text-base font-medium" th:text="${trade.holding.account.name}">Brokerage</dd>
+            </div>
+            <div>
+                <dt class="text-sm">Trade Date</dt>
+                <dd class="text-base font-medium"
+                    th:text="${#temporals.format(trade.tradeDate, 'yyyy-MM-dd HH:mm')}">2026-03-31 09:00</dd>
+            </div>
+            <div>
+                <dt class="text-sm">Quantity</dt>
+                <dd class="text-base font-medium" th:text="${trade.quantity}">10</dd>
+            </div>
+            <div>
+                <dt class="text-sm">Price</dt>
+                <dd class="text-base font-medium"
+                    th:text="'$' + ${#numbers.formatDecimal(trade.price, 1, 2)}">$150.00</dd>
+            </div>
+            <div>
+                <dt class="text-sm">Symbol</dt>
+                <dd class="text-base font-medium" th:text="${trade.symbol}">AAPL</dd>
+            </div>
+            <div>
+                <dt class="text-sm">Gross Value</dt>
+                <dd class="text-base font-medium"
+                    th:text="'$' + ${#numbers.formatDecimal(trade.price * trade.quantity, 1, 2)}">$1500.00</dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="rounded-2xl shadow p-6 mb-6 border border-slate-300 text-slate-400">
+        <h3 class="text-lg font-semibold mb-4">Linked Cash Transaction</h3>
+
+        <div th:if="${cashTransaction != null}">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <dt class="text-sm">Type</dt>
+                    <dd class="text-base font-medium"
+                        th:text="${cashTransaction.transactionType}">SELL</dd>
+                </div>
+                <div>
+                    <dt class="text-sm">Amount</dt>
+                    <dd class="text-base font-medium"
+                        th:text="'$' + ${#numbers.formatDecimal(cashTransaction.amount, 1, 2)}">$1500.00</dd>
+                </div>
+                <div>
+                    <dt class="text-sm">Date</dt>
+                    <dd class="text-base font-medium"
+                        th:text="${#temporals.format(cashTransaction.transactionDate, 'yyyy-MM-dd HH:mm')}">2026-03-31 09:00</dd>
+                </div>
+                <div>
+                    <dt class="text-sm">Source</dt>
+                    <dd class="text-base font-medium"
+                        th:text="${cashTransaction.source}">TRADE</dd>
+                </div>
+                <div class="md:col-span-2">
+                    <dt class="text-sm">Description</dt>
+                    <dd class="text-base font-medium"
+                        th:text="${cashTransaction.description}">Sell 10 AAPL</dd>
+                </div>
+            </dl>
+        </div>
+
+        <div th:if="${cashTransaction == null}" class="text-gray-600">
+            No linked cash transaction found.
+        </div>
+    </div>
+
+    <div class="flex gap-3">
+        <a th:if="${trade.tradeType.name() == 'SELL'}"
+           th:href="@{/trades/sell/{id}/edit(id=${trade.id})}"
+           class="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">
+            Edit Sell
+        </a>
+
+        <form th:action="@{/trades/{id}/delete(id=${trade.id})}" method="post">
+            <button type="submit"
+                    onclick="return confirm('Delete this trade?');"
+                    class="rounded-xl bg-red-600 text-white px-4 py-2 hover:bg-red-700">
+                Delete
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

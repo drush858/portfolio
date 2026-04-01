@@ -290,6 +290,7 @@ public class CashTransactionService {
 
         CashTransaction txn = new CashTransaction(
                 account,
+                null,				  // no trade associated with a simple withdrawal
                 CashTransactionType.TRANSFER_OUT,
                 amount.negate(),       // ✅ store as negative outflow
                 null,                  // symbol usually null for transfer
