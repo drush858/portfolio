@@ -1,5 +1,9 @@
 package dr.portfolio.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
@@ -58,6 +62,26 @@ public class TradeService {
         this.cashTransactionRepository = cashTransactionRepository;
         this.holdingRebuildService = holdingRebuildService;
     }
+    
+    public Page<Trade> getTradesForAccount(UUID accountId, 
+    									   int page, 
+    									   int size, 
+    									   String symbol,
+    									   String username) {
+
+        Account account = accountRepository.findById(accountId)
+                .filter(a -> a.getUser().getUsername().equals(username))
+                .orElseThrow(() -> new RuntimeException("Unauthorized"));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("tradeDate").descending());
+
+        if (symbol != null && !symbol.isEmpty()) {
+			return tradeRepository.findByHolding_Account_IdAndSymbolContainingIgnoreCase(account.getId(), symbol, pageable);
+		}
+        return tradeRepository.findByHolding_Account_Id(account.getId(), pageable);
+    }
+    
+    
     
     @Transactional(readOnly = true)
     public CashTransaction getCashTransactionForTrade(UUID tradeId, String username) throws AccessDeniedException {

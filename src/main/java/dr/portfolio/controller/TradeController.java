@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,7 +32,6 @@ import dr.portfolio.domain.TradeType;
 import dr.portfolio.dto.ImportResult;
 import dr.portfolio.dto.SoldHoldingsResult;
 import dr.portfolio.dto.TradeCreate;
-import dr.portfolio.dto.TradeDetailView;
 import dr.portfolio.dto.TradeEditForm;
 import dr.portfolio.repositories.AccountRepository;
 import dr.portfolio.service.OptionTradeService;
@@ -74,12 +73,32 @@ public class TradeController {
     }
     
     @GetMapping("/view/{id}")
-    public String listTrades(@PathVariable UUID id, Model model, Principal principal) {
-    	        
-    	Account account = accountRepository.getReferenceById(id);
-        model.addAttribute("trades", tradeService.getTradesForAccount(id));
+    public String listTrades(@PathVariable UUID id,
+                             @RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "10") int size,
+                             @RequestParam(required = false) String symbol,
+                             Model model,
+                             Principal principal) {
+
+        Account account = accountRepository.getReferenceById(id);
+
+        Page<Trade> tradePage = tradeService.getTradesForAccount(
+        		id, page, size, symbol, principal.getName());
+
+        int start = tradePage.getTotalElements() == 0 ? 0 : page * size + 1;
+        int end = Math.min((page + 1) * size, (int) tradePage.getTotalElements());
+
+        model.addAttribute("tradePage", tradePage);
+        model.addAttribute("page", tradePage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
+        model.addAttribute("start", start);
+        model.addAttribute("end", end);
+        model.addAttribute("symbol", symbol);
+
         model.addAttribute("pageTitle", account.getName() + " Trades");
         model.addAttribute("account", account);
+
         return "trades";
     }
 

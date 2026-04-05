@@ -2,6 +2,9 @@ package dr.portfolio.repositories;
 
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,11 +15,19 @@ import dr.portfolio.domain.User;
 
 public interface TradeRepository extends JpaRepository<Trade, UUID> {
 	
+	Page<Trade> findByHolding_Account_Id(UUID accountId, Pageable pageable);
+	
 	List<Trade> findByHoldingOrderByTradeDateAscIdAsc(Holding holding);
 	
 	List<Trade> findByHoldingOrderByTradeDateDescIdAsc(Holding holding);
 	
 	List<Trade> findByHolding_IdOrderByTradeDateAscIdAsc(UUID id);
+	
+	Page<Trade> findByHolding_Account_IdAndSymbolContainingIgnoreCase(
+	        UUID accountId,
+	        String symbol,
+	        Pageable pageable
+	);
 	
 	@Query("""
 	        SELECT t
