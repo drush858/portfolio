@@ -8,7 +8,26 @@
     <title th:text="${pageTitle} ?: 'Portfolio Tracker'">Portfolio Tracker</title>
 	
 	<meta charset="UTF-8">
-	
+	<style>
+	/* Normalize inputs across browsers */
+	input, textarea, select {
+	    appearance: none;
+	    border: 1px solid #475569; /* slate-600 */
+	    background-color: #1e293b; /* slate-800 */
+	    color: #e2e8f0;            /* slate-200 */
+	}
+
+	/* Autofill (Chrome + Firefox) – make it blend */
+	input:-webkit-autofill {
+	    box-shadow: 0 0 0px 1000px #1e293b inset !important;
+	    -webkit-text-fill-color: #e2e8f0 !important;
+	}
+
+	input:-moz-autofill {
+	    box-shadow: 0 0 0px 1000px #1e293b inset !important;
+	    -moz-text-fill-color: #e2e8f0 !important;
+	}
+	</style>
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
