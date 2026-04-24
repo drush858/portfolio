@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import java.util.UUID;
@@ -184,7 +185,7 @@ public class TradeController {
             @RequestParam String symbol,
             @RequestParam int quantity,
             @RequestParam double price,
-            @RequestParam LocalDate tradeDate,
+            @RequestParam LocalDateTime tradeDate,
             Principal principal
     ) {
 
@@ -228,7 +229,7 @@ public class TradeController {
             @RequestParam String symbol,
             @RequestParam int quantity,
             @RequestParam double price,
-            @RequestParam LocalDate tradeDate,
+            @RequestParam LocalDateTime tradeDate,
             Principal principal
     ) {
 
@@ -299,7 +300,7 @@ public class TradeController {
             @RequestParam BigDecimal price,
             @RequestParam TradeType tradeType,
 
-            @RequestParam LocalDate tradeDate
+            @RequestParam LocalDateTime tradeDate
     ) {
 
         optionTradeService.recordOptionTrade(
@@ -311,7 +312,7 @@ public class TradeController {
                 quantity,
                 price,
                 tradeType,
-                tradeDate.atStartOfDay()
+                tradeDate
         );
 
         return "redirect:/holdings/view/" + accountId;

@@ -328,7 +328,7 @@
 						<label class="block text-sm font-medium">Trade Date</label>
 						<!-- NOTE: your controller currently expects LocalDateTime.
              				 We'll post "YYYY-MM-DDTHH:mm" so it binds cleanly. -->
-						<input id="tradeDateInputModal" type="date" name="tradeDate" 
+						<input id="tradeDateInputModal" type="datetime-local" name="tradeDate" 
 						       required class="mt-1 w-full rounded-md border-slate-300 border focus:border-blue-500 
 							                   focus:ring-blue-500 bg-slate-400 text-slate-800" />
 					</div>
@@ -450,8 +450,8 @@
 						<label class="block text-sm font-medium">
 							Trade Date
 						</label>
-						<input id="optionTradeDateInput" type="date" name="tradeDate" required
-							th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" 
+						<input id="optionTradeDateInput" type="datetime-local" name="tradeDate" required
+							th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd''T''HH:mm')}"
 							class="mt-1 w-full rounded-md border-slate-300 border
                                    focus:border-blue-500 focus:ring-blue-500 bg-slate-400 bg-slate-400 text-slate-800" />
 					</div>

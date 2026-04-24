@@ -202,7 +202,7 @@ public class TradeService {
 
         holdingRepository.save(holding);
         
-        Trade newTrade = createTrade(holding, TradeType.BUY, tradeCreate, tradeCreate.getDate().atStartOfDay());
+        Trade newTrade = createTrade(holding, TradeType.BUY, tradeCreate, tradeCreate.getDate());
       
         Trade trade = tradeRepository.save(newTrade);
         
@@ -251,7 +251,7 @@ public class TradeService {
             throw new IllegalArgumentException("Insufficient quantity to sell");
         }
 
-        Trade newTrade = createTrade(holding, TradeType.SELL, tradeCreate, tradeCreate.getDate().atStartOfDay());
+        Trade newTrade = createTrade(holding, TradeType.SELL, tradeCreate, tradeCreate.getDate());
 
         Trade trade = tradeRepository.save(newTrade);
         

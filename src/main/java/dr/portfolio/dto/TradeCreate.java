@@ -1,7 +1,9 @@
 package dr.portfolio.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import dr.portfolio.domain.TradeType;
 import jakarta.validation.constraints.DecimalMin;
@@ -24,7 +26,8 @@ public class TradeCreate {
 	private double price;
 	
 	@NotNull(message = "Date is required")
-	private LocalDate date;
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+	private LocalDateTime date;
 	
 	private TradeType type;
 	
@@ -35,10 +38,10 @@ public class TradeCreate {
 	public void setTradeType(TradeType type) {
 		this.type = type;
 	}
-	public LocalDate getDate() {
+	public LocalDateTime getDate() {
 		return date;
 	}
-	public void setDate(LocalDate date) {
+	public void setDate(LocalDateTime date) {
 		this.date = date;
 	}
 	public String getSymbol() {

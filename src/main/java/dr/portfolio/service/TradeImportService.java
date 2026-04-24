@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,10 +92,20 @@ public class TradeImportService {
         trade.setQuantity(Integer.parseInt(r.get("quantity")));
         trade.setPrice(Double.parseDouble(r.get("price")));
       
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        LocalDate parsedDate = LocalDate.parse(r.get("tradeDate"), formatter);
-         
-        trade.setDate(parsedDate);
+        String raw = r.get("tradeDate");
+
+        LocalDateTime tradeDateTime;
+
+        if (raw.contains(":")) {
+            // has time
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm");
+            tradeDateTime = LocalDateTime.parse(raw, dtf);
+        } else {
+            // date only → default time
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            tradeDateTime = LocalDate.parse(raw, df).atTime(12, 0);
+        }
+        trade.setDate(tradeDateTime);
 
         TradeType type =
             TradeType.valueOf(r.get("type").toUpperCase());
