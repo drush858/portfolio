@@ -329,6 +329,7 @@
 						<!-- NOTE: your controller currently expects LocalDateTime.
              				 We'll post "YYYY-MM-DDTHH:mm" so it binds cleanly. -->
 						<input id="tradeDateInputModal" type="datetime-local" name="tradeDate" 
+						       th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd''T''HH:mm')}"
 						       required class="mt-1 w-full rounded-md border-slate-300 border focus:border-blue-500 
 							                   focus:ring-blue-500 bg-slate-400 text-slate-800" />
 					</div>
@@ -644,11 +645,8 @@
 				const quantity = (action === "SELL") ? qty : "";
 				const marketPrice = row.getAttribute("data-market-price");
 
-				const formattedDate = new Date().toISOString().slice(0, 10);
-
 				// Fill modal fields
 				document.getElementById("symbolInputModal").value = symbol || "";
-				document.getElementById("tradeDateInputModal").value = formattedDate;
 				document.getElementById("quantityInputModal").value = quantity;
 				document.getElementById("priceInputModal").value = marketPrice;
 
@@ -674,11 +672,8 @@
 
 			function openNewTradeModal() {
 
-				const formattedDate = new Date().toISOString().slice(0, 10);
-
 				// Fill modal fields
 				document.getElementById("symbolInputModal").value = "";
-				document.getElementById("tradeDateInputModal").value = formattedDate;
 				document.getElementById("quantityInputModal").value = "";
 				document.getElementById("priceInputModal").value = "";
 

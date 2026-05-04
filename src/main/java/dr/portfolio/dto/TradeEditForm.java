@@ -1,6 +1,6 @@
 package dr.portfolio.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,9 +28,9 @@ public class TradeEditForm {
     private Double price;
 
     @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate tradeDate;
-
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime tradeDate;
+    
     // getters/setters
     public UUID getTradeId() { return tradeId; }
     public void setTradeId(UUID tradeId) { this.tradeId = tradeId; }
@@ -47,6 +47,6 @@ public class TradeEditForm {
     public Double getPrice() { return price; }
     public void setPrice(Double price) { this.price = price; }
 
-    public LocalDate getTradeDate() { return tradeDate; }
-    public void setTradeDate(LocalDate tradeDate) { this.tradeDate = tradeDate; }
+    public LocalDateTime getTradeDate() { return tradeDate; }
+    public void setTradeDate(LocalDateTime tradeDate) { this.tradeDate = tradeDate; }
 }

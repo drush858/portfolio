@@ -2,6 +2,7 @@ package dr.portfolio.repositories;
 
 import dr.portfolio.domain.CashTransaction;
 import dr.portfolio.domain.CashTransactionType;
+import dr.portfolio.domain.Trade;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ public interface CashTransactionRepository
         extends JpaRepository<CashTransaction, UUID> {
 
 	Optional<CashTransaction> findByTrade_Id(UUID tradeId);
+	
+	Optional<CashTransaction> findByTrade(Trade trade);
 	 
 	Page<CashTransaction> findByAccountIdAndSymbolOrderByTransactionDateDescIdDesc(
 	        UUID accountId,

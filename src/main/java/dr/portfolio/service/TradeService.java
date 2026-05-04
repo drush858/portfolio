@@ -98,6 +98,103 @@ public class TradeService {
         return new TradeDetailView(trade, cashTransaction);
     }
     
+    public void updateTrade(TradeEditForm form, String username) throws AccessDeniedException {
+
+        Trade trade = tradeRepository.findById(form.getTradeId())
+                .orElseThrow();
+
+        if (!trade.getHolding().getAccount().getUser().getUsername().equals(username)) {
+            throw new AccessDeniedException("Unauthorized");
+        }
+
+        // update core fields
+        trade.setPrice(form.getPrice());
+        trade.setQuantity(form.getQuantity());
+        trade.setTradeDate(form.getTradeDate());
+
+        tradeRepository.save(trade);
+        
+        // 🔥 rebuild holding (works for stock + options)
+        holdingRebuildService.rebuildHolding(trade.getHolding());
+
+        // 🔥 update cash impact
+        updateCashForTrade(trade);
+    }
+    
+    private void updateCashForTrade(Trade trade) {
+
+        CashTransaction cash = cashTransactionRepository
+                .findByTrade_Id(trade.getId())
+                .orElse(null);
+
+        if (cash == null) return;
+
+        BigDecimal amount = BigDecimal.valueOf(trade.getPrice())
+                .multiply(BigDecimal.valueOf(trade.getQuantity()));
+
+        if (isOptionSymbol(trade.getSymbol())) {
+			amount = amount.multiply(BigDecimal.valueOf(100)); // options multiplier
+		}
+        
+        // determine sign
+        switch (trade.getTradeType()) {
+            case BUY -> amount = amount.negate();   // cash out
+            case SELL -> { /* cash in */ }
+            case OPTION_EXPIRE -> amount = BigDecimal.ZERO;
+            default -> {}
+        }
+
+        cash.setAmount(amount);
+        cash.setTransactionDate(trade.getTradeDate());
+        cash.setSymbol(trade.getSymbol());
+        cash.setDescription(trade.getTradeType() + " " + trade.getQuantity());
+
+        cashTransactionRepository.save(cash);
+    }
+    
+    public void updateOptionTrade(TradeEditForm form, String username) throws AccessDeniedException {
+
+        Trade trade = tradeRepository.findById(form.getTradeId())
+                .orElseThrow();
+
+        if (!trade.getHolding().getAccount().getUser().getUsername().equals(username)) {
+            throw new AccessDeniedException("Unauthorized");
+        }
+
+        // update fields
+        trade.setPrice(form.getPrice());
+        trade.setQuantity(form.getQuantity());
+        trade.setTradeDate(form.getTradeDate());
+
+        tradeRepository.save(trade);
+
+        // 🔥 CRITICAL: rebuild holding after change
+        holdingRebuildService.rebuildHolding(trade.getHolding());
+
+        // 🔥 OPTIONAL but likely needed
+        updateCashTransactionForTrade(trade);
+    }
+    
+    private void updateCashTransactionForTrade(Trade trade) {
+
+        CashTransaction cash = cashTransactionRepository
+                .findByTrade_Id(trade.getId())
+                .orElseThrow();
+
+        BigDecimal amount = BigDecimal.valueOf(trade.getPrice())
+                .multiply(BigDecimal.valueOf(trade.getQuantity()));
+
+        if (trade.getTradeType() == TradeType.BUY) {
+            amount = amount.negate(); // cash out
+        }
+
+        cash.setAmount(amount);
+        cash.setTransactionDate(trade.getTradeDate());
+        cash.setDescription("Updated " + trade.getTradeType());
+
+        cashTransactionRepository.save(cash);
+    }
+    
     @Transactional
     public void updateSellTrade(TradeEditForm form, String username)
             throws IllegalArgumentException, AccessDeniedException
@@ -120,7 +217,7 @@ public class TradeService {
 
         trade.setQuantity(form.getQuantity());
         trade.setPrice(form.getPrice());
-        trade.setTradeDate(form.getTradeDate().atStartOfDay());
+        trade.setTradeDate(form.getTradeDate());
 
         Trade savedTrade = tradeRepository.save(trade);
 
@@ -158,7 +255,7 @@ public class TradeService {
     }
 
     @Transactional
-    public void deleteById(UUID id, String username) {
+    public UUID deleteById(UUID id, String username) {
         Trade trade = tradeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Trade not found"));
 
@@ -176,6 +273,8 @@ public class TradeService {
         tradeRepository.delete(trade);
 
         holdingRebuildService.rebuildHolding(holding);
+        
+        return account.getId();
     }
     
     public List<Trade> findByHoldingId(UUID holdingId) {
@@ -219,7 +318,7 @@ public class TradeService {
                 totalCost.negate(),   // cash out
                 trade.getSymbol(),
                 trade.getTradeDate(),
-                "Buy " + trade.getQuantity() + " " + trade.getSymbol()
+                "Buy " + trade.getQuantity() + " " + trade.getSymbol() + " @ " + trade.getPrice()
             )
         );
         

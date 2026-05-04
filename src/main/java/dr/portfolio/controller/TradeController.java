@@ -73,6 +73,10 @@ public class TradeController {
         this.accountRepository = accountRepository;
     }
     
+    private boolean isOptionSymbol(String symbol) {
+        return symbol != null && symbol.matches(".*\\d{6}[CP].*");
+    }
+    
     @GetMapping("/view/{id}")
     public String listTrades(@PathVariable UUID id,
                              @RequestParam(defaultValue = "0") int page,
@@ -103,6 +107,84 @@ public class TradeController {
         return "trades";
     }
 
+    @GetMapping("/options/{id}/edit")
+    public String showEditOptionForm(@PathVariable UUID id,
+                                    Model model,
+                                    Principal principal) throws AccessDeniedException {
+
+        Trade trade = tradeService.getTradeForUser(id, principal.getName());
+
+        if (!isOptionSymbol(trade.getSymbol())) {
+            throw new IllegalArgumentException("Not an option trade");
+        }
+
+        TradeEditForm form = new TradeEditForm();
+        form.setTradeId(trade.getId());
+        form.setAccountId(trade.getHolding().getAccount().getId());
+        form.setSymbol(trade.getSymbol());
+        form.setQuantity(trade.getQuantity());
+        form.setPrice(trade.getPrice());
+        form.setTradeDate(trade.getTradeDate());
+
+        model.addAttribute("tradeEditForm", form);
+        model.addAttribute("trade", trade);
+
+        return "trade-edit-option";
+    }
+    
+    @PostMapping("/options/{id}/edit")
+    public String updateOption(@PathVariable UUID id,
+                               @ModelAttribute TradeEditForm form,
+                               Principal principal,
+                               RedirectAttributes redirectAttributes) throws AccessDeniedException {
+
+        form.setTradeId(id);
+
+        tradeService.updateOptionTrade(form, principal.getName());
+
+        redirectAttributes.addFlashAttribute("successMessage", "Option trade updated");
+
+        return "redirect:/trades/view/" + form.getAccountId();
+    }
+    
+    
+    @GetMapping("/{id}/edit")
+    public String showEditTradeForm(@PathVariable UUID id,
+                                   Model model,
+                                   Principal principal) throws AccessDeniedException {
+
+        Trade trade = tradeService.getTradeForUser(id, principal.getName());
+
+        TradeEditForm form = new TradeEditForm();
+        form.setTradeId(trade.getId());
+        form.setAccountId(trade.getHolding().getAccount().getId());
+        form.setSymbol(trade.getSymbol());
+        form.setQuantity(trade.getQuantity());
+        form.setPrice(trade.getPrice());
+        form.setTradeDate(trade.getTradeDate());
+
+        model.addAttribute("tradeEditForm", form);
+        model.addAttribute("trade", trade);
+
+        return "trade-edit";
+    }
+    
+    @PostMapping("/{id}/edit")
+    public String updateTrade(@PathVariable UUID id,
+                              @ModelAttribute TradeEditForm form,
+                              Principal principal,
+                              RedirectAttributes redirectAttributes) throws AccessDeniedException {
+
+        form.setTradeId(id);
+
+        tradeService.updateTrade(form, principal.getName());
+
+        redirectAttributes.addFlashAttribute("successMessage", "Trade updated");
+
+        return "redirect:/trades/view/" + form.getAccountId();
+    }
+    
+    
     @GetMapping("/sell/{id}/edit")
     public String showEditSellForm(
     		@PathVariable UUID id, 
@@ -118,7 +200,7 @@ public class TradeController {
         form.setAccountId(trade.getHolding().getAccount().getId());
         form.setSymbol(trade.getSymbol());
         form.setTradeId(trade.getId());
-        form.setTradeDate(trade.getTradeDate().toLocalDate());
+        form.setTradeDate(trade.getTradeDate());
         form.setPrice(trade.getPrice());
         form.setQuantity(trade.getQuantity());
 
@@ -147,7 +229,7 @@ public class TradeController {
     }
     
     
-    
+    /*
     @PostMapping("/buy/{id}")
     public String buy(
     		@PathVariable UUID id,
@@ -177,7 +259,7 @@ public class TradeController {
     		throw new IllegalArgumentException("Invalid trade date", p);
     	}
         return "redirect:/holdings/view/{id}";
-    }
+    }*/
     
     @PostMapping("/stock/add")
     public String addStockTrade(
@@ -205,7 +287,7 @@ public class TradeController {
     	}
     	return "redirect:/holdings/view/" + accountId;
     }
-    
+    /*
     @PostMapping("/sell/{id}")
     public String sell(
     		@ModelAttribute TradeCreate trade, 
@@ -222,7 +304,7 @@ public class TradeController {
     	}
         return "redirect:/holdings/view/{id}";
     }
-    
+    */
     @PostMapping("/stock/sell")
     public String sellStockTrade(
             @RequestParam UUID accountId,
@@ -255,9 +337,9 @@ public class TradeController {
                               Principal principal,
                               RedirectAttributes redirectAttributes) {
     	
-        tradeService.deleteById(id, principal.getName());
+        UUID accountId = tradeService.deleteById(id, principal.getName());
         redirectAttributes.addFlashAttribute("successMessage", "Trade deleted");
-        return "redirect:/trades";
+        return "redirect:/trades/view/" + accountId;
     }
     
     @GetMapping("/{id}&{accountId}")

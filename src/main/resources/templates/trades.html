@@ -66,7 +66,7 @@
                     th:text="${trade.holding.account.name}">Brokerage</td>
 
                 <td class="px-4 py-3 text-sm font-medium"
-                    th:text="${trade.symbol}">AAPL</td>
+                    th:text="${trade.symbol}"></td>
 
                 <td class="px-4 py-3 text-sm">
                     <span th:if="${trade.tradeType.name() == 'BUY'}"
@@ -79,13 +79,13 @@
                 </td>
 
                 <td class="px-4 py-3 text-sm"
-                    th:text="${trade.quantity}">10</td>
+                    th:text="${trade.quantity}"></td>
 
                 <td class="px-4 py-3 text-sm"
-                    th:text="'$' + ${#numbers.formatDecimal(trade.price, 1, 2)}">$150.00</td>
+                    th:text="'$' + ${#numbers.formatDecimal(trade.price, 1, 2)}"></td>
 
                 <td class="px-4 py-3 text-sm"
-                    th:text="'$' + ${#numbers.formatDecimal(trade.price * trade.quantity, 1, 2)}">$1500.00</td>
+                    th:text="'$' + ${#numbers.formatDecimal(trade.grossValue, 1, 2)}"></td>
 
                 <td class="px-4 py-3 text-sm">
                     <div class="flex flex-wrap gap-2">
@@ -93,13 +93,18 @@
                            class="rounded-lg bg-blue-600 text-white px-3 py-1 hover:bg-blue-700">
                             View
                         </a>
-
-                        <a th:if="${trade.tradeType.name() == 'SELL'}"
-                           th:href="@{/trades/sell/{id}/edit(id=${trade.id})}"
+<!--
+						<a th:if="${#strings.contains(trade.symbol, 'C') or #strings.contains(trade.symbol, 'P')}"
+						   th:href="@{/trades/{id}/edit(id=${trade.id})}">
+						   Edit
+						</a>
+						
+						<a th:if="${trade.tradeType.name() == 'SELL'}"
+                           th:href="@{/trades/{id}/edit(id=${trade.id})}"
                            class="rounded-lg bg-blue-600 text-white px-3 py-1 hover:bg-blue-700">
                             Edit Sell
                         </a>
-
+-->
                         <form th:action="@{/trades/{id}/delete(id=${trade.id})}" method="post" class="inline">
                             <button type="submit"
                                     onclick="return confirm('Delete this trade?');"

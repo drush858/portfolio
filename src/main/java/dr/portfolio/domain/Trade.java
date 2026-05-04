@@ -1,5 +1,6 @@
 package dr.portfolio.domain;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,20 @@ public class Trade {
 	
 	public Trade() {}
 		
+	private boolean isOptionSymbol(String symbol) {
+        return symbol != null && symbol.matches(".*\\d{6}[CP].*");
+    }
+	
+	public BigDecimal getGrossValue() {
+	    BigDecimal multiplier = isOptionSymbol(this.symbol)
+	            ? BigDecimal.valueOf(100)
+	            : BigDecimal.ONE;
+
+	    return BigDecimal.valueOf(price)
+	            .multiply(BigDecimal.valueOf(quantity))
+	            .multiply(multiplier);
+	}
+	
 	public List<CashTransaction> getCashTransactions() {
 		return cashTransactions;
 	}

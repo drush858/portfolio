@@ -1,0 +1,66 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: layout(~{::content}, ${pageTitle}, ~{::head})}">
+
+<head></head>
+
+<body>
+<div th:fragment="content" class="space-y-4">
+
+    <h2 class="text-lg font-bold">Edit Trade</h2>
+
+	<form th:action="@{/trades/view/{id}(id=${tradeEditForm.accountId})}" method="get">
+		<button class="px-1 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-800 border border-slate-300">
+		   	Back to Trades
+		</button>
+	</form>
+
+<form th:action="@{/trades/{id}/edit(id=${trade.id})}"
+      th:object="${tradeEditForm}"
+      method="post"
+      class="space-y-4">
+
+	<input type="hidden" name="accountId" th:value="*{accountId}"/>  
+	
+    <div>
+        <label>Symbol</label>
+        <input type="text" th:field="*{symbol}" readonly
+               class="bg-slate-800 text-slate-400"/>
+    </div>
+
+    <div>
+        <label>Trade Type</label>
+        <input type="text" th:value="${trade.tradeType}" readonly
+               class="bg-slate-800 text-slate-400"/>
+    </div>
+
+    <div>
+        <label>Date / Time</label>
+        <input type="datetime-local"
+               th:field="*{tradeDate}"
+               class="bg-slate-900 text-slate-300 border border-slate-600"/>
+    </div>
+
+    <div>
+        <label>Price</label>
+        <input type="number" step="0.01"
+               th:field="*{price}"
+               class="bg-slate-900 text-slate-300 border border-slate-600"/>
+    </div>
+
+    <div>
+        <label>Quantity</label>
+        <input type="number" min="1"
+               th:field="*{quantity}"
+               class="bg-slate-900 text-slate-300 border border-slate-600"/>
+    </div>
+
+    <button type="submit"
+            class="px-3 py-2 bg-blue-600 text-white rounded-md">
+        Update Trade
+    </button>
+
+</form>
+
+</div>
+</body>
+</html>
