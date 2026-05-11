@@ -53,7 +53,7 @@
                 <th class="px-4 py-3 text-left text-sm font-semibold">Quantity</th>
                 <th class="px-4 py-3 text-left text-sm font-semibold">Price</th>
                 <th class="px-4 py-3 text-left text-sm font-semibold">Gross</th>
-				<th class="px-4 py-3 text-left text-sm font-semibold">PNL</th>
+				<th class="px-4 py-3 text-left text-sm font-semibold">PnL</th>
                 <th class="px-4 py-3 text-left text-sm font-semibold">Actions</th>
             </tr>
             </thead>
@@ -98,19 +98,8 @@
                            class="rounded-lg bg-blue-600 text-white px-3 py-1 hover:bg-blue-700">
                             View
                         </a>
-<!--
-						<a th:if="${#strings.contains(trade.symbol, 'C') or #strings.contains(trade.symbol, 'P')}"
-						   th:href="@{/trades/{id}/edit(id=${trade.id})}">
-						   Edit
-						</a>
-						
-						<a th:if="${trade.tradeType.name() == 'SELL'}"
-                           th:href="@{/trades/{id}/edit(id=${trade.id})}"
-                           class="rounded-lg bg-blue-600 text-white px-3 py-1 hover:bg-blue-700">
-                            Edit Sell
-                        </a>
--->
-                        <form th:action="@{/trades/{id}/delete(id=${trade.id})}" method="post" class="inline">
+
+						<form th:action="@{/trades/{id}/delete(id=${trade.id})}" method="post" class="inline">
                             <button type="submit"
                                     onclick="return confirm('Delete this trade?');"
                                     class="rounded-lg bg-red-600 text-white px-3 py-1 hover:bg-red-700">
