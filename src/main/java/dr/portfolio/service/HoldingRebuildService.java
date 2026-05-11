@@ -1,5 +1,6 @@
 package dr.portfolio.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -42,7 +43,9 @@ public class HoldingRebuildService {
         			"Trade quantity must be positive for holding " + holding.getSymbol()
     			);
         	}
-        	 
+        	
+        	trade.setRealizedPnl(BigDecimal.ZERO);
+        	
             switch (trade.getTradeType()) {
                 case BUY -> lots.addLast(new BuyLot(
                         trade.getQuantity(),
@@ -64,6 +67,29 @@ public class HoldingRebuildService {
                         }
 
                         int matched = Math.min(remaining, lot.qty());
+
+                        BigDecimal sellPrice = BigDecimal.valueOf(trade.getPrice());
+                        BigDecimal buyPrice = BigDecimal.valueOf(lot.price());
+
+                        BigDecimal pnlPerShare = sellPrice.subtract(buyPrice);
+
+                        BigDecimal multiplier = isOptionSymbol(trade.getSymbol())
+                                ? BigDecimal.valueOf(100)
+                                : BigDecimal.ONE;
+
+                        BigDecimal realized =
+                                pnlPerShare
+                                    .multiply(BigDecimal.valueOf(matched))
+                                    .multiply(multiplier);
+
+                        if (trade.getRealizedPnl() == null) {
+                            trade.setRealizedPnl(BigDecimal.ZERO);
+                        }
+
+                        trade.setRealizedPnl(
+                                trade.getRealizedPnl().add(realized)
+                        );
+
                         remaining -= matched;
 
                         lots.pollFirst();
@@ -93,5 +119,11 @@ public class HoldingRebuildService {
         holding.setQuantity(totalQty);
         holding.setAvgCost(totalQty == 0 ? 0.0 : totalCost / totalQty);
         holdingRepository.save(holding);
+        
+        tradeRepository.saveAll(trades);
+    }
+    
+    private boolean isOptionSymbol(String symbol) {
+        return symbol != null && symbol.matches(".*\\d{6}[CP].*");
     }
 }

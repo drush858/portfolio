@@ -53,6 +53,7 @@
                 <th class="px-4 py-3 text-left text-sm font-semibold">Quantity</th>
                 <th class="px-4 py-3 text-left text-sm font-semibold">Price</th>
                 <th class="px-4 py-3 text-left text-sm font-semibold">Gross</th>
+				<th class="px-4 py-3 text-left text-sm font-semibold">PNL</th>
                 <th class="px-4 py-3 text-left text-sm font-semibold">Actions</th>
             </tr>
             </thead>
@@ -87,6 +88,10 @@
                 <td class="px-4 py-3 text-sm"
                     th:text="'$' + ${#numbers.formatDecimal(trade.grossValue, 1, 2)}"></td>
 
+				<td th:classappend="${trade.realizedPnl != null and trade.realizedPnl >= 0} ? 'text-green-400' : 'text-red-400'"
+				    th:text="${#numbers.formatDecimal(trade.realizedPnl,1,2)}">
+				</td>
+					
                 <td class="px-4 py-3 text-sm">
                     <div class="flex flex-wrap gap-2">
                         <a th:href="@{/trades/{id}(id=${trade.id} + '&' + ${account.id})}"

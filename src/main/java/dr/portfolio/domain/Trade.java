@@ -43,11 +43,22 @@ public class Trade {
 	@Column(nullable = false)
 	private TradeType tradeType;
 	
+	@Column(precision = 19, scale = 4)
+	private BigDecimal realizedPnl;
+	
 	public Trade() {}
 		
 	private boolean isOptionSymbol(String symbol) {
         return symbol != null && symbol.matches(".*\\d{6}[CP].*");
     }
+	
+	public BigDecimal getRealizedPnl() {
+	    return realizedPnl;
+	}
+
+	public void setRealizedPnl(BigDecimal realizedPnl) {
+	    this.realizedPnl = realizedPnl;
+	}
 	
 	public BigDecimal getGrossValue() {
 	    BigDecimal multiplier = isOptionSymbol(this.symbol)
