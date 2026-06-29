@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import java.util.UUID;
@@ -154,6 +156,14 @@ public class AccountController {
 		CashSummary summary = cashTransactionService.calculateSummary(id);
 		List<String> symbols = cashTransactionService.findSymbols(id);
 
+		List<CashTransactionType> manualTypes =
+		        Arrays.stream(CashTransactionType.values())
+		              .filter(CashTransactionType::isManualEntry)
+		              .sorted(Comparator.comparingInt(CashTransactionType::getSortOrder))
+		              .toList();
+
+		model.addAttribute("cashTransactionTypes", manualTypes);
+		
 		model.addAttribute("pageTitle", account.getName() + " Cash Ledger");
 		model.addAttribute("account", account);
 		model.addAttribute("accountId", id);
@@ -174,6 +184,18 @@ public class AccountController {
 		return "cash-ledger";
 	}
 
+	@PostMapping("/cash/transaction")
+	public String addCashTxn(
+			@RequestParam UUID accountId, 
+			@RequestParam LocalDate transactionDate,
+			@RequestParam BigDecimal amount, 
+			@RequestParam CashTransactionType transactionType,
+			@RequestParam(required = false) String description) 
+	{
+		cashTransactionService.transaction(accountId, transactionDate.atStartOfDay(), amount, transactionType, description);
+		return "redirect:/accounts/cash/" + accountId;
+	}
+	
 	@PostMapping("/cash/dividend")
 	public String addDividend(
 			@RequestParam UUID accountId, 

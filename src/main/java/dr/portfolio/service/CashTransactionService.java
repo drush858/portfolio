@@ -216,6 +216,37 @@ public class CashTransactionService {
 	private double round(double value) {
         return Math.round(value * 100.0) / 100.0;
     }
+	
+	public void transaction(
+	        UUID accountId,
+	        LocalDateTime transactionDate,
+	        BigDecimal amount,
+	        CashTransactionType type,
+	        String description
+	) {
+	    if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+	        throw new IllegalArgumentException("Cash amount must be positive");
+	    }
+
+	    if (type != CashTransactionType.OPENING_BALANCE
+	        && type != CashTransactionType.TRANSFER_IN) {
+	        throw new IllegalArgumentException("Invalid cash transaction type");
+	    }
+
+	    Account account = accountRepository.findById(accountId)
+	            .orElseThrow(() ->
+	                    new IllegalArgumentException("Account not found: " + accountId)
+	            );
+
+	    CashTransaction txn = new CashTransaction();
+	    txn.setAccount(account);
+	    txn.setTransactionDate(transactionDate);
+	    txn.setAmount(amount);
+	    txn.setTransactionType(type);
+	    txn.setDescription(description);
+
+	    cashTransactionRepository.save(txn);
+	}
 
 	public void addDividend(
 			UUID accountId,
